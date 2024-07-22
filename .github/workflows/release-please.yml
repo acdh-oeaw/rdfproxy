@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2023 Birger Schacht <birger.schacht@oeaw.ac.at>
+# SPDX-License-Identifier: MIT
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v3
+        with:
+          release-type: python
+          package-name: sparql_fastapi
+          bump-minor-pre-major: true
