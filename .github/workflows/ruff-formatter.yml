@@ -10,3 +10,4 @@ jobs:
     with:
       src: "."
       options: "format --check"
+      python-version: "3.12"
