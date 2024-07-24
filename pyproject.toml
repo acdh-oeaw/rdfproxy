@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "sparql-fastapi"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+sparqlwrapper = "^2.0.0"
+toolz = "^0.12.1"
+pydantic = "^2.8.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.4"
+deptry = "^0.17.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+lint.ignore = ["F401"]
+
+[tool.deptry.package_module_name_map]
+sparqlwrapper = "SPARQLWrapper"

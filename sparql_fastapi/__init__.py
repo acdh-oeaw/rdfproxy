@@ -1,0 +1,1 @@
+from sparql_fastapi.adapter import SPARQLModelAdapter
