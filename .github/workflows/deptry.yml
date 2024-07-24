@@ -9,3 +9,4 @@ jobs:
     uses: acdh-oeaw/prosnet-workflows/.github/workflows/poetry-deptry.yml@v0.4.1
     with:
       src: "."
+      python-version: "3.12"
