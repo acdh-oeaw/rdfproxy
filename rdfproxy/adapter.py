@@ -4,8 +4,8 @@ from collections.abc import Sequence
 
 from SPARQLWrapper import JSON, QueryResult, SPARQLWrapper
 from pydantic import BaseModel
-from sparql_fastapi.utils._types import _TModelConstructorCallable
-from sparql_fastapi.utils.utils import (
+from rdfproxy.utils._types import _TModelConstructorCallable
+from rdfproxy.utils.utils import (
     get_bindings_from_query_result,
     instantiate_model_from_kwargs,
 )

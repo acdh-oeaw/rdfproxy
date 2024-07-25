@@ -1,4 +1,4 @@
-"""Type definitions for sparql_fastapi."""
+"""Type definitions for rdfproxy."""
 
 from typing import Annotated, Protocol, TypeVar, runtime_checkable
 
