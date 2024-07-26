@@ -10,6 +10,12 @@ from toolz import valmap
 
 def get_bindings_from_query_result(query_result: QueryResult) -> Iterator[dict]:
     """Extract just the bindings from a SPARQLWrapper.QueryResult."""
+    if (result_format := query_result.requestedFormat) != "json":
+        raise Exception(
+            "Only QueryResult objects with JSON format are currently supported. "
+            f"Received object with requestedFormat '{result_format}'."
+        )
+
     query_json = cast(Mapping, query_result.convert())
     bindings = map(
         lambda binding: valmap(lambda v: v["value"], binding),
