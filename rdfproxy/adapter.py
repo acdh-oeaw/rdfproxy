@@ -14,7 +14,44 @@ from rdfproxy.utils.utils import (
 
 
 class SPARQLModelAdapter:
-    """Adapter/Mapper for QueryResult to Pydantic model conversions."""
+    """Adapter/Mapper for QueryResult to Pydantic model conversions.
+
+    The rdfproxy.SPARQLModelAdapter class allows to run a query against an endpoint
+    and map a flat SPARQL query result set to a potentially nested Pydantic model.
+
+    Example:
+
+        from SPARQLWrapper import SPARQLWrapper
+        from pydantic import BaseModel
+        from rdfproxy import SPARQLModelAdapter, _TModelInstance
+
+        class SimpleModel(BaseModel):
+            x: int
+            y: int
+
+        class NestedModel(BaseModel):
+            a: str
+            b: SimpleModel
+
+        class ComplexModel(BaseModel):
+            p: str
+            q: NestedModel
+
+
+        sparql_wrapper = SPARQLWrapper("https://query.wikidata.org/bigdata/namespace/wdq/sparql")
+
+        query = '''
+            select ?x ?y ?a ?p
+            where {
+                values (?x ?y ?a ?p) {
+                    (1 2 "a value" "p value")
+                }
+            }
+        '''
+
+        adapter = SPARQLModelAdapter(sparql_wrapper=sparql_wrapper)
+        models: list[_TModelInstance] = adapter(query=query, model_constructor=ComplexModel)
+    """
 
     def __init__(self, sparql_wrapper: SPARQLWrapper) -> None:
         self.sparql_wrapper = sparql_wrapper
