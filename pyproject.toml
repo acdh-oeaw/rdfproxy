@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 sparqlwrapper = "^2.0.0"
 toolz = "^0.12.1"
 pydantic = "^2.8.2"
