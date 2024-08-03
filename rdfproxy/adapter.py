@@ -5,7 +5,6 @@ from typing import cast
 
 from SPARQLWrapper import JSON, QueryResult, SPARQLWrapper
 from pydantic import BaseModel
-
 from rdfproxy.utils._types import _TModelConstructorCallable, _TModelInstance
 from rdfproxy.utils.utils import (
     get_bindings_from_query_result,
