@@ -24,10 +24,6 @@ hypothesis = "^6.108.4"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
-[tool.ruff]
-lint.ignore = ["F401"]
-
 [tool.deptry.package_module_name_map]
 sparqlwrapper = "SPARQLWrapper"
 
