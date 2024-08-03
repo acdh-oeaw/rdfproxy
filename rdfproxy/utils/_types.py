@@ -1,7 +1,7 @@
 """Type definitions for rdfproxy."""
 
 from collections.abc import Iterable
-from typing import Annotated, Protocol, TypeVar, runtime_checkable
+from typing import Protocol, TypeVar, runtime_checkable
 
 from SPARQLWrapper import QueryResult
 from pydantic import BaseModel
