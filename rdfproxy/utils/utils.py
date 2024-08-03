@@ -5,6 +5,7 @@ from typing import cast
 
 from SPARQLWrapper import QueryResult
 from pydantic import BaseModel
+from rdfproxy.utils._types import _TModelInstance
 from toolz import valmap
 
 
@@ -25,9 +26,9 @@ def get_bindings_from_query_result(query_result: QueryResult) -> Iterator[dict]:
     return bindings
 
 
-def instantiate_model_from_kwargs[ModelType: BaseModel](
-    model: type[ModelType], **kwargs
-) -> ModelType:
+def instantiate_model_from_kwargs(
+    model: type[_TModelInstance], **kwargs
+) -> _TModelInstance:
     """Instantiate a (potentially nested) model from (flat) kwargs.
 
     Example:
@@ -51,7 +52,7 @@ def instantiate_model_from_kwargs[ModelType: BaseModel](
     print(model)  # p='p value' q=NestedModel(a='a value', b=SimpleModel(x=1, y=2))
     """
 
-    def _get_bindings(model: type[ModelType], **kwargs) -> dict:
+    def _get_bindings(model: type[_TModelInstance], **kwargs) -> dict:
         """Get the bindings needed for model instantation.
 
         The function traverses model.model_fields
