@@ -5,6 +5,7 @@ from typing import cast
 
 from SPARQLWrapper import QueryResult
 from pydantic import BaseModel
+from rdfproxy.utils._types import _TModelInstance
 from toolz import valmap
 
 
