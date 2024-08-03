@@ -11,7 +11,7 @@ _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
 
 
 @runtime_checkable
-class _TModelConstructorCallable[ModelType: BaseModel](Protocol):
+class _TModelConstructorCallable(Protocol[_TModelInstance]):
     """Callback protocol for model constructor callables."""
 
-    def __call__(self, query_result: QueryResult) -> Iterable[ModelType]: ...
+    def __call__(self, query_result: QueryResult) -> Iterable[_TModelInstance]: ...
