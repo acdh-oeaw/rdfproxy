@@ -1,12 +1,13 @@
 """SPARQLModelAdapter class for QueryResult to Pydantic model conversions."""
 
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
-from typing import Any, cast, overload
+from collections.abc import Iterator
+from typing import Any
 
 from SPARQLWrapper import JSON, QueryResult, SPARQLWrapper
 from pydantic import BaseModel
-from rdfproxy.utils._types import _TModelConstructorCallable, _TModelInstance
+from rdfproxy.utils._exceptions import UndefinedBindingException
+from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.utils import (
     get_bindings_from_query_result,
     instantiate_model_from_kwargs,
@@ -21,7 +22,6 @@ class SPARQLModelAdapter:
 
     Example:
 
-        from SPARQLWrapper import SPARQLWrapper
         from pydantic import BaseModel
         from rdfproxy import SPARQLModelAdapter, _TModelInstance
 
@@ -87,3 +87,46 @@ class SPARQLModelAdapter:
         """Run query against endpoint, map SPARQL result sets to model and return model instances."""
         for model, _ in self._run_query():
             yield model
+
+    def query_group_by(self, group_by: str) -> dict[str, list[BaseModel]]:
+        """Run query against endpoint like SPARQLModelAdapter.query but group results by a SPARQL binding.
+
+        Example:
+
+            from models import ComplexModel
+            from rdfproxy import SPARQLModelAdapter, _TModelInstance
+
+            query = '''
+                select ?x ?y ?a ?p
+                where {
+                    values (?x ?y ?a ?p) {
+                        (1 2 "a value" "p value")
+                        (1 3 "another value" "p value 2")
+                        (2 4 "yet anoter value" "p value 3")
+                    }
+                }
+            '''
+
+            adapter = SPARQLModelAdapter(
+                endpoint="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+                query=query,
+                model=ComplexModel,
+        )
+
+            grouped: dict[str, list[BaseModel]] = adapter.query_group_by("x")
+            assert len(grouped["1"]) == 2  # True
+        """
+        group = defaultdict(list)
+
+        for model, bindings in self._run_query():
+            try:
+                key = bindings[group_by]
+            except KeyError:
+                raise UndefinedBindingException(
+                    f"SPARQL binding '{group_by}' requested for grouping "
+                    f"not in query projection '{bindings}'."
+                )
+
+            group[str(key)].append(model)
+
+        return group
