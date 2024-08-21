@@ -29,6 +29,9 @@ lint.ignore = ["F401"]
 [tool.deptry.package_module_name_map]
 sparqlwrapper = "SPARQLWrapper"
 
+[tool.deptry]
+extend_exclude = ["examples"]
+
 [tool.pytest.ini_options]
 markers = [
 	"remote: Mark tests that connect to a remote service",
