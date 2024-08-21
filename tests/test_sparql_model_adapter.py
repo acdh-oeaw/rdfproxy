@@ -22,7 +22,7 @@ def test_sparql_model_adapter_basic():
     }
     """
     adapter = SPARQLModelAdapter(
-        target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+        target="https://dbpedia.org/sparql",
         query=query,
         model=ComplexModel,
     )
@@ -44,7 +44,7 @@ def test_sparql_model_adapter_grouping_basic():
     """
 
     adapter = SPARQLModelAdapter(
-        target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+        target="https://dbpedia.org/sparql",
         query=query,
         model=ComplexModel,
     )
@@ -77,7 +77,7 @@ def test_sparql_model_adapter_grouping_basic_fail(var):
     """
 
     adapter = SPARQLModelAdapter(
-        target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+        target="https://dbpedia.org/sparql",
         query=query,
         model=ComplexModel,
     )

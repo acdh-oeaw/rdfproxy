@@ -17,6 +17,4 @@ def _sparql_wrapper_fixture_factory(endpoint: str, return_format=JSON):
     return sparql_wrapper
 
 
-wikidata_wrapper = _sparql_wrapper_fixture_factory(
-    "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
-)
+wikidata_wrapper = _sparql_wrapper_fixture_factory("https://dbpedia.org/sparql")
