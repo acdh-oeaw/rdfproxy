@@ -23,4 +23,4 @@ def test_explicit_sparql_binding_allocation():
 
     model = instantiate_model_from_kwargs(Person, **bindings)
 
-    assert expected == model.dict()
+    assert expected == model.model_dump()
