@@ -1,6 +1,5 @@
 """Basic example for using rdfproxy.SPARQLModelAdapter with FastAPI."""
 
-from SPARQLWrapper import JSON, SPARQLWrapper
 from fastapi import FastAPI
 from pydantic import BaseModel
 from rdfproxy import Page, SPARQLModelAdapter
