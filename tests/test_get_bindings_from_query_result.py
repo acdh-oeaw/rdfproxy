@@ -4,7 +4,7 @@ from collections.abc import Iterator
 
 from SPARQLWrapper import QueryResult
 import pytest
-from rdfproxy import get_bindings_from_query_result
+from rdfproxy.utils.utils import get_bindings_from_query_result
 
 
 @pytest.mark.remote
