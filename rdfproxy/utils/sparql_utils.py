@@ -3,40 +3,20 @@
 from collections.abc import Iterator
 from contextlib import contextmanager
 import re
+from string import Template
+from typing import Annotated
+from typing import cast
 
 from SPARQLWrapper import QueryResult, SPARQLWrapper
-from rdfproxy.utils.sparql.sparql_templates import ungrouped_pagination_base_query
-from rdfproxy.utils.utils import get_bindings_from_query_result
 
 
-def remove_query_prefixes(query: str) -> str:
-    """Remove prefix definitions from a SPARQL query.
-
-    Prefix definitions need removing e.g. in injected subqueries.
-    """
-    return re.sub(
-        pattern=r"^prefix.*", repl="", string=query, flags=re.I | re.MULTILINE
-    )
-
-
-def inject_subquery(query: str, subquery: str) -> str:
-    """Inject a subquery into query."""
-
-    def _indent_query(query: str, indent: int = 2) -> str:
-        """Indent a query by n spaces according to indent parameter."""
-        indented_query = "".join(
-            [f"{' ' * indent}{line}\n" for line in query.splitlines()]
-        )
-        return indented_query
-
-    point: int = query.rfind("}")
-    partial_query: str = query[:point]
-
-    _subquery = remove_query_prefixes(subquery)
-    indented_subquery: str = _indent_query(_subquery)
-
-    new_query: str = f"{partial_query}  " f"{{{indented_subquery}}}\n}}"
-    return new_query
+ungrouped_pagination_base_query: Annotated[
+    str, "SPARQL template for query pagination."
+] = Template("""
+$query
+limit $limit
+offset $offset
+""")
 
 
 def replace_query_select_clause(query: str, repl: str) -> str:
@@ -72,32 +52,34 @@ def calculate_offset(page: int, size: int) -> int:
             return size * (page - 1)
 
 
-def construct_grouped_pagination_query(
-    query: str, page: int, size: int, group_by: str
-) -> str:
-    """Dynamically construct a query for grouped pagination.
-
-    Based on the initial query, construct a query with limit/offset according to page/size
-    and with a SELECT clause that distinctly selects the group_by variable;
-    then inject that query into the initial query as a subquery.
-    """
-    _paginated_query = ungrouped_pagination_base_query.substitute(
-        query=query, offset=calculate_offset(page, size), limit=size
-    )
-    subquery = replace_query_select_clause(
-        _paginated_query, f"select distinct ?{group_by}"
-    )
-
-    grouped_pagination_query = inject_subquery(query=query, subquery=subquery)
-    return grouped_pagination_query
-
-
 def construct_grouped_count_query(query: str, group_by) -> str:
     grouped_count_query = replace_query_select_clause(
         query, f"select (count(distinct ?{group_by}) as ?cnt)"
     )
 
     return grouped_count_query
+
+
+def _get_bindings_from_bindings_dict(bindings_dict: dict) -> Iterator[dict]:
+    bindings = map(
+        lambda binding: {k: v["value"] for k, v in binding.items()},
+        bindings_dict["results"]["bindings"],
+    )
+    return bindings
+
+
+def get_bindings_from_query_result(query_result: QueryResult) -> Iterator[dict]:
+    """Extract just the bindings from a SPARQLWrapper.QueryResult."""
+    if (result_format := query_result.requestedFormat) != "json":
+        raise Exception(
+            "Only QueryResult objects with JSON format are currently supported. "
+            f"Received object with requestedFormat '{result_format}'."
+        )
+
+    query_json: dict = cast(dict, query_result.convert())
+    bindings = _get_bindings_from_bindings_dict(query_json)
+
+    return bindings
 
 
 @contextmanager
