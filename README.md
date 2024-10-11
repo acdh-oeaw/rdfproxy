@@ -5,161 +5,145 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-A collection of Python utilities for connecting an RDF store to FastAPI.
+Functionality for mapping SPARQL result sets to Pydantic models.
 
 
 ## SPARQLModelAdapter
 
-The `rdfproxy.SPARQLModelAdapter` class allows one to run a query against an endpoint, map a flat SPARQL query result set to a potentially nested Pydantic model and optionally paginate and/or group the results by a SPARQL binding.
+The `rdfproxy.SPARQLModelAdapter` class allows to run a query against an endpoint and map a flat SPARQL query result set to a potentially nested Pydantic model.
+The result is returned as a `Page` object.
 
-
-### SPARQL result set to Pydantic model mapping
-
-The result set of the following query
+The following example query
 
 ```sparql
-select ?x ?y ?a ?p
-where {
-  values (?x ?y ?a ?p) {
-    (1 2 "a value 1" "p value 1")
-    (1 22 "a value 2" "p value 2")
-    (1 222 "a value 3" "p value 3")
-    (2 3 "a value 4" "p value 4")
-    (2 33 "a value 5" "p value 5")
-    (3 4 "a value 6" "p value 6")
-    (4 5 "a value 7" "p value 7")
-  }
+SELECT ?gnd ?nameLabel ?educated_atLabel ?work_name ?work ?viaf
+WHERE {
+   ?author wdt:P106 wd:Q36180; # is writer
+           wdt:P27 wd:Q40; # nationality Austrian
+           wdt:P734 ?name;
+           wdt:P800 ?work;
+           wdt:P227 ?gnd;
+           wdt:P569 ?dob.
+   ?work wdt:P1476 ?work_name.
+   OPTIONAL { ?work wdt:P214 ?viaf. }
+   FILTER (?gnd = "119359464" || ?gnd = "1136992030" || ?gnd = '115612815')
+   OPTIONAL { ?author wdt:P69 ?educated_at. }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }
 ```
 
-can be run against an endpoint and mapped to a nested Pydantic model like so:
+retrieves the result set:
+
+| gnd        | nameLabel | educated_atLabel                  | work_name                     | work                                      | viaf                   |
+|------------|-----------|-----------------------------------|-------------------------------|-------------------------------------------|------------------------|
+| 119359464  | Schindel  |                                   | Gebürtig                      | http://www.wikidata.org/entity/Q1497409   |                        |
+| 115612815  | Geiger    | University of Vienna              | Der alte König in seinem Exil | http://www.wikidata.org/entity/Q15805238  | 299260555              |
+| 115612815  | Geiger    | University of Vienna              | Der alte König in seinem Exil | http://www.wikidata.org/entity/Q15805238  | 6762154387354230970008 |
+| 115612815  | Geiger    | University of Vienna              | Unter der Drachenwand         | http://www.wikidata.org/entity/Q58038819  | 2277151717053313900002 |
+| 1136992030 | Edelbauer | University of Vienna              | Das flüssige Land             | http://www.wikidata.org/entity/Q100266054 |                        |
+| 1136992030 | Edelbauer | University of Applied Arts Vienna | Das flüssige Land             | http://www.wikidata.org/entity/Q100266054 |                        |
+
+
+The result set can be mapped to a nested Pydantic model like so:
 
 ```python
-from pydantic import BaseModel
-from rdfproxy import SPARQLModelAdapter
+class Work(BaseModel):
+    class Config:
+        group_by = "work_name"
 
-query = """
-select ?x ?y ?a ?p
-where {
-  values (?x ?y ?a ?p) {
-    (1 2 "a value 1" "p value 1")
-    (1 22 "a value 2" "p value 2")
-    (1 222 "a value 3" "p value 3")
-    (2 3 "a value 4" "p value 4")
-    (2 33 "a value 5" "p value 5")
-    (3 4 "a value 6" "p value 6")
-    (4 5 "a value 7" "p value 7")
-  }
-}
-"""
+    name: Annotated[str, SPARQLBinding("work_name")]
+    viafs: Annotated[list[str], SPARQLBinding("viaf")]
 
-class SimpleModel(BaseModel):
-    x: int
-    y: int
 
-class NestedModel(BaseModel):
-    a: str
-    b: SimpleModel
+class Author(BaseModel):
+    class Config:
+        group_by = "nameLabel"
 
-class ComplexModel(BaseModel):
-    p: str
-    q: NestedModel
+    gnd: str
+    surname: Annotated[str, SPARQLBinding("nameLabel")]
+    works: list[Work]
+    education: Annotated[list[str], SPARQLBinding("educated_atLabel")]
+
 
 adapter = SPARQLModelAdapter(
     target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
     query=query,
-    model=ComplexModel,
-)
-
-models: list[ComplexModel] = adapter.query()
-```
-
-This produces a list of Pydantic model instances (which can then be served via FastAPI):
-
-```python
-[
-    ComplexModel(p='p value 1', q=NestedModel(a='a value 1', b=SimpleModel(x=1, y=2))),
-    ComplexModel(p='p value 2', q=NestedModel(a='a value 2', b=SimpleModel(x=1, y=22))),
-    ComplexModel(p='p value 3', q=NestedModel(a='a value 3', b=SimpleModel(x=1, y=222))),
-    ComplexModel(p='p value 4', q=NestedModel(a='a value 4', b=SimpleModel(x=2, y=3))),
-    ComplexModel(p='p value 5', q=NestedModel(a='a value 5', b=SimpleModel(x=2, y=33))),
-    ComplexModel(p='p value 6', q=NestedModel(a='a value 6', b=SimpleModel(x=3, y=4))),
-    ComplexModel(p='p value 7', q=NestedModel(a='a value 7', b=SimpleModel(x=4, y=5)))
-]
-```
-
-### Pagination
-
-Results can be paginated by passing arguments to the `page` *and* `size` parameters: 
-
-```python
-pagination: Page[ComplexModel] = adapter.query(page=1, size=2)
-```
-This returns a generic `Page` model instance which holds the query results as well as pagination metadata: 
-
-```python
-Page(
-    items = [
-        ComplexModel(p='p value 1', q=NestedModel(a='a value 1', b=SimpleModel(x=1, y=2))),
-        ComplexModel(p='p value 2', q=NestedModel(a='a value 2', b=SimpleModel(x=1, y=22)))
-    ],
-    page=1, size=2, total=7, pages=4
+    model=Author,
 )
 ```
 
-### Grouping
-
-In order to group results by a SPARQL binding, supply an argument to the `group_by` parameter:
+The `SPARQLModelAdapter.query` method runs the query and constructs a `Page` object which can then be served over a FastAPI route:
 
 ```python
-models: dict[str, list[ComplexModel]] = adapter.query(group_by="x")
+app = FastAPI()
+
+@app.get("/")
+def base_route(page: int = 1, size: int = 100) -> Page[Author]:
+    return adapter.query(page=page, size=size)
 ```
 
-This groups the results by the "x" binding and returns a mapping of binding values and pertaining Pydantic models:
+This results in the following JSON output: 
 
-```python
+```json
 {
-    '1': [
-        ComplexModel(p='p value 1', q=NestedModel(a='a value 1', b=SimpleModel(x=1, y=2))),
-        ComplexModel(p='p value 2', q=NestedModel(a='a value 2', b=SimpleModel(x=1, y=22))),
-        ComplexModel(p='p value 3', q=NestedModel(a='a value 3', b=SimpleModel(x=1, y=222)))
-    ],
-    '2': [
-        ComplexModel(p='p value 4', q=NestedModel(a='a value 4', b=SimpleModel(x=2, y=3))),
-        ComplexModel(p='p value 5', q=NestedModel(a='a value 5', b=SimpleModel(x=2, y=33)))
-    ],
-    '3': [
-        ComplexModel(p='p value 6', q=NestedModel(a='a value 6', b=SimpleModel(x=3, y=4)))
-    ],
-    '4': [
-        ComplexModel(p='p value 7', q=NestedModel(a='a value 7', b=SimpleModel(x=4, y=5)))
-    ]
+   "items":[
+      {
+         "gnd":"119359464",
+         "surname":"Schindel",
+         "works":[
+            {
+               "name":"Gebürtig",
+               "viafs":[
+                  
+               ]
+            }
+         ],
+         "education":[
+            
+         ]
+      },
+      {
+         "gnd":"115612815",
+         "surname":"Geiger",
+         "works":[
+            {
+               "name":"Der alte König in seinem Exil",
+               "viafs":[
+                  "299260555",
+                  "6762154387354230970008"
+               ]
+            },
+            {
+               "name":"Unter der Drachenwand",
+               "viafs":[
+                  "2277151717053313900002"
+               ]
+            }
+         ],
+         "education":[
+            "University of Vienna"
+         ]
+      },
+      {
+         "gnd":"1136992030",
+         "surname":"Edelbauer",
+         "works":[
+            {
+               "name":"Das flüssige Land",
+               "viafs":[
+                  
+               ]
+            }
+         ],
+         "education":[
+            "University of Vienna",
+            "University of Applied Arts Vienna"
+         ]
+      }
+   ],
+   "page":1,
+   "size":100,
+   "total":6,
+   "pages":1
 }
-```
-
-### Grouped Pagination
-
-Also grouped pagination is available:
-
-```python
-grouped_pagination: Page[ComplexModel] = adapter.query(group_by="x", page=1, size=2)
-```
-
-In that case, the `Page` model instance gets assigned an `item` field of `dict[str, list[ComplexModel]]`:
-
-```python
-Page(
-    items = {
-        '1': [
-            ComplexModel(p='p value 1', q=NestedModel(a='a value 1', b=SimpleModel(x=1, y=2))),
-            ComplexModel(p='p value 2', q=NestedModel(a='a value 2', b=SimpleModel(x=1, y=22))),
-            ComplexModel(p='p value 3', q=NestedModel(a='a value 3', b=SimpleModel(x=1, y=222)))
-        ],
-        '2': [
-            ComplexModel(p='p value 4', q=NestedModel(a='a value 4', b=SimpleModel(x=2, y=3))),
-            ComplexModel(p='p value 5', q=NestedModel(a='a value 5', b=SimpleModel(x=2, y=33)))
-        ],
-    },
-    page=1, size=2, total=4, pages=2
-)
 ```
