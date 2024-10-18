@@ -1,6 +1,6 @@
 """Grouping model for RDFProxy testing."""
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class GroupingSimpleModel(BaseModel):
@@ -14,8 +14,7 @@ class GroupingNestedModel(BaseModel):
 
 
 class GroupingComplexModel(BaseModel):
-    class Config:
-        group_by = "x"
+    model_config = ConfigDict(group_by="x")
 
     p: str
     q: list[GroupingNestedModel]
