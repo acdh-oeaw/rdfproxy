@@ -49,7 +49,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         size: int = 100,
     ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
-        count_query: str = construct_count_query(self._query)
+        count_query: str = construct_count_query(query=self._query, model=self._model)
         items_query: str = ungrouped_pagination_base_query.substitute(
             query=self._query, offset=calculate_offset(page, size), limit=size
         )
