@@ -16,19 +16,16 @@ The result is returned as a `Page` object.
 The following example query
 
 ```sparql
-SELECT ?gnd ?nameLabel ?educated_atLabel ?work_name ?work ?viaf
-WHERE {
-   ?author wdt:P106 wd:Q36180; # is writer
-           wdt:P27 wd:Q40; # nationality Austrian
-           wdt:P734 ?name;
-           wdt:P800 ?work;
-           wdt:P227 ?gnd;
-           wdt:P569 ?dob.
-   ?work wdt:P1476 ?work_name.
-   OPTIONAL { ?work wdt:P214 ?viaf. }
-   FILTER (?gnd = "119359464" || ?gnd = "1136992030" || ?gnd = '115612815')
-   OPTIONAL { ?author wdt:P69 ?educated_at. }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+select *
+where {
+    values (?gnd ?nameLabel ?educated_atLabel ?work_name ?work ?viaf) {
+        (119359464 'Schindel' 'Gebürtig' <http://www.wikidata.org/entity/Q1497409> UNDEF UNDEF)
+        (115612815 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> 299260555)
+        (115612815 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> 6762154387354230970008)
+        (115612815 'Geiger' 'University of Vienna' 'Unter der Drachenwand' <http://www.wikidata.org/entity/Q58038819> 2277151717053313900002)
+        (1136992030 'Edelbauer' 'University of Vienna' 'Das flüssige Land' <http://www.wikidata.org/entity/Q100266054> UNDEF)
+        (1136992030 'Edelbauer' 'University of Applied Arts Vienna' 'Das flüssige Land' <http://www.wikidata.org/entity/Q100266054> UNDEF)
+    }
 }
 ```
 
@@ -143,7 +140,7 @@ This results in the following JSON output:
    ],
    "page":1,
    "size":100,
-   "total":6,
+   "total":3,
    "pages":1
 }
 ```
