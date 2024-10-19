@@ -44,23 +44,26 @@ retrieves the result set:
 The result set can be mapped to a nested Pydantic model like so:
 
 ```python
+from typing import Annotated
+
+from fastapi import FastAPI
+from pydantic import BaseModel, ConfigDict
+from rdfproxy import Page, SPARQLBinding, SPARQLModelAdapter
+
+
 class Work(BaseModel):
-    class Config:
-        group_by = "work_name"
+    model_config = ConfigDict(group_by="work_name")
 
     name: Annotated[str, SPARQLBinding("work_name")]
     viafs: Annotated[list[str], SPARQLBinding("viaf")]
 
-
 class Author(BaseModel):
-    class Config:
-        group_by = "nameLabel"
+    model_config = ConfigDict(group_by="nameLabel")
 
     gnd: str
     surname: Annotated[str, SPARQLBinding("nameLabel")]
     works: list[Work]
     education: Annotated[list[str], SPARQLBinding("educated_atLabel")]
-
 
 adapter = SPARQLModelAdapter(
     target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
