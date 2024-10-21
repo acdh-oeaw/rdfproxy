@@ -8,6 +8,7 @@ from typing import Annotated
 from typing import cast
 
 from SPARQLWrapper import QueryResult, SPARQLWrapper
+from rdfproxy.utils._types import _TModelInstance
 
 
 ungrouped_pagination_base_query: Annotated[
@@ -35,9 +36,14 @@ def replace_query_select_clause(query: str, repl: str) -> str:
     return count_query
 
 
-def construct_count_query(query: str) -> str:
+def construct_count_query(query: str, model: type[_TModelInstance]) -> str:
     """Construct a generic count query from a SELECT query."""
-    count_query = replace_query_select_clause(query, "select (count(*) as ?cnt)")
+    try:
+        group_by: str = model.model_config["group_by"]
+        count_query = construct_grouped_count_query(query, group_by)
+    except KeyError:
+        count_query = replace_query_select_clause(query, "select (count(*) as ?cnt)")
+
     return count_query
 
 
