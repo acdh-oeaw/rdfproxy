@@ -2,7 +2,10 @@
 name = "rdfproxy"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = [
+    "Birger Schacht <birger.schacht@oeaw.ac.at>",
+    "Lukas Plank <lukas.plank@oeaw.ac.at>"
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
