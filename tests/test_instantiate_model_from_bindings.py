@@ -3,15 +3,11 @@
 import pytest
 
 from rdfproxy.mapper import ModelBindingsMapper
-from tests.data.parameters.author_array_collection_model_parameters import (
+from tests.data.parameters.instantiate_model_parameters import (
     author_array_collection_parameters,
-)
-from tests.data.parameters.author_work_title_model_parameters import (
     author_work_title_parameters,
-)
-from tests.data.parameters.basic_model_parameters import basic_parameters
-from tests.data.parameters.grouping_model_parameters import grouping_parameters
-from tests.data.parameters.nested_grouping_model_parameters import (
+    basic_parameters,
+    grouping_parameters,
     nested_grouping_parameters,
 )
 
