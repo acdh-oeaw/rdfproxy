@@ -1,6 +1,7 @@
 """Type definitions for rdfproxy."""
 
-from typing import Protocol, TypeVar
+from collections.abc import Iterable
+from typing import Protocol, TypeAlias, TypeVar, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -31,3 +32,13 @@ class SPARQLBinding(str):
     """
 
     ...
+
+
+@runtime_checkable
+class ModelBoolPredicate(Protocol):
+    """Type for model_bool predicate functions."""
+
+    def __call__(self, model: BaseModel) -> bool: ...
+
+
+_TModelBoolValue: TypeAlias = ModelBoolPredicate | str | Iterable[str]
