@@ -4,13 +4,14 @@ from collections.abc import Iterator
 from typing import Any, Generic, get_args
 
 from pydantic import BaseModel
-from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
 from rdfproxy.utils.utils import (
     _collect_values_from_bindings,
     _get_group_by,
     _get_key_from_metadata,
     _is_list_basemodel_type,
     _is_list_type,
+    get_model_bool_predicate,
 )
 
 
@@ -29,10 +30,12 @@ class ModelBindingsMapper(Generic[_TModelInstance]):
     def _get_unique_models(self, model, bindings):
         """Call the mapping logic and collect unique and non-empty models."""
         models = []
+        model_bool_predicate: ModelBoolPredicate = get_model_bool_predicate(model)
+
         for _bindings in bindings:
             _model = model(**dict(self._generate_binding_pairs(model, **_bindings)))
 
-            if any(_model.model_dump().values()) and (_model not in models):
+            if model_bool_predicate(_model) and (_model not in models):
                 models.append(_model)
 
         return models
