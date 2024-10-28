@@ -22,18 +22,21 @@ offset $offset
 
 def replace_query_select_clause(query: str, repl: str) -> str:
     """Replace the SELECT clause of a query with repl."""
-    if re.search(r"select\s.+", query, re.I) is None:
+    pattern: re.Pattern = re.compile(
+        r"select\s+.*?(?=\s+where)", flags=re.IGNORECASE | re.DOTALL
+    )
+
+    if re.search(pattern=pattern, string=query) is None:
         raise Exception("Unable to obtain SELECT clause.")
 
-    count_query = re.sub(
-        pattern=r"select\s.+",
+    modified_query = re.sub(
+        pattern=pattern,
         repl=repl,
         string=query,
         count=1,
-        flags=re.I,
     )
 
-    return count_query
+    return modified_query
 
 
 def construct_count_query(query: str, model: type[_TModelInstance]) -> str:
