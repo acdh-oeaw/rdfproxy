@@ -18,8 +18,8 @@ The following example query
 ```sparql
 select *
 where {
-    values (?gnd ?nameLabel ?educated_atLabel ?work_name ?work ?viaf) {
-        (119359464 'Schindel' 'Gebürtig' <http://www.wikidata.org/entity/Q1497409> UNDEF UNDEF)
+    values (?gnd ?authorName ?educatedAt ?workName ?work ?viaf) {
+        (119359464 'Schindel' UNDEF 'Gebürtig' <http://www.wikidata.org/entity/Q1497409> UNDEF)
         (115612815 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> 299260555)
         (115612815 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> 6762154387354230970008)
         (115612815 'Geiger' 'University of Vienna' 'Unter der Drachenwand' <http://www.wikidata.org/entity/Q58038819> 2277151717053313900002)
@@ -50,20 +50,19 @@ from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict
 from rdfproxy import Page, SPARQLBinding, SPARQLModelAdapter
 
-
 class Work(BaseModel):
-    model_config = ConfigDict(group_by="work_name")
+    model_config = ConfigDict(group_by="workName")
 
-    name: Annotated[str, SPARQLBinding("work_name")]
+    name: Annotated[str, SPARQLBinding("workName")]
     viafs: Annotated[list[str], SPARQLBinding("viaf")]
 
 class Author(BaseModel):
-    model_config = ConfigDict(group_by="nameLabel")
+    model_config = ConfigDict(group_by="authorName")
 
     gnd: str
-    surname: Annotated[str, SPARQLBinding("nameLabel")]
+    surname: Annotated[str, SPARQLBinding("authorName")]
     works: list[Work]
-    education: Annotated[list[str], SPARQLBinding("educated_atLabel")]
+    education: Annotated[list[str], SPARQLBinding("educatedAt")]
 
 adapter = SPARQLModelAdapter(
     target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
