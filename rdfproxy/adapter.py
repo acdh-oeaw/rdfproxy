@@ -5,6 +5,7 @@ import math
 from typing import Generic
 
 from SPARQLWrapper import JSON, SPARQLWrapper
+from rdfproxy.checks.checkers import check_query
 from rdfproxy.mapper import ModelBindingsMapper
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import Page
@@ -34,7 +35,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
     def __init__(
         self, target: str | SPARQLWrapper, query: str, model: type[_TModelInstance]
     ) -> None:
-        self._query = query
+        self._query = check_query(query)
         self._model = model
 
         self.sparql_wrapper: SPARQLWrapper = (
