@@ -19,3 +19,10 @@ class CountQueryParameter(NamedTuple):
     query: str
     model: type[BaseModel]
     expected: int
+
+
+class QueryConstructionParameter(NamedTuple):
+    """Parameter type for query constructors."""
+
+    input_query: str
+    expected_query: str
