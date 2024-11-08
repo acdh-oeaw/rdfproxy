@@ -11,8 +11,8 @@ from rdfproxy.utils.models import Page
 from rdfproxy.utils.sparql_utils import (
     calculate_offset,
     construct_count_query,
+    construct_items_query,
     query_with_wrapper,
-    ungrouped_pagination_base_query,
 )
 
 
@@ -50,8 +50,11 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
     ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
         count_query: str = construct_count_query(query=self._query, model=self._model)
-        items_query: str = ungrouped_pagination_base_query.substitute(
-            query=self._query, offset=calculate_offset(page, size), limit=size
+        items_query: str = construct_items_query(
+            query=self._query,
+            model=self._model,
+            limit=size,
+            offset=calculate_offset(page, size),
         )
 
         items_query_bindings: Iterator[dict] = query_with_wrapper(
