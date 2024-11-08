@@ -1,11 +1,15 @@
 """Type definitions for rdfproxy."""
 
-from typing import TypeVar
+from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
 
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
+
+
+class ItemsQueryConstructor(Protocol):
+    def __call__(self, query: str, limit: int, offset: int) -> str: ...
 
 
 class SPARQLBinding(str):

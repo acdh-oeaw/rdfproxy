@@ -2,22 +2,18 @@
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from functools import partial
 import re
-from string import Template
-from typing import Annotated
+from textwrap import indent
 from typing import cast
 
 from SPARQLWrapper import QueryResult, SPARQLWrapper
-from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils._types import ItemsQueryConstructor, _TModelInstance
 
 
-ungrouped_pagination_base_query: Annotated[
-    str, "SPARQL template for query pagination."
-] = Template("""
-$query
-limit $limit
-offset $offset
-""")
+def construct_ungrouped_pagination_query(query: str, limit: int, offset: int) -> str:
+    """Construct an ungrouped pagination query."""
+    return f"{query} limit {limit} offset {offset}"
 
 
 def replace_query_select_clause(query: str, repl: str) -> str:
@@ -37,6 +33,54 @@ def replace_query_select_clause(query: str, repl: str) -> str:
     )
 
     return modified_query
+
+
+def inject_subquery(
+    query: str, subquery: str, indent_depth: int = 4, indent_char: str = " "
+) -> str:
+    """Inject a SPARQL query with a subquery.
+
+    Also apply some basic indentation.
+    """
+    indent_value = indent_char * indent_depth
+    indented_subquery = indent(f"\n{subquery}\n", indent_value)
+    indented_subclause = indent(f"\n{{{indented_subquery}}}", indent_value)
+    return re.sub(r".*\}$", f"{indented_subclause}\n}}", query)
+
+
+def construct_grouped_pagination_query(
+    query: str, group_by_value: str, limit: int, offset: int
+) -> str:
+    """Construct a grouped pagination query."""
+    _subquery_base: str = replace_query_select_clause(
+        query=query, repl=f"select distinct ?{group_by_value}"
+    )
+    subquery: str = construct_ungrouped_pagination_query(
+        query=_subquery_base, limit=limit, offset=offset
+    )
+
+    grouped_pagination_query: str = inject_subquery(query=query, subquery=subquery)
+    return grouped_pagination_query
+
+
+def get_items_query_constructor(
+    model: type[_TModelInstance],
+) -> ItemsQueryConstructor:
+    """Get the applicable query constructor function given a model class."""
+
+    if (group_by_value := model.model_config.get("group_by"), None) is None:
+        return construct_ungrouped_pagination_query
+    return partial(construct_grouped_pagination_query, group_by_value=group_by_value)
+
+
+def construct_items_query(
+    query: str, model: type[_TModelInstance], limit: int, offset: int
+) -> str:
+    """Construct a grouped pagination query."""
+    items_query_constructor: ItemsQueryConstructor = get_items_query_constructor(
+        model=model
+    )
+    return items_query_constructor(query=query, limit=limit, offset=offset)
 
 
 def construct_count_query(query: str, model: type[_TModelInstance]) -> str:
