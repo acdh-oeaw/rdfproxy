@@ -7,3 +7,7 @@ class MissingModelConfigException(Exception):
 
 class UnboundGroupingKeyException(Exception):
     """Exception for indicating that no SPARQL binding corresponds to the requested grouping key."""
+
+
+class QueryConstructionException(Exception):
+    """Exception for indicating failed SPARQL query construction."""

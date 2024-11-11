@@ -4,10 +4,10 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from functools import partial
 import re
-from textwrap import indent
 from typing import cast
 
 from SPARQLWrapper import QueryResult, SPARQLWrapper
+from rdfproxy.utils._exceptions import QueryConstructionException
 from rdfproxy.utils._types import ItemsQueryConstructor, _TModelInstance
 
 
@@ -35,17 +35,14 @@ def replace_query_select_clause(query: str, repl: str) -> str:
     return modified_query
 
 
-def inject_subquery(
-    query: str, subquery: str, indent_depth: int = 4, indent_char: str = " "
-) -> str:
-    """Inject a SPARQL query with a subquery.
+def inject_subquery(query: str, subquery: str) -> str:
+    """Inject a SPARQL query with a subquery."""
+    if (tail := re.search(r"}[^}]*\Z", query)) is None:
+        raise QueryConstructionException("Unable to inject subquery.")
 
-    Also apply some basic indentation.
-    """
-    indent_value = indent_char * indent_depth
-    indented_subquery = indent(f"\n{subquery}\n", indent_value)
-    indented_subclause = indent(f"\n{{{indented_subquery}}}", indent_value)
-    return re.sub(r".*\}$", f"{indented_subclause}\n}}", query)
+    tail_index: int = tail.start()
+    injected: str = f"{query[:tail_index]} {{{subquery}}} {query[tail_index:]}"
+    return injected
 
 
 def construct_grouped_pagination_query(
