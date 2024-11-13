@@ -68,7 +68,7 @@ def get_items_query_constructor(
 ) -> ItemsQueryConstructor:
     """Get the applicable query constructor function given a model class."""
 
-    if (group_by_value := model.model_config.get("group_by"), None) is None:
+    if (group_by_value := model.model_config.get("group_by", None)) is None:
         return construct_ungrouped_pagination_query
     return partial(construct_grouped_pagination_query, group_by_value=group_by_value)
 
