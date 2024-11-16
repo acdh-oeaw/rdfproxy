@@ -73,6 +73,14 @@ def _get_group_by(model: type[BaseModel], kwargs: dict) -> str:
         return group_by
 
 
+def default_model_bool_predicate(model: BaseModel) -> bool:
+    """Default predicate for determining model truthiness.
+
+    Adheres to rdfproxy.utils._types.ModelBoolPredicate.
+    """
+    return any(dict(model).values())
+
+
 def _is_iterable_of_str(obj) -> bool:
     return isinstance(obj, Iterable) and all(map(lambda i: isinstance(i, str), obj))
 
@@ -84,7 +92,7 @@ def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
 
     match model_bool_value:
         case None:
-            return lambda model: any(dict(model).values())
+            return default_model_bool_predicate
         case ModelBoolPredicate():
             return model_bool_value
         case str():
