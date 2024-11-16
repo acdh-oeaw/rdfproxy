@@ -81,18 +81,16 @@ def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
 
     if (model_bool_value := model.model_config.get("model_bool", None)) is None:
         return lambda model: any(dict(model).values())
-    else:
-        match model_bool_value:
-            case ModelBoolPredicate():
-                return model_bool_value
-            case str():
-                return lambda model: bool(dict(model)[model_bool_value])
-            case model_bool_value if _is_iterable_of_str(model_bool_value):
-                return lambda model: all(
-                    map(lambda k: dict(model)[k], model_bool_value)
-                )
-            case _:
-                raise TypeError(
-                    "Argument for 'model_bool' must be of type ModelBoolPredicate | str | Iterable[str].\n"
-                    f"Received {type(model_bool_value)}"
-                )
+
+    match model_bool_value:
+        case ModelBoolPredicate():
+            return model_bool_value
+        case str():
+            return lambda model: bool(dict(model)[model_bool_value])
+        case model_bool_value if _is_iterable_of_str(model_bool_value):
+            return lambda model: all(map(lambda k: dict(model)[k], model_bool_value))
+        case _:
+            raise TypeError(
+                "Argument for 'model_bool' must be of type ModelBoolPredicate | str | Iterable[str].\n"
+                f"Received {type(model_bool_value)}"
+            )
