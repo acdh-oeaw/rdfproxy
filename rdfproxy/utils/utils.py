@@ -9,6 +9,7 @@ from rdfproxy.utils._exceptions import (
     MissingModelConfigException,
     UnboundGroupingKeyException,
 )
+from rdfproxy.utils._types import _TModelBoolValue
 from rdfproxy.utils._types import ModelBoolPredicate, SPARQLBinding
 
 
@@ -79,10 +80,11 @@ def _is_iterable_of_str(obj) -> bool:
 def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
     """Get the applicable model_bool predicate function given a model."""
 
-    if (model_bool_value := model.model_config.get("model_bool", None)) is None:
-        return lambda model: any(dict(model).values())
+    model_bool_value: _TModelBoolValue | None = model.model_config.get("model_bool")
 
     match model_bool_value:
+        case None:
+            return lambda model: any(dict(model).values())
         case ModelBoolPredicate():
             return model_bool_value
         case str():
