@@ -70,3 +70,22 @@ def _get_group_by(model: type[BaseModel], kwargs: dict) -> str:
                 f"Applicable grouping keys: {', '.join(kwargs.keys())}."
             )
         return group_by
+
+
+def _get_model_valid_fn(model: BaseModel) -> Callable:
+    match model.model_config.get("model_bool", None):
+        case str() as str_obj:
+            return lambda model: bool(dict(model)[str_obj])
+        case model_bool_value if isinstance(model_bool_value, Iterable) and all(
+            isinstance(item, str) for item in model_bool_value
+        ):
+            return lambda model: all(map(lambda k: dict(model)[k], model_bool_value))
+        case func if callable(func):
+            return func
+        case None:
+            return lambda model: any(dict(model).values())
+        case _:
+            raise TypeError(
+                "Argument for 'model_bool' must be of type Callable | str | Iterable[str].\n"
+                f"Received {type(model_bool_value)}"
+            )

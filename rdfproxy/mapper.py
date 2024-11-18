@@ -9,6 +9,7 @@ from rdfproxy.utils.utils import (
     _collect_values_from_bindings,
     _get_group_by,
     _get_key_from_metadata,
+    _get_model_valid_fn,
     _is_list_basemodel_type,
     _is_list_type,
 )
@@ -29,10 +30,12 @@ class ModelBindingsMapper(Generic[_TModelInstance]):
     def _get_unique_models(self, model, bindings):
         """Call the mapping logic and collect unique and non-empty models."""
         models = []
+        model_valid = _get_model_valid_fn(model)
+
         for _bindings in bindings:
             _model = model(**dict(self._generate_binding_pairs(model, **_bindings)))
 
-            if any(_model.model_dump().values()) and (_model not in models):
+            if model_valid(_model) and (_model not in models):
                 models.append(_model)
 
         return models
