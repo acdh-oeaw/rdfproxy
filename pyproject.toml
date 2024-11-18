@@ -23,7 +23,7 @@ pytest-randomly = "^3.15.0"
 
 
 [tool.poetry.group.examples.dependencies]
-fastapi = {extras = ["standard"], version = "^0.115.2"}
+fastapi = {extras = ["standard"], version = "^0.115.5"}
 
 [build-system]
 requires = ["poetry-core"]
