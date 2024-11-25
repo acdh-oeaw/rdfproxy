@@ -1,3 +1,5 @@
+"""RDFProxy-based FastAPI route example: CRM query targeting Releven GraphDB with simple ungrouped Person model."""
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from rdfproxy import Page, SPARQLModelAdapter
@@ -13,8 +15,8 @@ where {
     ?person a crm:E21_Person .
 
   {
-	# id
-	?person ^crm:P140_assigned_attribute_to ?e13_id .
+    # id
+    ?person ^crm:P140_assigned_attribute_to ?e13_id .
     ?e13_id a crm:E15_Identifier_Assignment ;
     crm:P37_assigned [
 		a crm:E42_Identifier ;
@@ -25,7 +27,7 @@ where {
   }
 
   {
-	# appellation
+    # appellation
     ?person ^crm:P140_assigned_attribute_to ?e13_appellation .
 
     ?e13_appellation a star:E13_crm_P1 ;
@@ -37,12 +39,13 @@ where {
 
   {
     # note
-	?person ^crm:P140_assigned_attribute_to ?e13_note .
+    ?person ^crm:P140_assigned_attribute_to ?e13_note .
 
     ?e13_note a star:E13_crm_P3 ;
     	crm:P141_assigned ?note .
   }
 }
+
 """
 
 
@@ -63,20 +66,5 @@ app = FastAPI()
 
 
 @app.get("/")
-def base() -> list[R11PersonModel]:
-    return adapter.query()
-
-
-@app.get("/group/")
-def group(group_by: str) -> dict[str, list[R11PersonModel]]:
-    return adapter.query(group_by=group_by)
-
-
-@app.get("/paginate/")
-def paginate(page: int, size: int) -> Page[R11PersonModel]:
+def base(page=1, size=100) -> Page[R11PersonModel]:
     return adapter.query(page=page, size=size)
-
-
-@app.get("/grouped_paginate/")
-def grouped_paginate(page: int, size: int, group_by: str) -> Page[R11PersonModel]:
-    return adapter.query(page=page, size=size, group_by=group_by)
