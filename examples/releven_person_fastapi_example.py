@@ -66,5 +66,5 @@ app = FastAPI()
 
 
 @app.get("/")
-def base(page=1, size=100) -> Page[R11PersonModel]:
+def base(page: int = 1, size: int = 100) -> Page[R11PersonModel]:
     return adapter.query(page=page, size=size)
