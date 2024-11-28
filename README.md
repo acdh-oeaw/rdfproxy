@@ -46,9 +46,9 @@ The result set can be mapped to a nested Pydantic model like so:
 ```python
 from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from pydantic import BaseModel, ConfigDict
-from rdfproxy import Page, SPARQLBinding, SPARQLModelAdapter
+from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
 
 class Work(BaseModel):
     model_config = ConfigDict(group_by="workName")
@@ -77,8 +77,8 @@ The `SPARQLModelAdapter.query` method runs the query and constructs a `Page` obj
 app = FastAPI()
 
 @app.get("/")
-def base_route(page: int = 1, size: int = 100) -> Page[Author]:
-    return adapter.query(page=page, size=size)
+def base_route(query_parameters: Annotated[QueryParameters, Query()]) -> Page[Author]:
+    return adapter.query(query_parameters)
 ```
 
 This results in the following JSON output: 
