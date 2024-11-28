@@ -5,7 +5,7 @@ from typing import Any, NamedTuple
 import pytest
 
 from pydantic import BaseModel, ConfigDict
-from rdfproxy import Page, SPARQLModelAdapter
+from rdfproxy import Page, QueryParameters, SPARQLModelAdapter
 
 
 query = """
@@ -104,4 +104,5 @@ adapter_parameters = [
     ["adapter", "query_parameters", "expected"], adapter_parameters
 )
 def test_basic_adapter_grouped_pagination(adapter, query_parameters, expected):
-    assert adapter.query(**query_parameters) == expected
+    parameters = QueryParameters(**query_parameters)
+    assert adapter.query(parameters) == expected
