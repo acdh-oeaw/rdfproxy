@@ -1,8 +1,10 @@
 """RDFProxy-based FastAPI route example: CRM query targeting Releven GraphDB with simple ungrouped Person model."""
 
-from fastapi import FastAPI
+from typing import Annotated
+
+from fastapi import FastAPI, Query
 from pydantic import BaseModel
-from rdfproxy import Page, SPARQLModelAdapter
+from rdfproxy import Page, QueryParameters, SPARQLModelAdapter
 
 
 query = """
@@ -66,5 +68,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def base(page: int = 1, size: int = 100) -> Page[R11PersonModel]:
-    return adapter.query(page=page, size=size)
+def base_route(
+    query_parameters: Annotated[QueryParameters, Query()],
+) -> Page[R11PersonModel]:
+    return adapter.query(query_parameters)
