@@ -7,7 +7,7 @@ from typing import Generic
 from SPARQLWrapper import JSON, SPARQLWrapper
 from rdfproxy.mapper import ModelBindingsMapper
 from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils.models import Page
+from rdfproxy.utils.models import Page, QueryParameters
 from rdfproxy.utils.sparql_utils import (
     calculate_offset,
     construct_count_query,
@@ -42,19 +42,14 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         )
         self.sparql_wrapper.setReturnFormat(JSON)
 
-    def query(
-        self,
-        *,
-        page: int = 1,
-        size: int = 100,
-    ) -> Page[_TModelInstance]:
+    def query(self, query_parameters: QueryParameters) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
         count_query: str = construct_count_query(query=self._query, model=self._model)
         items_query: str = construct_items_query(
             query=self._query,
             model=self._model,
-            limit=size,
-            offset=calculate_offset(page, size),
+            limit=query_parameters.size,
+            offset=calculate_offset(query_parameters.page, query_parameters.size),
         )
 
         items_query_bindings: Iterator[dict] = query_with_wrapper(
@@ -65,9 +60,15 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         items: list[_TModelInstance] = mapper.get_models()
         total: int = self._get_count(count_query)
-        pages: int = math.ceil(total / size)
+        pages: int = math.ceil(total / query_parameters.size)
 
-        return Page(items=items, page=page, size=size, total=total, pages=pages)
+        return Page(
+            items=items,
+            page=query_parameters.page,
+            size=query_parameters.size,
+            total=total,
+            pages=pages,
+        )
 
     def _get_count(self, query: str) -> int:
         """Run a count query and return the count result.
