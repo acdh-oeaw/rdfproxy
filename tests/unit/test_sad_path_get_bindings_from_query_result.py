@@ -4,11 +4,14 @@ from unittest import mock
 
 import pytest
 
+from SPARQLWrapper.Wrapper import QueryResult
 from rdfproxy.utils.sparql_utils import get_bindings_from_query_result
 
 
 def test_basic_sad_path_get_bindings_from_query_result():
     with mock.patch("SPARQLWrapper.QueryResult") as mock_query_result:
+        mock_query_result.__class__ = QueryResult
+
         mock_query_result.return_value.requestedFormat = "xml"
         exception_message = (
             "Only QueryResult objects with JSON format are currently supported."
