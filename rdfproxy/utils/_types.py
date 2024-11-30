@@ -9,6 +9,7 @@ from pydantic import BaseModel
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
 
 
+@runtime_checkable
 class ItemsQueryConstructor(Protocol):
     def __call__(self, query: str, limit: int, offset: int) -> str: ...
 

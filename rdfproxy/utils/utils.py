@@ -9,20 +9,25 @@ from rdfproxy.utils._exceptions import (
     MissingModelConfigException,
     UnboundGroupingKeyException,
 )
-from rdfproxy.utils._types import ModelBoolPredicate, SPARQLBinding, _TModelBoolValue
+from rdfproxy.utils._types import (
+    ModelBoolPredicate,
+    SPARQLBinding,
+    _TModelBoolValue,
+    _TModelInstance,
+)
 
 
-def _is_type(obj: type | None, _type: type) -> bool:
+def _is_type(obj: Any, _type: type) -> bool:
     """Check if an obj is type _type or a GenericAlias with origin _type."""
     return (obj is _type) or (get_origin(obj) is _type)
 
 
-def _is_list_type(obj: type | None) -> bool:
+def _is_list_type(obj: Any) -> bool:
     """Check if obj is a list type."""
     return _is_type(obj, list)
 
 
-def _is_list_basemodel_type(obj: type | None) -> bool:
+def _is_list_basemodel_type(obj: Any) -> bool:
     """Check if a type is list[pydantic.BaseModel]."""
     return (get_origin(obj) is list) and all(
         issubclass(cls, BaseModel) for cls in get_args(obj)
@@ -104,7 +109,7 @@ def _get_model_bool_predicate_from_config_value(
             )
 
 
-def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
+def get_model_bool_predicate(model: type[_TModelInstance]) -> ModelBoolPredicate:
     """Get the applicable model_bool predicate function given a model."""
     if (model_bool_value := model.model_config.get("model_bool", None)) is None:
         model_bool_predicate = default_model_bool_predicate
