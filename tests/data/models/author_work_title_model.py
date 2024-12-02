@@ -18,7 +18,7 @@ class Work(BaseModel):
 
 
 class Author(BaseModel):
-    model_config = ConfigDict(group_by="author")
+    model_config = ConfigDict(group_by="name")
 
     name: Annotated[str, SPARQLBinding("author")]
     works: list[Work]
