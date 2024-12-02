@@ -35,13 +35,25 @@ def replace_query_select_clause(query: str, repl: str) -> str:
     return modified_query
 
 
+def _remove_sparql_prefixes(query: str) -> str:
+    """Remove SPARQL prefixes from a query.
+
+    This is needed for subquery injection, because subqueries cannot have prefixes.
+    Note that this is not generic, all prefixes are simply ut from the subquery
+    and do not get appended to the outer query prefixes.
+    """
+    prefix_pattern = re.compile(r"PREFIX\s+\w*:\s?<[^>]+>\s*", flags=re.I)
+    cleaned_query = re.sub(prefix_pattern, "", query).strip()
+    return cleaned_query
+
+
 def inject_subquery(query: str, subquery: str) -> str:
     """Inject a SPARQL query with a subquery."""
     if (tail := re.search(r"}[^}]*\Z", query)) is None:
         raise QueryConstructionException("Unable to inject subquery.")
 
     tail_index: int = tail.start()
-    injected: str = f"{query[:tail_index]} {{{subquery}}} {query[tail_index:]}"
+    injected: str = f"{query[:tail_index]} {{{_remove_sparql_prefixes(subquery)}}} {query[tail_index:]}"
     return injected
 
 
