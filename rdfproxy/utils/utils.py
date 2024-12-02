@@ -6,9 +6,10 @@ from typing import Any, TypeGuard, get_args, get_origin
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from rdfproxy.utils._exceptions import (
+    InvalidGroupingKeyException,
     MissingModelConfigException,
-    UnboundGroupingKeyException,
 )
+from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils._types import ModelBoolPredicate, SPARQLBinding, _TModelBoolValue
 
 
@@ -54,7 +55,11 @@ def _get_key_from_metadata(v: FieldInfo, *, default: Any) -> str | Any:
     return next(filter(lambda x: isinstance(x, SPARQLBinding), v.metadata), default)
 
 
-def _get_group_by(model: type[BaseModel], kwargs: dict) -> str:
+def _get_applicable_grouping_keys(model: type[_TModelInstance]) -> list[str]:
+    return [k for k, v in model.model_fields.items() if not _is_list_type(v.annotation)]
+
+
+def _get_group_by(model: type[_TModelInstance]) -> str:
     """Get the name of a grouping key from a model Config class."""
     try:
         group_by = model.model_config["group_by"]  # type: ignore
@@ -64,11 +69,19 @@ def _get_group_by(model: type[BaseModel], kwargs: dict) -> str:
             "for field-based grouping behavior."
         ) from e
     else:
-        if group_by not in kwargs.keys():
-            raise UnboundGroupingKeyException(
-                f"Requested grouping key '{group_by}' not in SPARQL binding projection.\n"
-                f"Applicable grouping keys: {', '.join(kwargs.keys())}."
+        applicable_keys = _get_applicable_grouping_keys(model=model)
+
+        if group_by not in applicable_keys:
+            raise InvalidGroupingKeyException(
+                f"Invalid grouping key '{group_by}'. "
+                f"Applicable grouping keys: {', '.join(applicable_keys)}."
             )
+
+        if meta := model.model_fields[group_by].metadata:
+            if binding := next(
+                filter(lambda entry: isinstance(entry, SPARQLBinding), meta), None
+            ):
+                return binding
         return group_by
 
 

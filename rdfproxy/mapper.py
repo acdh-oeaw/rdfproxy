@@ -40,9 +40,9 @@ class ModelBindingsMapper(Generic[_TModelInstance]):
 
         return models
 
-    def _get_group_by(self, model, kwargs) -> str:
+    def _get_group_by(self, model) -> str:
         """Get the group_by value from a model and register it in self._contexts."""
-        group_by: str = _get_group_by(model, kwargs)
+        group_by: str = _get_group_by(model)
 
         if group_by not in self._contexts:
             self._contexts.append(group_by)
@@ -57,7 +57,7 @@ class ModelBindingsMapper(Generic[_TModelInstance]):
         """Generate an Iterator[tuple] projection of the bindings needed for model instantation."""
         for k, v in model.model_fields.items():
             if _is_list_basemodel_type(v.annotation):
-                group_by: str = self._get_group_by(model, kwargs)
+                group_by: str = self._get_group_by(model)
                 group_model, *_ = get_args(v.annotation)
 
                 applicable_bindings = filter(
@@ -69,7 +69,7 @@ class ModelBindingsMapper(Generic[_TModelInstance]):
                 value = self._get_unique_models(group_model, applicable_bindings)
 
             elif _is_list_type(v.annotation):
-                group_by: str = self._get_group_by(model, kwargs)
+                group_by: str = self._get_group_by(model)
                 applicable_bindings = filter(
                     lambda x: x[group_by] == kwargs[group_by],
                     self.bindings,
