@@ -3,7 +3,7 @@
 from collections.abc import Iterable
 from typing import Protocol, TypeAlias, TypeVar, runtime_checkable
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict as PydanticConfigDict
 
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
@@ -42,3 +42,10 @@ class ModelBoolPredicate(Protocol):
 
 
 _TModelBoolValue: TypeAlias = ModelBoolPredicate | str | Iterable[str]
+
+
+class ConfigDict(PydanticConfigDict, total=False):
+    """pydantic.ConfigDict extension for RDFProxy model_config options."""
+
+    group_by: str
+    model_bool: _TModelBoolValue
