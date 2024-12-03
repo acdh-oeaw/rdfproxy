@@ -23,14 +23,14 @@ where {
 
 
 class Work(BaseModel):
-    model_config = ConfigDict(group_by="workName")
+    model_config = ConfigDict(group_by="name")
 
     name: Annotated[str, SPARQLBinding("workName")]
     viafs: Annotated[list[str], SPARQLBinding("viaf")]
 
 
 class Author(BaseModel):
-    model_config = ConfigDict(group_by="authorName")
+    model_config = ConfigDict(group_by="surname")
 
     gnd: str
     surname: Annotated[str, SPARQLBinding("authorName")]
