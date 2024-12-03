@@ -3,8 +3,14 @@
 from typing import Annotated
 
 from fastapi import FastAPI, Query
-from pydantic import BaseModel, ConfigDict
-from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
+from pydantic import BaseModel
+from rdfproxy import (
+    ConfigDict,
+    Page,
+    QueryParameters,
+    SPARQLBinding,
+    SPARQLModelAdapter,
+)
 
 
 query = """
