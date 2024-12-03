@@ -47,8 +47,8 @@ The result set can be mapped to a nested Pydantic model like so:
 from typing import Annotated
 
 from fastapi import FastAPI, Query
-from pydantic import BaseModel, ConfigDict
-from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
+from pydantic import BaseModel
+from rdfproxy import ConfigDict, Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
 
 class Work(BaseModel):
     model_config = ConfigDict(group_by="name")
