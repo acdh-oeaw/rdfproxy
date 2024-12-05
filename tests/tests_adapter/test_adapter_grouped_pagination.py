@@ -1,12 +1,24 @@
 """Basic tests for rdfproxy.SPARQLModelAdapter pagination with grouped models."""
 
-from typing import Any, NamedTuple
+from typing import Annotated, Any, NamedTuple
 
 import pytest
 
 from pydantic import BaseModel, ConfigDict
-from rdfproxy import Page, QueryParameters, SPARQLModelAdapter
+from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
 
+
+binding_query = """
+select ?parentBinding ?child ?name
+where {
+    values (?parentBinding ?child ?name) {
+        ('x' 'c' 'foo')
+        ('y' 'd' UNDEF)
+        ('y' 'e' UNDEF)
+        ('z' UNDEF UNDEF)
+    }
+}
+"""
 
 query = """
 select ?parent ?child ?name
@@ -25,6 +37,13 @@ class Child(BaseModel):
     name: str | None = None
 
 
+class BindingParent(BaseModel):
+    model_config = ConfigDict(group_by="parent")
+
+    parent: Annotated[str, SPARQLBinding("parentBinding")]
+    children: list[Child]
+
+
 class Parent(BaseModel):
     model_config = ConfigDict(group_by="parent")
 
@@ -32,7 +51,13 @@ class Parent(BaseModel):
     children: list[Child]
 
 
-parent_adapter = SPARQLModelAdapter(
+binding_adapter = SPARQLModelAdapter(
+    target="https://graphdb.r11.eu/repositories/RELEVEN",
+    query=binding_query,
+    model=BindingParent,
+)
+
+adapter = SPARQLModelAdapter(
     target="https://graphdb.r11.eu/repositories/RELEVEN",
     query=query,
     model=Parent,
@@ -47,7 +72,58 @@ class AdapterParameter(NamedTuple):
 
 adapter_parameters = [
     AdapterParameter(
-        adapter=parent_adapter,
+        adapter=binding_adapter,
+        query_parameters={"page": 1, "size": 2},
+        expected=Page[BindingParent](
+            items=[
+                {"parent": "x", "children": [{"name": "foo"}]},
+                {"parent": "y", "children": []},
+            ],
+            page=1,
+            size=2,
+            total=3,
+            pages=2,
+        ),
+    ),
+    AdapterParameter(
+        adapter=binding_adapter,
+        query_parameters={"page": 2, "size": 2},
+        expected=Page[BindingParent](
+            items=[{"parent": "z", "children": []}],
+            page=2,
+            size=2,
+            total=3,
+            pages=2,
+        ),
+    ),
+    AdapterParameter(
+        adapter=binding_adapter,
+        query_parameters={"page": 1, "size": 1},
+        expected=Page[BindingParent](
+            items=[{"parent": "x", "children": [{"name": "foo"}]}],
+            page=1,
+            size=1,
+            total=3,
+            pages=3,
+        ),
+    ),
+    AdapterParameter(
+        adapter=binding_adapter,
+        query_parameters={"page": 2, "size": 1},
+        expected=Page[BindingParent](
+            items=[{"parent": "y", "children": []}], page=2, size=1, total=3, pages=3
+        ),
+    ),
+    AdapterParameter(
+        adapter=binding_adapter,
+        query_parameters={"page": 3, "size": 1},
+        expected=Page[BindingParent](
+            items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
+        ),
+    ),
+    #
+    AdapterParameter(
+        adapter=adapter,
         query_parameters={"page": 1, "size": 2},
         expected=Page[Parent](
             items=[
@@ -61,7 +137,7 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=parent_adapter,
+        adapter=adapter,
         query_parameters={"page": 2, "size": 2},
         expected=Page[Parent](
             items=[{"parent": "z", "children": []}],
@@ -72,7 +148,7 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=parent_adapter,
+        adapter=adapter,
         query_parameters={"page": 1, "size": 1},
         expected=Page[Parent](
             items=[{"parent": "x", "children": [{"name": "foo"}]}],
@@ -83,14 +159,14 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=parent_adapter,
+        adapter=adapter,
         query_parameters={"page": 2, "size": 1},
         expected=Page[Parent](
             items=[{"parent": "y", "children": []}], page=2, size=1, total=3, pages=3
         ),
     ),
     AdapterParameter(
-        adapter=parent_adapter,
+        adapter=adapter,
         query_parameters={"page": 3, "size": 1},
         expected=Page[Parent](
             items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3

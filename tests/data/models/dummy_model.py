@@ -9,3 +9,5 @@ class Dummy(BaseModel):
 
 class GroupedDummy(BaseModel):
     model_config = ConfigDict(group_by="x")
+
+    x: int
