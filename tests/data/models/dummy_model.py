@@ -1,6 +1,7 @@
 """Simple dummy models e.g. for count query constructor testing."""
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+from rdfproxy import ConfigDict
 
 
 class Dummy(BaseModel):

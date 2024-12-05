@@ -4,8 +4,14 @@ from typing import Annotated, Any, NamedTuple
 
 import pytest
 
-from pydantic import BaseModel, ConfigDict
-from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
+from pydantic import BaseModel
+from rdfproxy import (
+    ConfigDict,
+    Page,
+    QueryParameters,
+    SPARQLBinding,
+    SPARQLModelAdapter,
+)
 
 
 binding_query = """

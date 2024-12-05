@@ -3,7 +3,8 @@
 The test cover all cases discussed in https://github.com/acdh-oeaw/rdfproxy/issues/110.
 """
 
-from pydantic import BaseModel, ConfigDict, Field, create_model
+from pydantic import BaseModel, Field, create_model
+from rdfproxy import ConfigDict
 from tests.utils._types import ModelBindingsMapperParameter
 
 
