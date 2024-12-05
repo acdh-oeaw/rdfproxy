@@ -8,7 +8,7 @@ from typing import cast
 
 from SPARQLWrapper import QueryResult, SPARQLWrapper
 from rdfproxy.utils._exceptions import QueryConstructionException
-from rdfproxy.utils._types import ItemsQueryConstructor, _TModelInstance
+from rdfproxy.utils._types import ItemsQueryConstructor, SPARQLBinding, _TModelInstance
 
 
 def construct_ungrouped_pagination_query(query: str, limit: int, offset: int) -> str:
@@ -79,6 +79,12 @@ def get_items_query_constructor(
 
     if (group_by_value := model.model_config.get("group_by", None)) is None:
         return construct_ungrouped_pagination_query
+
+    elif meta := model.model_fields[group_by_value].metadata:
+        group_by_value = next(
+            filter(lambda x: isinstance(x, SPARQLBinding), meta), group_by_value
+        )
+
     return partial(construct_grouped_pagination_query, group_by_value=group_by_value)
 
 
@@ -96,7 +102,14 @@ def construct_count_query(query: str, model: type[_TModelInstance]) -> str:
     """Construct a generic count query from a SELECT query."""
     try:
         group_by: str = model.model_config["group_by"]
-        count_query = construct_grouped_count_query(query, group_by)
+        group_by_binding = next(
+            filter(
+                lambda x: isinstance(x, SPARQLBinding),
+                model.model_fields[group_by].metadata,
+            ),
+            group_by,
+        )
+        count_query = construct_grouped_count_query(query, group_by_binding)
     except KeyError:
         count_query = replace_query_select_clause(query, "select (count(*) as ?cnt)")
 
