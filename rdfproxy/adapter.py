@@ -4,15 +4,14 @@ from collections.abc import Iterator
 import math
 from typing import Generic
 
-from SPARQLWrapper import JSON, SPARQLWrapper
 from rdfproxy.mapper import ModelBindingsMapper
+from rdfproxy.sparql_strategies import HttpxStrategy, SPARQLStrategy
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import Page, QueryParameters
 from rdfproxy.utils.sparql_utils import (
     calculate_offset,
     construct_count_query,
     construct_items_query,
-    query_with_wrapper,
 )
 
 
@@ -32,15 +31,16 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
     """
 
     def __init__(
-        self, target: str | SPARQLWrapper, query: str, model: type[_TModelInstance]
+        self,
+        target: str,
+        query: str,
+        model: type[_TModelInstance],
+        sparql_strategy: type[SPARQLStrategy] = HttpxStrategy,
     ) -> None:
         self._query = query
         self._model = model
 
-        self.sparql_wrapper: SPARQLWrapper = (
-            SPARQLWrapper(target) if isinstance(target, str) else target
-        )
-        self.sparql_wrapper.setReturnFormat(JSON)
+        self.sparql_strategy = sparql_strategy(target)
 
     def query(self, query_parameters: QueryParameters) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
@@ -52,9 +52,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             offset=calculate_offset(query_parameters.page, query_parameters.size),
         )
 
-        items_query_bindings: Iterator[dict] = query_with_wrapper(
-            query=items_query, sparql_wrapper=self.sparql_wrapper
-        )
+        items_query_bindings: Iterator[dict] = self.sparql_strategy.query(items_query)
 
         mapper = ModelBindingsMapper(self._model, *items_query_bindings)
 
@@ -75,7 +73,5 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         Helper for SPARQLModelAdapter.query.
         """
-        result: Iterator[dict] = query_with_wrapper(
-            query=query, sparql_wrapper=self.sparql_wrapper
-        )
+        result: Iterator[dict] = self.sparql_strategy.query(query)
         return int(next(result)["cnt"])
