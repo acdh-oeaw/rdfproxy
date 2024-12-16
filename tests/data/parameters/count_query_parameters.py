@@ -1,5 +1,16 @@
-from tests.data.models.dummy_model import Dummy, GroupedDummy
+from pydantic import BaseModel
+from rdfproxy import ConfigDict
 from tests.utils._types import CountQueryParameter
+
+
+class Dummy(BaseModel):
+    pass
+
+
+class GroupedDummy(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
 
 
 construct_count_query_parameters = [
