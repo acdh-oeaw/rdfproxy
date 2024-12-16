@@ -4,7 +4,7 @@ import pytest
 
 from pydantic import BaseModel
 from rdfproxy.mapper import ModelBindingsMapper
-from tests.data.parameters.model_bindings_mapper_model_bool_parameters import (
+from tests.tests_mapper.params.model_bindings_mapper_model_bool_parameters import (
     parent_child_parameters,
 )
 

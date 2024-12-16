@@ -43,6 +43,13 @@ class Child5(BaseModel):
     child: str | None = Field(default=None, exclude=True)
 
 
+class Child6(BaseModel):
+    model_config = ConfigDict(model_bool=["name", "child"])
+
+    name: str | None = None
+    child: str | None = None
+
+
 def _create_parent_with_child(child: type[BaseModel]) -> type[BaseModel]:
     model = create_model(
         "Parent",
@@ -109,6 +116,15 @@ parent_child_parameters = [
         expected=[
             {"parent": "x", "children": [{"name": "foo"}]},
             {"parent": "y", "children": [{"name": None}, {"name": None}]},
+            {"parent": "z", "children": []},
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=_create_parent_with_child(Child6),
+        bindings=bindings,
+        expected=[
+            {"parent": "x", "children": [{"name": "foo", "child": "c"}]},
+            {"parent": "y", "children": []},
             {"parent": "z", "children": []},
         ],
     ),
