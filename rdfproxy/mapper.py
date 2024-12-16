@@ -5,7 +5,7 @@ from typing import Any, Generic, get_args
 
 from pydantic import BaseModel
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
-from rdfproxy.utils.utils import (
+from rdfproxy.utils.mapper_utils import (
     _collect_values_from_bindings,
     _get_group_by,
     _get_key_from_metadata,
@@ -65,7 +65,6 @@ class ModelBindingsMapper(Generic[_TModelInstance]):
                     and (x[self._contexts[0]] == kwargs[self._contexts[0]]),
                     self.bindings,
                 )
-
                 value = self._get_unique_models(group_model, applicable_bindings)
 
             elif _is_list_type(v.annotation):
