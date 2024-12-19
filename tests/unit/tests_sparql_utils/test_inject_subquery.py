@@ -3,7 +3,8 @@
 from typing import NamedTuple
 
 import pytest
-from rdfproxy.utils.sparql_utils import inject_subquery
+
+from rdfproxy.utils.sparql_utils import inject_into_query, remove_sparql_prefixes
 
 
 class InjectSubqueryParameter(NamedTuple):
@@ -118,5 +119,6 @@ inject_subquery_parameters = [
 
 @pytest.mark.parametrize(["query", "subquery", "expected"], inject_subquery_parameters)
 def test_inject_subquery(query, subquery, expected):
-    injected = inject_subquery(query=query, subquery=subquery)
+    injectant = remove_sparql_prefixes(subquery)
+    injected = inject_into_query(query=query, injectant=injectant)
     assert injected == expected

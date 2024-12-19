@@ -1,5 +1,6 @@
 """Basic tests for rdfproxy.SPARQLModelAdapter pagination with grouped models."""
 
+from functools import partial
 from typing import Annotated, Any, NamedTuple
 
 import pytest
@@ -7,10 +8,12 @@ import pytest
 from pydantic import BaseModel
 from rdfproxy import (
     ConfigDict,
+    HttpxStrategy,
     Page,
     QueryParameters,
     SPARQLBinding,
     SPARQLModelAdapter,
+    SPARQLWrapperStrategy,
 )
 
 
@@ -57,28 +60,43 @@ class Parent(BaseModel):
     children: list[Child]
 
 
-binding_adapter = SPARQLModelAdapter(
-    target="https://graphdb.r11.eu/repositories/RELEVEN",
-    query=binding_query,
-    model=BindingParent,
-)
+@pytest.fixture()
+def adapters():
+    _adapter_base = partial(
+        SPARQLModelAdapter,
+        target="https://graphdb.r11.eu/repositories/RELEVEN",
+        query=query,
+        model=Parent,
+    )
 
-adapter = SPARQLModelAdapter(
-    target="https://graphdb.r11.eu/repositories/RELEVEN",
-    query=query,
-    model=Parent,
-)
+    return [
+        _adapter_base(sparql_strategy=HttpxStrategy),
+        _adapter_base(sparql_strategy=SPARQLWrapperStrategy),
+    ]
+
+
+@pytest.fixture()
+def binding_adapters():
+    _binding_adapter_base = partial(
+        SPARQLModelAdapter,
+        target="https://graphdb.r11.eu/repositories/RELEVEN",
+        query=binding_query,
+        model=BindingParent,
+    )
+
+    return [
+        _binding_adapter_base(sparql_strategy=HttpxStrategy),
+        _binding_adapter_base(sparql_strategy=SPARQLWrapperStrategy),
+    ]
 
 
 class AdapterParameter(NamedTuple):
-    adapter: SPARQLModelAdapter
     query_parameters: dict[str, Any]
     expected: Page
 
 
-adapter_parameters = [
+binding_adapter_parameters = [
     AdapterParameter(
-        adapter=binding_adapter,
         query_parameters={"page": 1, "size": 2},
         expected=Page[BindingParent](
             items=[
@@ -92,7 +110,6 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=binding_adapter,
         query_parameters={"page": 2, "size": 2},
         expected=Page[BindingParent](
             items=[{"parent": "z", "children": []}],
@@ -103,7 +120,6 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=binding_adapter,
         query_parameters={"page": 1, "size": 1},
         expected=Page[BindingParent](
             items=[{"parent": "x", "children": [{"name": "foo"}]}],
@@ -114,22 +130,21 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=binding_adapter,
         query_parameters={"page": 2, "size": 1},
         expected=Page[BindingParent](
             items=[{"parent": "y", "children": []}], page=2, size=1, total=3, pages=3
         ),
     ),
     AdapterParameter(
-        adapter=binding_adapter,
         query_parameters={"page": 3, "size": 1},
         expected=Page[BindingParent](
             items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
         ),
     ),
-    #
+]
+#
+adapter_parameters = [
     AdapterParameter(
-        adapter=adapter,
         query_parameters={"page": 1, "size": 2},
         expected=Page[Parent](
             items=[
@@ -143,7 +158,6 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=adapter,
         query_parameters={"page": 2, "size": 2},
         expected=Page[Parent](
             items=[{"parent": "z", "children": []}],
@@ -154,7 +168,6 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=adapter,
         query_parameters={"page": 1, "size": 1},
         expected=Page[Parent](
             items=[{"parent": "x", "children": [{"name": "foo"}]}],
@@ -165,14 +178,12 @@ adapter_parameters = [
         ),
     ),
     AdapterParameter(
-        adapter=adapter,
         query_parameters={"page": 2, "size": 1},
         expected=Page[Parent](
             items=[{"parent": "y", "children": []}], page=2, size=1, total=3, pages=3
         ),
     ),
     AdapterParameter(
-        adapter=adapter,
         query_parameters={"page": 3, "size": 1},
         expected=Page[Parent](
             items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
@@ -183,8 +194,23 @@ adapter_parameters = [
 
 @pytest.mark.remote
 @pytest.mark.parametrize(
-    ["adapter", "query_parameters", "expected"], adapter_parameters
+    ["query_parameters", "expected"],
+    adapter_parameters,
 )
-def test_basic_adapter_grouped_pagination(adapter, query_parameters, expected):
-    parameters = QueryParameters(**query_parameters)
-    assert adapter.query(parameters) == expected
+def test_basic_adapter_grouped_pagination(adapters, query_parameters, expected):
+    for adapter in adapters:
+        parameters = QueryParameters(**query_parameters)
+        assert adapter.query(parameters) == expected
+
+
+@pytest.mark.remote
+@pytest.mark.parametrize(
+    ["query_parameters", "expected"],
+    binding_adapter_parameters,
+)
+def test_basic_binding_adapter_grouped_pagination(
+    binding_adapters, query_parameters, expected
+):
+    for adapter in binding_adapters:
+        parameters = QueryParameters(**query_parameters)
+        assert adapter.query(parameters) == expected
