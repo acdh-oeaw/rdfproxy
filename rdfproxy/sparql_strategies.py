@@ -13,7 +13,7 @@ class SPARQLStrategy(abc.ABC):
 
     @abc.abstractmethod
     def query(self, sparql_query: str) -> Iterator[dict[str, str]]:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @staticmethod
     def _get_bindings_from_bindings_dict(bindings_dict: dict) -> Iterator[dict]:
