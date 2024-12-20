@@ -1,12 +1,16 @@
-from tests.data.models.author_array_collection_model import Author as ArrayAuthor
-from tests.data.models.author_work_title_model import Author
-from tests.data.models.basic_model import (
+from tests.tests_mapper.params.models.author_array_collection_model import (
+    Author as ArrayAuthor,
+)
+from tests.tests_mapper.params.models.author_work_title_model import Author
+from tests.tests_mapper.params.models.basic_model import (
     BasicComplexModel,
     BasicNestedModel,
     BasicSimpleModel,
 )
-from tests.data.models.grouping_model import GroupingComplexModel
-from tests.data.models.nested_grouping_model import NestedGroupingComplexModel
+from tests.tests_mapper.params.models.grouping_model import GroupingComplexModel
+from tests.tests_mapper.params.models.nested_grouping_model import (
+    NestedGroupingComplexModel,
+)
 from tests.utils._types import ModelBindingsMapperParameter
 
 

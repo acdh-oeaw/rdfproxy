@@ -2,6 +2,7 @@
 
 import abc
 from collections.abc import Iterator
+from typing import cast
 
 from SPARQLWrapper import JSON, QueryResult, SPARQLWrapper
 import httpx
@@ -13,7 +14,7 @@ class SPARQLStrategy(abc.ABC):
 
     @abc.abstractmethod
     def query(self, sparql_query: str) -> Iterator[dict[str, str]]:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @staticmethod
     def _get_bindings_from_bindings_dict(bindings_dict: dict) -> Iterator[dict]:
@@ -35,7 +36,9 @@ class SPARQLWrapperStrategy(SPARQLStrategy):
         self._sparql_wrapper.setQuery(sparql_query)
 
         result: QueryResult = self._sparql_wrapper.query()
-        return self._get_bindings_from_bindings_dict(result.convert())
+        # SPARQLWrapper.Wrapper.convert is not overloaded properly and needs casting
+        # https://github.com/RDFLib/sparqlwrapper/blob/master/SPARQLWrapper/Wrapper.py#L1135
+        return self._get_bindings_from_bindings_dict(cast(dict, result.convert()))
 
 
 class HttpxStrategy(SPARQLStrategy):
