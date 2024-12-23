@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.2.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.1.0...v0.2.0) (2024-12-23)
+
+
+### Features
+
+* expose SPARQLStrategies over library interface ([50270db](https://github.com/acdh-oeaw/rdfproxy/commit/50270db169ae03a47d3c3ba6c026ccc25a4bb50d))
+* implement grouping by model field ([3d71409](https://github.com/acdh-oeaw/rdfproxy/commit/3d71409ad121578925e404bc624a2aba7d3284ba))
+* implement model_bool hook for controlling model truthiness ([daf72cb](https://github.com/acdh-oeaw/rdfproxy/commit/daf72cb9e409aa750954ecee55b7d8c65f5f41a8))
+* implement pagination behavior for grouped models ([386d990](https://github.com/acdh-oeaw/rdfproxy/commit/386d9902f28b6d6866cf51b606e0e4220812ce21))
+* implement rdfproxy.ConfigDict extension for model configs ([f8a86b5](https://github.com/acdh-oeaw/rdfproxy/commit/f8a86b5b9268f2652e740220480b05010cfb6e16))
+* implement strategies for SPARQL query functionality ([088509b](https://github.com/acdh-oeaw/rdfproxy/commit/088509b087984ab19357ec81a6bf76f6ebfe93ab))
+* rewrite query construction functionality ([edb6fa0](https://github.com/acdh-oeaw/rdfproxy/commit/edb6fa0e078f58e5dd5c85e602b35e5d6982b5d3))
+* use query parameter model for SPARQLModelAdapter.query ([72a273d](https://github.com/acdh-oeaw/rdfproxy/commit/72a273d028ee3271f3d39e6d3e43d65b95ec8516))
+
+
+### Bug Fixes
+
+* add type hints to revelen example route ([42ef1ce](https://github.com/acdh-oeaw/rdfproxy/commit/42ef1ce0d3288366854a776c66327e5ec71f9f36))
+* correct regex pattern for SELECT clause extraction ([cb15e14](https://github.com/acdh-oeaw/rdfproxy/commit/cb15e1439c5446b2341c1217a5c724f59450179b))
+* **get_items_query_constructor:** correct dict.get access ([3fc28b7](https://github.com/acdh-oeaw/rdfproxy/commit/3fc28b72674cc921a1b0ebac8926369c3da291a6))
+* remove SPARQL prefixes from subqueries before query injections ([ecd70d7](https://github.com/acdh-oeaw/rdfproxy/commit/ecd70d7b8929f541a41f98ad7490af8573f3f29f))
+* resolve group_by config values for SPARQL binding aliases ([5b3f171](https://github.com/acdh-oeaw/rdfproxy/commit/5b3f1711fe9f2aa0b50c890bce57c09728f6b5c9)), closes [#161](https://github.com/acdh-oeaw/rdfproxy/issues/161)
+
+
+### Documentation
+
+* adapt readme and examples to model field grouping ([b962af6](https://github.com/acdh-oeaw/rdfproxy/commit/b962af60402abaf6dc5486cca63d2bc9091d1fde))
+* adapt readme and exmaples to rdfproxy.ConfigDict ([95a5b69](https://github.com/acdh-oeaw/rdfproxy/commit/95a5b69068de577761d8901c7bedd9152bfffeef))
+* **examples:** adapt examples to query parameter model ([ebf5e0d](https://github.com/acdh-oeaw/rdfproxy/commit/ebf5e0dcf3f1af9c4d3571200fdb88faf73cbdd2))
+* **examples:** update examples ([7146321](https://github.com/acdh-oeaw/rdfproxy/commit/7146321268c5b9a4d7ad345a8389ea906bc7d001))
+* **readme:** adapt readme for query parameter model ([49a892c](https://github.com/acdh-oeaw/rdfproxy/commit/49a892c20d7d2a43e8fdf43443c3fd3ccc0a9371))
+* **readme:** fix/improve example query ([318f630](https://github.com/acdh-oeaw/rdfproxy/commit/318f630d4c4685c51a6df83cc74b50c6f2b3df01))
+
 ## 0.1.0 (2024-10-23)
 
 
