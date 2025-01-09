@@ -2,8 +2,9 @@
 
 from typing import Annotated, Any, NamedTuple
 
-from pydantic import BaseModel
 import pytest
+
+from pydantic import BaseModel
 from rdfproxy import (
     ConfigDict,
     HttpxStrategy,
@@ -139,8 +140,22 @@ binding_adapter_parameters = [
             items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
         ),
     ),
+    AdapterParameter(
+        query_parameters={},
+        expected=Page[BindingParent](
+            items=[
+                {"parent": "x", "children": [{"name": "foo"}]},
+                {"parent": "y", "children": []},
+                {"parent": "z", "children": []},
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
 ]
-#
+
 adapter_parameters = [
     AdapterParameter(
         query_parameters={"page": 1, "size": 2},
@@ -187,11 +202,31 @@ adapter_parameters = [
             items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
         ),
     ),
+    AdapterParameter(
+        query_parameters={},
+        expected=Page[Parent](
+            items=[
+                {"parent": "x", "children": [{"name": "foo"}]},
+                {"parent": "y", "children": []},
+                {"parent": "z", "children": []},
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
 ]
 
 ungrouped_adapter_parameters = [
     AdapterParameter(
         query_parameters={"page": 1, "size": 100},
+        expected=Page[Child](
+            items=[{"name": "foo"}], page=1, size=100, total=1, pages=1
+        ),
+    ),
+    AdapterParameter(
+        query_parameters={},
         expected=Page[Child](
             items=[{"name": "foo"}], page=1, size=100, total=1, pages=1
         ),
