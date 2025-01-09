@@ -40,7 +40,9 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         self.sparql_strategy = sparql_strategy(target)
 
-    def query(self, query_parameters: QueryParameters) -> Page[_TModelInstance]:
+    def query(
+        self, query_parameters: QueryParameters = QueryParameters()
+    ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
         query_constructor = QueryConstructor(
             query=self._query,
