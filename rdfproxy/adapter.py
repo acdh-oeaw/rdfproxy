@@ -2,13 +2,16 @@
 
 from collections.abc import Iterator
 import math
-from typing import Generic
+import sys
+from typing import Generic, Literal
 
+from loguru import logger
 from rdfproxy.constructor import QueryConstructor
 from rdfproxy.mapper import ModelBindingsMapper
 from rdfproxy.sparql_strategies import HttpxStrategy, SPARQLStrategy
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import Page, QueryParameters
+from rdfproxy.utils.sparql_utils import pp_sparql
 
 
 class SPARQLModelAdapter(Generic[_TModelInstance]):
@@ -34,16 +37,34 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         query: str,
         model: type[_TModelInstance],
         sparql_strategy: type[SPARQLStrategy] = HttpxStrategy,
+        log_level: Literal["INFO", "info", "DEBUG", "debug"] = "INFO",
     ) -> None:
+        self._target = target
         self._query = query
         self._model = model
 
-        self.sparql_strategy = sparql_strategy(target)
+        self.sparql_strategy = sparql_strategy(self._target)
+        self.log_level = log_level
+
+        logger.remove()
+        logger.add(
+            sink=sys.stderr,
+            level=self.log_level.upper(),
+        )
+
+        logger.info("Initialized SPARQLModelAdapter.")
+        logger.debug(f"Endpoint: {self._target}")
+        logger.debug(f"Model: {self._model}")
+        logger.debug(f"Query: \n{pp_sparql(self._query)}")
 
     def query(
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
+        logger.info(
+            f"Running SPARQLModelAdapter.query against endpoint '{self._target}'"
+        )
+
         query_constructor = QueryConstructor(
             query=self._query,
             query_parameters=query_parameters,
@@ -52,6 +73,9 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         count_query = query_constructor.get_count_query()
         items_query = query_constructor.get_items_query()
+
+        logger.debug(f"Constructed count query: \n{pp_sparql(count_query)}")
+        logger.debug(f"Constructed items query: \n{pp_sparql(items_query)}")
 
         items_query_bindings: Iterator[dict] = self.sparql_strategy.query(items_query)
         mapper = ModelBindingsMapper(self._model, *items_query_bindings)
