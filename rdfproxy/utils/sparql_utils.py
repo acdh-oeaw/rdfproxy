@@ -116,3 +116,53 @@ def get_query_projection(query: str) -> list[Variable]:
             return var
         case _:  # pragma: no cover
             raise Exception("Unable to obtain query projection.")
+
+
+def pp_sparql(query: str, indent: int = 2) -> str:
+    """Basic SPARQL pretty printer.
+
+    Note: Conditional order in the for-loop is significant.
+    """
+
+    keywords: list[str] = [
+        "SELECT",
+        "CONSTRUCT",
+        "ASK",
+        "DESCRIBE",
+        "WHERE",
+        "ORDER BY",
+        "GROUP BY",
+        "LIMIT",
+        "OFFSET",
+        "VALUES",
+        "FILTER",
+        "OPTIONAL",
+        "UNION",
+        "BIND",
+        "SERVICE",
+        "GRAPH",
+    ]
+
+    _indent: str = " " * indent
+
+    for keyword in keywords:
+        query = re.sub(rf"\b{keyword}\b", f"\n{keyword}", query, flags=re.IGNORECASE)
+
+    query = re.sub(r"\b(PREFIX|BASE)\b", r"\n\1", query, flags=re.IGNORECASE)
+    query = re.sub(r"({|})", r"\n\1\n", query)
+
+    lines = query.splitlines()
+    pretty_lines = []
+    indent_level = 0
+
+    for line in lines:
+        stripped = line.strip()
+
+        if stripped == "}":
+            indent_level -= 1
+        if stripped:
+            pretty_lines.append(_indent * indent_level + stripped)
+        if stripped == "{":
+            indent_level += 1
+
+    return "\n".join(pretty_lines).strip()
