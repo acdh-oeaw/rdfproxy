@@ -16,7 +16,7 @@ from rdfproxy.utils.mapper_utils import (
 from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
 
 
-class ModelBindingsMapper(Generic[_TModelInstance]):
+class _ModelBindingsMapper(Generic[_TModelInstance]):
     """Utility class for mapping bindings to nested/grouped Pydantic models.
 
     RDFProxy utilizes Pydantic models also as a modelling grammar for grouping
