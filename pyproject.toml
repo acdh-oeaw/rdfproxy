@@ -16,6 +16,7 @@ pydantic = "^2.9.2"
 
 httpx = "^0.28.1"
 rdflib = "^7.1.1"
+pandas = "^2.2.3"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.7.0"
 deptry = "^0.20.0"
