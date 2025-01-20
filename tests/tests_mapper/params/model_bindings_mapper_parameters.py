@@ -9,6 +9,8 @@ from tests.tests_mapper.params.models.basic_model import (
 )
 from tests.tests_mapper.params.models.grouping_model import GroupingComplexModel
 from tests.tests_mapper.params.models.nested_grouping_model import (
+    GroupingNestedComplexModel,
+    NestedComplexModel,
     NestedGroupingComplexModel,
 )
 from tests.utils._types import ModelBindingsMapperParameter
@@ -221,4 +223,36 @@ nested_grouping_parameters = [
             {"p": "p value 3", "q": [{"a": "a value 3", "b": [{"x": 1, "y": 3}]}]},
         ],
     )
+]
+
+
+grouping_nested_model_parameters = [
+    ModelBindingsMapperParameter(
+        model=NestedComplexModel,
+        bindings=[
+            {"x": 1, "y": 2, "a": "a value 1", "p": "p value 1"},
+            {"x": 1, "y": 2, "a": "a value 2", "p": "p value 2"},
+            {"x": 1, "y": 3, "a": "a value 3", "p": "p value 3"},
+            {"x": 2, "y": 2, "a": "a value 1", "p": "p value 4"},
+        ],
+        expected=[
+            {"b": {"x": 1, "y": 2}},
+            {"b": {"x": 1, "y": 2}},
+            {"b": {"x": 1, "y": 3}},
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupingNestedComplexModel,
+        bindings=[
+            {"x": 1, "y": 2, "a": "a value 1", "p": "p value 1"},
+            {"x": 1, "y": 2, "a": "a value 2", "p": "p value 2"},
+            {"x": 1, "y": 3, "a": "a value 3", "p": "p value 3"},
+            {"x": 2, "y": 2, "a": "a value 1", "p": "p value 4"},
+        ],
+        expected=[
+            {"b": {"x": 1, "y": 2}, "c": [{"x": 1, "y": 2}, {"x": 2, "y": 2}]},
+            {"b": {"x": 1, "y": 2}, "c": [{"x": 1, "y": 2}]},
+            {"b": {"x": 1, "y": 3}, "c": [{"x": 1, "y": 3}]},
+        ],
+    ),
 ]

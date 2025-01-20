@@ -25,3 +25,18 @@ class NestedGroupingComplexModel(BaseModel):
 
     p: str
     q: list[NestedGroupingNestedModel]
+
+
+class NestedComplexModel(BaseModel):
+    model_config = ConfigDict(group_by="a")
+
+    a: str = Field(exclude=True)
+    b: NestedGroupingSimpleModel
+
+
+class GroupingNestedComplexModel(BaseModel):
+    model_config = ConfigDict(group_by="a")
+
+    a: str = Field(exclude=True)
+    b: NestedGroupingSimpleModel
+    c: list[NestedGroupingSimpleModel]
