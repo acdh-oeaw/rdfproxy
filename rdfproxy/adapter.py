@@ -6,7 +6,7 @@ import math
 from typing import Generic
 
 from rdfproxy.constructor import QueryConstructor
-from rdfproxy.mapper import ModelBindingsMapper
+from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparql_strategies import HttpxStrategy, SPARQLStrategy
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import Page, QueryParameters
@@ -70,7 +70,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug(f"Running items query: \n{items_query}")
 
         items_query_bindings: Iterator[dict] = self.sparql_strategy.query(items_query)
-        mapper = ModelBindingsMapper(self._model, *items_query_bindings)
+        mapper = _ModelBindingsMapper(self._model, *items_query_bindings)
         items: list[_TModelInstance] = mapper.get_models()
 
         logger.debug(f"Running count query: \n{count_query}")
