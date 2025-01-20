@@ -3,7 +3,7 @@
 from collections import UserDict
 from collections.abc import Callable
 from functools import partial
-from typing import TypeVar
+from typing import Any, Generic, Self, TypeVar
 
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils._types import SPARQLBinding
@@ -70,3 +70,52 @@ class QueryConstructorComponent:
         if tkwargs := {k: v for k, v in self.kwargs.items() if v is not None}:
             return partial(self.f, **tkwargs)(query)
         return query
+
+
+class CurryModel(Generic[_TModelInstance]):
+    """Constructor for currying a Pydantic Model.
+
+    A CurryModel instance can be called with kwargs which are run against
+    the respective model field validators and kept in a kwargs cache.
+    Once the model can be instantiated, calling a CurryModel object will
+    instantiate the Pydantic model and return the model instance.
+
+    If the eager flag is True (default), model field default values are
+    added to the cache automatically, which means that models can be instantiated
+    as soon possible, i.e. as soon as all /required/ field values are provided.
+    """
+
+    def __init__(self, model: type[_TModelInstance], eager: bool = True) -> None:
+        self.model = model
+        self.eager = eager
+
+        self._kwargs_cache: dict = (
+            {k: v.default for k, v in model.model_fields.items() if not v.is_required()}
+            if eager
+            else {}
+        )
+
+    def __repr__(self):  # pragma: no cover
+        return f"CurryModel object {self._kwargs_cache}"
+
+    @staticmethod
+    def _validate_field(model: type[_TModelInstance], field: str, value: Any) -> Any:
+        """Validate value for a single field given a model.
+
+        Note: Using a TypeVar for value is not possible here,
+        because Pydantic might coerce values (if not not in Strict Mode).
+        """
+        result = model.__pydantic_validator__.validate_assignment(
+            model.model_construct(), field, value
+        )
+        return result
+
+    def __call__(self, **kwargs: Any) -> Self | _TModelInstance:
+        for k, v in kwargs.items():
+            self._validate_field(self.model, k, v)
+
+        self._kwargs_cache.update(kwargs)
+
+        if self.model.model_fields.keys() == self._kwargs_cache.keys():
+            return self.model(**self._kwargs_cache)
+        return self
