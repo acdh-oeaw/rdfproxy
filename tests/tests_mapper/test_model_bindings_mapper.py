@@ -35,6 +35,6 @@ def test_basic_model_bindings_mapper(model, bindings, expected):
     Given a model and a set of bindings, run the BindingsModelMapper logic
     and compare the result against the expected shape.
     """
-    mapper: _ModelBindingsMapper = _ModelBindingsMapper(model, *bindings)
+    mapper: _ModelBindingsMapper = _ModelBindingsMapper(model, bindings)
     models: list[BaseModel] = mapper.get_models()
     assert [model.model_dump() for model in models] == expected
