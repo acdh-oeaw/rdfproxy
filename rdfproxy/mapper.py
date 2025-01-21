@@ -1,6 +1,6 @@
 """ModelBindingsMapper: Functionality for mapping binding maps to a Pydantic model."""
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from itertools import chain
 from typing import Generic, get_args
 
@@ -32,7 +32,7 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
     should be added to the _ModelBindingsMapper subclass.
     """
 
-    def __init__(self, model: type[_TModelInstance], *bindings: dict):
+    def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]):
         self.model = model
         self.bindings = bindings
 
@@ -125,7 +125,7 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
     def _instantiate_grouped_model_from_df(
         self, df: pd.DataFrame, model: type[_TModelInstance]
     ) -> _TModelInstance:
-        """Instantiate a grouped model from a pd.DataFrame (a group dataframe).
+        """Instantiate a grouped model  pd.DataFrame (a group dataframe).
 
         This handles the GROUPED code path in _ModelBindingsMapper._instantiate_models.
         """

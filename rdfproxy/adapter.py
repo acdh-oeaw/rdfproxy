@@ -70,7 +70,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug(f"Running items query: \n{items_query}")
 
         items_query_bindings: Iterator[dict] = self.sparql_strategy.query(items_query)
-        mapper = _ModelBindingsMapper(self._model, *items_query_bindings)
+        mapper = _ModelBindingsMapper(self._model, items_query_bindings)
         items: list[_TModelInstance] = mapper.get_models()
 
         logger.debug(f"Running count query: \n{count_query}")
