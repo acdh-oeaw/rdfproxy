@@ -7,6 +7,7 @@ from tests.tests_mapper.params.models.basic_model import (
     BasicNestedModel,
     BasicSimpleModel,
 )
+from tests.tests_mapper.params.models.empty_default_only_model import DefaultOnly, Empty
 from tests.tests_mapper.params.models.grouping_model import GroupingComplexModel
 from tests.tests_mapper.params.models.nested_grouping_model import (
     GroupingNestedComplexModel,
@@ -254,5 +255,18 @@ grouping_nested_model_parameters = [
             {"b": {"x": 1, "y": 2}, "c": [{"x": 1, "y": 2}]},
             {"b": {"x": 1, "y": 3}, "c": [{"x": 1, "y": 3}]},
         ],
+    ),
+]
+
+empty_default_only_model_parameters = [
+    ModelBindingsMapperParameter(
+        model=Empty,
+        bindings=[{} for _ in range(100)],
+        expected=[{} for _ in range(100)],
+    ),
+    ModelBindingsMapperParameter(
+        model=DefaultOnly,
+        bindings=[{} for _ in range(100)],
+        expected=[{"x": 1} for _ in range(100)],
     ),
 ]
