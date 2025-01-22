@@ -14,6 +14,10 @@ from tests.tests_mapper.params.models.nested_grouping_model import (
     NestedComplexModel,
     NestedGroupingComplexModel,
 )
+from tests.tests_mapper.params.models.none_models import (
+    SimpleNoneModel,
+    TwoFieldNoneModel,
+)
 from tests.utils._types import ModelBindingsMapperParameter
 
 
@@ -150,6 +154,20 @@ basic_parameters = [
             {"a": "a value", "b": {"x": 3, "y": 4}},
         ],
     ),
+    # test for empty string/falsy fields
+    ModelBindingsMapperParameter(
+        model=BasicNestedModel,
+        bindings=[
+            {"a": "a value", "x": 1, "y": 2},
+            {"a": "a value", "x": 3, "y": 4},
+            {"a": "", "x": 3, "y": 4},
+        ],
+        expected=[
+            {"a": "a value", "b": {"x": 1, "y": 2}},
+            {"a": "a value", "b": {"x": 3, "y": 4}},
+            {"a": "", "b": {"x": 3, "y": 4}},
+        ],
+    ),
     ModelBindingsMapperParameter(
         model=BasicComplexModel,
         bindings=[{"a": "a value", "x": 1, "y": 2, "p": "p value"}],
@@ -165,6 +183,17 @@ basic_parameters = [
             {"p": "p value", "q": {"a": "a value", "b": {"x": 1, "y": 2}}},
             {"p": "p value", "q": {"a": "a value", "b": {"x": 3, "y": 4}}},
         ],
+    ),
+    # tests for empty string/falsy fields
+    ModelBindingsMapperParameter(
+        model=BasicComplexModel,
+        bindings=[{"a": "", "x": 1, "y": 2, "p": "p value"}],
+        expected=[{"p": "p value", "q": {"a": "", "b": {"x": 1, "y": 2}}}],
+    ),
+    ModelBindingsMapperParameter(
+        model=BasicComplexModel,
+        bindings=[{"a": "a value", "x": 1, "y": 2, "p": ""}],
+        expected=[{"p": "", "q": {"a": "a value", "b": {"x": 1, "y": 2}}}],
     ),
 ]
 
@@ -268,5 +297,23 @@ empty_default_only_model_parameters = [
         model=DefaultOnly,
         bindings=[{} for _ in range(100)],
         expected=[{"x": 1} for _ in range(100)],
+    ),
+]
+
+none_model_parameters = [
+    ModelBindingsMapperParameter(
+        model=SimpleNoneModel,
+        bindings=[{"x": None}],
+        expected=[{"x": None}],
+    ),
+    ModelBindingsMapperParameter(
+        model=TwoFieldNoneModel,
+        bindings=[{"y": None}],
+        expected=[{"x": 1, "y": None}],
+    ),
+    ModelBindingsMapperParameter(
+        model=TwoFieldNoneModel,
+        bindings=[{"x": 2, "y": None}],
+        expected=[{"x": 2, "y": None}],
     ),
 ]
