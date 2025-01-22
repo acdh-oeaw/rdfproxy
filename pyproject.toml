@@ -23,6 +23,8 @@ deptry = "^0.20.0"
 pytest = "^8.3.3"
 pytest-cov = "^5.0.0"
 pytest-randomly = "^3.15.0"
+mkdocstrings = {extras = ["python"], version = "^0.27.0"}
+mkdocs-material = "^9.5.50"
 
 
 [tool.poetry.group.examples.dependencies]
