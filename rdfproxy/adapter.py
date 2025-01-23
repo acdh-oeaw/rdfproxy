@@ -9,6 +9,7 @@ from rdfproxy.constructor import QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparql_strategies import HttpxStrategy, SPARQLStrategy
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
 
 
@@ -40,7 +41,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         sparql_strategy: type[SPARQLStrategy] = HttpxStrategy,
     ) -> None:
         self._target = target
-        self._query = query
+        self._query = check_query(query)
         self._model = model
 
         self.sparql_strategy = sparql_strategy(self._target)

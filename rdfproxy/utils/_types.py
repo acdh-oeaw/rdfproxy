@@ -1,9 +1,13 @@
 """Type definitions for rdfproxy."""
 
+from collections import UserString
 from collections.abc import Iterable
-from typing import Protocol, TypeAlias, TypeVar, runtime_checkable
+from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict as PydanticConfigDict
+from rdflib.plugins.sparql.parser import parseQuery
+from rdflib.plugins.sparql.parserutils import CompValue
+from rdfproxy.utils._exceptions import QueryParseException
 
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
@@ -49,3 +53,24 @@ class ConfigDict(PydanticConfigDict, total=False):
 
     group_by: str
     model_bool: _TModelBoolValue
+
+
+_TQuery = TypeVar("_TQuery", bound=str)
+
+
+class ParsedSPARQL(Generic[_TQuery], UserString):
+    """UserString for encapsulating parsed SPARQL queries."""
+
+    def __init__(self, query: _TQuery) -> None:
+        self.data: _TQuery = query
+        self.parse_object: CompValue = self._get_parse_object(query)
+
+    @staticmethod
+    def _get_parse_object(query: str) -> CompValue:
+        try:
+            _parsed = parseQuery(query)
+        except Exception as e:
+            raise QueryParseException(e) from e
+        else:
+            _, parse_object = _parsed
+            return parse_object
