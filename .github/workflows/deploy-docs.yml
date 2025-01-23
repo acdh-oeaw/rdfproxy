@@ -1,0 +1,30 @@
+name: docs
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Install dependencies
+        run: poetry install --only dev
+
+      - name: Validate MkDocs build
+        run: poetry run mkdocs build --strict
+
+      - name: Deploy MkDocs
+        run: poetry run mkdocs gh-deploy --force
