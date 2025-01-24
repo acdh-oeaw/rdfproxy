@@ -1,5 +1,4 @@
 from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import QueryParameters
 from rdfproxy.utils.sparql_utils import (
     add_solution_modifier,
@@ -15,7 +14,7 @@ from rdfproxy.utils.utils import (
 )
 
 
-class QueryConstructor:
+class _QueryConstructor:
     """The class encapsulates dynamic SPARQL query modification logic
     for implementing purely SPARQL-based, deterministic pagination.
 

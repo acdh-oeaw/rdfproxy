@@ -5,7 +5,7 @@ import logging
 import math
 from typing import Generic
 
-from rdfproxy.constructor import QueryConstructor
+from rdfproxy.constructor import _QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparql_strategies import HttpxStrategy, SPARQLStrategy
 from rdfproxy.utils._types import _TModelInstance
@@ -59,7 +59,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             "Running SPARQLModelAdapter.query against endpoint '%'", self._target
         )
 
-        query_constructor = QueryConstructor(
+        query_constructor = _QueryConstructor(
             query=self._query,
             query_parameters=query_parameters,
             model=self._model,
