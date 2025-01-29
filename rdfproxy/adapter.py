@@ -7,7 +7,7 @@ from typing import Generic
 
 from rdfproxy.constructor import _QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
-from rdfproxy.sparql_strategies import HttpxStrategy, SPARQLStrategy
+from rdfproxy.sparqlwrapper import SPARQLWrapper
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
@@ -38,13 +38,12 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         target: str,
         query: str,
         model: type[_TModelInstance],
-        sparql_strategy: type[SPARQLStrategy] = HttpxStrategy,
     ) -> None:
         self._target = target
         self._query = check_query(query)
         self._model = model
 
-        self.sparql_strategy = sparql_strategy(self._target)
+        self.sparqlwrapper = SPARQLWrapper(self._target)
 
         logger.info("Initialized SPARQLModelAdapter.")
         logger.debug("Endpoint: %s", self._target)
@@ -70,13 +69,13 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         logger.debug("Running items query: \n%s", items_query)
 
-        items_query_bindings: Iterator[dict] = self.sparql_strategy.query(items_query)
+        items_query_bindings: Iterator[dict] = self.sparqlwrapper.query(items_query)
         mapper = _ModelBindingsMapper(self._model, items_query_bindings)
         items: list[_TModelInstance] = mapper.get_models()
 
         logger.debug("Running count query: \n%s", count_query)
 
-        count_query_bindings: Iterator[dict] = self.sparql_strategy.query(count_query)
+        count_query_bindings: Iterator[dict] = self.sparqlwrapper.query(count_query)
         total: int = int(next(count_query_bindings)["cnt"])
         pages: int = math.ceil(total / query_parameters.size)
 
