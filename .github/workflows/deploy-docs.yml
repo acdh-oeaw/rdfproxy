@@ -1,12 +1,10 @@
 name: docs
 on:
   push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build:
-
+  docs:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,8 +21,9 @@ jobs:
       - name: Install dependencies
         run: poetry install --only dev
 
-      - name: Validate MkDocs build
+      - name: Build MkDocs
         run: poetry run mkdocs build --strict
 
       - name: Deploy MkDocs
+        if: github.ref == 'refs/heads/main'
         run: poetry run mkdocs gh-deploy --force
