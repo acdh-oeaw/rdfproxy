@@ -1,9 +1,9 @@
-This part of the documentation provides automatically generated information about public symbols.
+This part of the documentation provides automatically generated information about RDFProxy symbols.
 
 ---
 ::: rdfproxy.adapter.SPARQLModelAdapter
 ---
-::: rdfproxy.constructor.QueryConstructor
+::: rdfproxy.constructor._QueryConstructor
 ---
 ::: rdfproxy.mapper._ModelBindingsMapper
 ---
