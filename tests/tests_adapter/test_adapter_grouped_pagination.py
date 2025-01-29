@@ -2,9 +2,8 @@
 
 from typing import Annotated, Any, NamedTuple
 
-import pytest
-
 from pydantic import BaseModel
+import pytest
 from rdfproxy import (
     ConfigDict,
     HttpxStrategy,
@@ -12,7 +11,6 @@ from rdfproxy import (
     QueryParameters,
     SPARQLBinding,
     SPARQLModelAdapter,
-    SPARQLWrapperStrategy,
 )
 
 
@@ -59,7 +57,7 @@ class Parent(BaseModel):
     children: list[Child]
 
 
-@pytest.fixture(params=[HttpxStrategy, SPARQLWrapperStrategy])
+@pytest.fixture(params=[HttpxStrategy])
 def adapter(request):
     return SPARQLModelAdapter(
         target="https://graphdb.r11.eu/repositories/RELEVEN",
@@ -69,7 +67,7 @@ def adapter(request):
     )
 
 
-@pytest.fixture(params=[HttpxStrategy, SPARQLWrapperStrategy])
+@pytest.fixture(params=[HttpxStrategy])
 def binding_adapter(request):
     return SPARQLModelAdapter(
         target="https://graphdb.r11.eu/repositories/RELEVEN",
@@ -79,7 +77,7 @@ def binding_adapter(request):
     )
 
 
-@pytest.fixture(params=[HttpxStrategy, SPARQLWrapperStrategy])
+@pytest.fixture(params=[HttpxStrategy])
 def ungrouped_adapter(request):
     return SPARQLModelAdapter(
         target="https://graphdb.r11.eu/repositories/RELEVEN",
