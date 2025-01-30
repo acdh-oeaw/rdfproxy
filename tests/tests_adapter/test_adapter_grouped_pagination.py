@@ -13,6 +13,17 @@ from rdfproxy import (
     SPARQLModelAdapter,
 )
 
+query = """
+select ?parent ?child ?name
+where {
+    values (?parent ?child ?name) {
+        ('x' 'c' 'foo')
+        ('y' 'd' UNDEF)
+        ('y' 'e' UNDEF)
+        ('z' UNDEF UNDEF)
+    }
+}
+"""
 
 binding_query = """
 select ?parentBinding ?child ?name
@@ -26,11 +37,23 @@ where {
 }
 """
 
-query = """
+all_undef_query = """
 select ?parent ?child ?name
 where {
     values (?parent ?child ?name) {
-        ('x' 'c' 'foo')
+        ('x' 'c' UNDEF)
+        ('y' 'd' UNDEF)
+        ('y' 'e' UNDEF)
+        ('z' UNDEF UNDEF)
+    }
+}
+"""
+
+all_undef_binding_query = """
+select ?parentBinding ?child ?name
+where {
+    values (?parentBinding ?child ?name) {
+        ('x' 'c' UNDEF)
         ('y' 'd' UNDEF)
         ('y' 'e' UNDEF)
         ('z' UNDEF UNDEF)
@@ -231,10 +254,45 @@ ungrouped_adapter_parameters = [
     ),
 ]
 
+all_undef_adapter_parameters = [
+    AdapterParameter(
+        model=Parent,
+        query=all_undef_query,
+        query_parameters={},
+        expected=Page[Parent](
+            items=[
+                Parent(parent="x", children=[]),
+                Parent(parent="y", children=[]),
+                Parent(parent="z", children=[]),
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=all_undef_binding_query,
+        query_parameters={},
+        expected=Page[BindingParent](
+            items=[
+                BindingParent(parent="x", children=[]),
+                BindingParent(parent="y", children=[]),
+                BindingParent(parent="z", children=[]),
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
+]
+
 
 @pytest.mark.parametrize(
     "params",
-    chain(binding_adapter_parameters, adapter_parameters),
+    chain(binding_adapter_parameters, adapter_parameters, all_undef_adapter_parameters),
 )
 def test_adapter_grouped_pagination(params):
     adapter = SPARQLModelAdapter(
