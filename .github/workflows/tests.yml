@@ -21,26 +21,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           
-      - name: Install Poetry
-        run: pipx install poetry
-        
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.26"
+          
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
         
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-        
-      - name: Install project
-        run: poetry install --no-interaction
-        
-      - name: Run pytest
-        run: |
-          # source .venv/bin/activate
-          poetry run pytest tests/
+        run: uv sync --no-group examples 
 
+      - name: Run tests
+        run: uv run pytest tests
+          
       - name: Run pyest-cov
         run: |
-          poetry run pytest --cov rdfproxy/ --cov-report xml
+          uv run pytest --cov rdfproxy/ --cov-report xml
           
       - name: Upload coverage data to coveralls
         uses: coverallsapp/github-action@v2.2.3
