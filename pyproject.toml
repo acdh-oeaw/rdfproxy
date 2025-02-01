@@ -1,37 +1,43 @@
-[tool.poetry]
+[project]
 name = "rdfproxy"
 version = "0.2.0"
 description = ""
 authors = [
-    "Birger Schacht <birger.schacht@oeaw.ac.at>",
-    "Lukas Plank <lukas.plank@oeaw.ac.at>"
+    { name = "Birger Schacht", email = "birger.schacht@oeaw.ac.at" },
+    { name = "Lukas Plank", email = "lukas.plank@oeaw.ac.at" },
 ]
+requires-python = "~=3.11"
 readme = "README.md"
+dependencies = [
+    "pydantic>=2.9.2,<3",
+    "httpx>=0.28.1,<0.29",
+    "rdflib>=7.1.1,<8",
+    "pandas>=2.2.3,<3",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-pydantic = "^2.9.2"
+[dependency-groups]
+dev = [
+    "ruff>=0.7.0,<0.8",
+    "deptry>=0.20.0,<0.21",
+    "pytest>=8.3.3,<9",
+    "pytest-cov>=5.0.0,<6",
+    "pytest-randomly>=3.15.0,<4",
+    "mkdocstrings[python]>=0.27.0,<0.28",
+    "mkdocs-material>=9.5.50,<10",
+]
+examples = [
+    "fastapi[standard]>=0.115.8",
+]
 
-
-httpx = "^0.28.1"
-rdflib = "^7.1.1"
-pandas = "^2.2.3"
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.7.0"
-deptry = "^0.20.0"
-pytest = "^8.3.3"
-pytest-cov = "^5.0.0"
-pytest-randomly = "^3.15.0"
-mkdocstrings = {extras = ["python"], version = "^0.27.0"}
-mkdocs-material = "^9.5.50"
-
-
-[tool.poetry.group.examples.dependencies]
-fastapi = {extras = ["standard"], version = "^0.115.2"}
+[tool.uv]
+default-groups = [
+    "dev",
+    "examples",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.deptry.package_module_name_map]
 sparqlwrapper = "SPARQLWrapper"
