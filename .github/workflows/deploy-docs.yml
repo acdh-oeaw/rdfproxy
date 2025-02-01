@@ -10,20 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.11
+          version: "0.5.26"
 
-      - name: Install Poetry
-        run: pipx install poetry
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
       - name: Install dependencies
-        run: poetry install --only dev
+        run: uv sync --no-group examples
 
       - name: Build MkDocs
-        run: poetry run mkdocs build --strict
+        run: uv run mkdocs build --strict
 
       - name: Deploy MkDocs
         if: github.ref == 'refs/heads/main'
-        run: poetry run mkdocs gh-deploy --force
+        run: uv run mkdocs gh-deploy --force
