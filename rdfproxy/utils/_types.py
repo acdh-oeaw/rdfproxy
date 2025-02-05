@@ -73,4 +73,5 @@ class ParsedSPARQL(Generic[_TQuery], UserString):
             raise QueryParseException(e) from e
         else:
             _, parse_object = _parsed
+            assert isinstance(parse_object, CompValue)  # type narrow
             return parse_object
