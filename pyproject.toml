@@ -50,3 +50,12 @@ extend_exclude = ["examples"]
 markers = [
 	"remote: Mark tests that connect to a remote service",
 ]
+
+[tool.mypy]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = ["pandas.*"]
+ignore_missing_imports = true
