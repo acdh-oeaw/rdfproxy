@@ -1,6 +1,7 @@
 """Functionality for performing checks on SPARQL queries."""
 
 import logging
+from typing import TypeVar
 
 from rdfproxy.utils._exceptions import UnsupportedQueryException
 from rdfproxy.utils._types import ParsedSPARQL, _TQuery
@@ -10,7 +11,10 @@ from rdfproxy.utils.utils import compose_left
 logger = logging.getLogger(__name__)
 
 
-def _check_select_query(parsed_sparql: ParsedSPARQL) -> ParsedSPARQL:
+_TParsedSPARQL = TypeVar("_TParsedSPARQL", bound=ParsedSPARQL)
+
+
+def _check_select_query(parsed_sparql: _TParsedSPARQL) -> _TParsedSPARQL:
     """Check if a SPARQL query is a SELECT query.
 
     This is meant to run as a component in check_query.
@@ -22,7 +26,7 @@ def _check_select_query(parsed_sparql: ParsedSPARQL) -> ParsedSPARQL:
     return parsed_sparql
 
 
-def _check_solution_modifiers(parsed_sparql: ParsedSPARQL) -> ParsedSPARQL:
+def _check_solution_modifiers(parsed_sparql: _TParsedSPARQL) -> _TParsedSPARQL:
     """Check if a SPARQL query has a solution modifier.
 
     This is meant to run as a component in check_query.
@@ -49,7 +53,7 @@ def check_query(query: _TQuery) -> _TQuery:
     logger.debug("Running query check pipeline on '%s'", query)
     parsed_sparql = ParsedSPARQL(query=query)
 
-    result: ParsedSPARQL = compose_left(
+    result: ParsedSPARQL[_TQuery] = compose_left(
         _check_select_query,
         _check_solution_modifiers,
     )(parsed_sparql)
