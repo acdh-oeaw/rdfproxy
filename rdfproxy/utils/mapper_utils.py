@@ -15,6 +15,10 @@ def _is_list_type(obj: type | None) -> bool:
     return _is_type(obj, list)
 
 
+def _is_scalar_type(t) -> bool:
+    return (not _is_list_type(t)) and (not issubclass(t, BaseModel))
+
+
 def _is_list_basemodel_type(obj: type | None) -> bool:
     """Check if a type is list[pydantic.BaseModel]."""
     return (get_origin(obj) is list) and all(

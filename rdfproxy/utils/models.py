@@ -6,6 +6,7 @@ from typing import Any, Generic
 from pydantic import BaseModel, Field, model_validator
 from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.mapper_utils import _is_scalar_type
 
 
 class Page(BaseModel, Generic[_TModelInstance]):
@@ -54,7 +55,7 @@ class QueryParameters(
         _order_by_fields = [
             (k, auto())
             for k, v in model.model_fields.items()
-            if get_origin(v.annotation) is not list
+            if _is_scalar_type(v.annotation)
         ]
 
         OrderByEnum = StrEnum("OrderByEnum", _order_by_fields)
