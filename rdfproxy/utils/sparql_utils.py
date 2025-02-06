@@ -64,7 +64,7 @@ def add_solution_modifier(
     modifiers = []
 
     if order_by is not None:
-        modifiers.append(f"order by ?{order_by}")
+        modifiers.append(f"order by {order_by}")
     if limit is not None:
         modifiers.append(f"limit {limit}")
     if offset is not None:
