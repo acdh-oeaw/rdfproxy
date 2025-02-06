@@ -3,7 +3,7 @@
 from typing import Annotated
 
 from fastapi import FastAPI, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
 
 
@@ -26,6 +26,8 @@ class Person(BaseModel):
     name: str
     work: Work
 
+    work_name: Annotated[str, SPARQLBinding("title")] = Field(exclude=True)
+
 
 adapter = SPARQLModelAdapter(
     target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
@@ -38,5 +40,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def base_route(query_parameters: Annotated[QueryParameters, Query()]) -> Page[Person]:
+def base_route(
+    query_parameters: Annotated[QueryParameters[Person], Query()],
+) -> Page[Person]:
     return adapter.query(query_parameters)

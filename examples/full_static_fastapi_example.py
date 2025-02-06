@@ -1,9 +1,10 @@
 """RDFProxy-based FastAPI route example: Static query targeting Wikidata with grouped and nested models."""
 
+import logging
 from typing import Annotated
 
 from fastapi import FastAPI, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -11,6 +12,8 @@ from rdfproxy import (
     SPARQLBinding,
     SPARQLModelAdapter,
 )
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 query = """
@@ -43,6 +46,8 @@ class Author(BaseModel):
     works: list[Work]
     education: Annotated[list[str], SPARQLBinding("educatedAt")]
 
+    workName: str = Field(exclude=True, description="Excluded field for ordering.")
+
 
 adapter = SPARQLModelAdapter(
     target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
@@ -54,5 +59,7 @@ app = FastAPI()
 
 
 @app.get("/")
-def base_route(query_parameters: Annotated[QueryParameters, Query()]) -> Page[Author]:
+def base_route(
+    query_parameters: Annotated[QueryParameters[Author], Query()],
+) -> Page[Author]:
     return adapter.query(query_parameters)
