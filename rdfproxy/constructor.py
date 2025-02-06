@@ -36,6 +36,9 @@ class _QueryConstructor:
         self.group_by: str | None = self.bindings_map.get(
             model.model_config.get("group_by")
         )
+        self.order_by: str | None = self.bindings_map.get(query_parameters.order_by)
+
+        print("DEBUG: ", self.order_by)
 
     def get_items_query(self) -> str:
         """Construct a SPARQL items query for use in rdfproxy.SPARQLModelAdapter."""
@@ -118,7 +121,13 @@ class _QueryConstructor:
         return f"select distinct ?{self.group_by}"
 
     def _compute_order_by_value(self):
-        """Stub: Only basic logic for now."""
-        if self.group_by is None:
-            return get_query_projection(self.query)[0]
-        return f"{self.group_by}"
+        """Compute a value for ORDER BY used in RDFProxy query modification."""
+        match (self.group_by, self.order_by):
+            case None, None:
+                return f"?{get_query_projection(self.query)[0]}"
+            case group_by, None:
+                return f"?{group_by}"
+            case _, order_by:
+                return f"{'DESC' if self.query_parameters.desc else 'ASC'}(?{order_by})"
+            case _:  # pragma: no cover
+                assert False, "Unreachable case in _compute_order_by_value"
