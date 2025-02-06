@@ -1,6 +1,6 @@
 # RDFProxy
 
-![tests](https://github.com/acdh-oeaw/rdfproxy/actions/workflows/tests.yaml/badge.svg)
+![tests](https://github.com/acdh-oeaw/rdfproxy/actions/workflows/tests.yml/badge.svg)
 [![coverage](https://coveralls.io/repos/github/acdh-oeaw/rdfproxy/badge.svg?branch=main&kill_cache=1)](https://coveralls.io/github/acdh-oeaw/rdfproxy?branch=main&kill_cache=1)
 [![docs](https://github.com/acdh-oeaw/rdfproxy/actions/workflows/deploy-docs.yml/badge.svg)](https://acdh-oeaw.github.io/rdfproxy/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
