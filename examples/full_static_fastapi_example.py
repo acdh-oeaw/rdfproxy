@@ -4,7 +4,7 @@ import logging
 from typing import Annotated
 
 from fastapi import FastAPI, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -45,8 +45,6 @@ class Author(BaseModel):
     surname: Annotated[str, SPARQLBinding("authorName")]
     works: list[Work]
     education: Annotated[list[str], SPARQLBinding("educatedAt")]
-
-    workName: str = Field(exclude=True, description="Excluded field for ordering.")
 
 
 adapter = SPARQLModelAdapter(
