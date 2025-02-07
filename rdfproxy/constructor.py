@@ -9,6 +9,7 @@ from rdfproxy.utils.sparql_utils import (
 )
 from rdfproxy.utils.utils import (
     FieldsBindingsMap,
+    NamespacedFieldBindingsMap,
     QueryConstructorComponent as component,
     compose_left,
 )
@@ -33,10 +34,13 @@ class _QueryConstructor:
         self.model = model
 
         self.bindings_map = FieldsBindingsMap(model)
+        self.namespaced_bindings_map = NamespacedFieldBindingsMap(model)
         self.group_by: str | None = self.bindings_map.get(
             model.model_config.get("group_by")
         )
-        self.order_by: str | None = self.bindings_map.get(query_parameters.order_by)
+        self.order_by: str | None = self.namespaced_bindings_map.get(
+            query_parameters.order_by
+        )
 
         print("DEBUG: ", self.order_by)
 

@@ -5,8 +5,10 @@ from collections.abc import Callable
 from functools import partial
 from typing import Any, Generic, Self, TypeVar
 
+from pydantic import BaseModel
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils._types import SPARQLBinding
+from rdfproxy.utils.mapper_utils import _is_scalar_type
 
 
 T = TypeVar("T")
@@ -38,6 +40,26 @@ class FieldsBindingsMap(UserDict):
             k: next(filter(lambda x: isinstance(x, SPARQLBinding), v.metadata), k)
             for k, v in model.model_fields.items()
         }
+
+
+class NamespacedFieldBindingsMap(FieldsBindingsMap):
+    """Recursive FieldBindingsMap that generates namespaced key entries."""
+
+    @staticmethod
+    def _get_field_binding_mapping(model: type[_TModelInstance]) -> dict[str, str]:
+        """Resolve model fields against rdfproxy.SPARQLBindings."""
+
+        def _construct_bindings(model, top_level=True):
+            bindings_map = FieldsBindingsMap(model)
+
+            for k, v in model.model_fields.items():
+                if isinstance(v.annotation, type(BaseModel)):
+                    yield from _construct_bindings(v.annotation, top_level=False)
+
+                if _is_scalar_type(v.annotation):
+                    yield (k if top_level else f"{model.__name__}.{k}", bindings_map[k])
+
+        return dict(_construct_bindings(model))
 
 
 def compose_left(*fns: Callable[[T], T]) -> Callable[[T], T]:

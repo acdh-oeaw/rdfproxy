@@ -1,12 +1,12 @@
 """Pydantic Model definitions for rdfproxy."""
 
-from enum import StrEnum, auto
+from enum import StrEnum
 from typing import Any, Generic
 
 from pydantic import BaseModel, Field, model_validator
 from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils.mapper_utils import _is_scalar_type
+from rdfproxy.utils.utils import NamespacedFieldBindingsMap
 
 
 class Page(BaseModel, Generic[_TModelInstance]):
@@ -52,11 +52,7 @@ class QueryParameters(
         return data
 
     def __class_getitem__(cls, model: type[_TModelInstance]):
-        _order_by_fields = [
-            (k, auto())
-            for k, v in model.model_fields.items()
-            if _is_scalar_type(v.annotation)
-        ]
+        _order_by_fields = [(k, k) for k in NamespacedFieldBindingsMap(model).keys()]
 
         OrderByEnum = StrEnum("OrderByEnum", _order_by_fields)
         cls.model_fields["order_by"] = FieldInfo(annotation=OrderByEnum, default=None)

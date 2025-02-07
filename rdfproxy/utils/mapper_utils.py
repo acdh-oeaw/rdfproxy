@@ -26,6 +26,12 @@ def _is_list_basemodel_type(obj: type | None) -> bool:
     )
 
 
+def _is_model_or_list_model_type(obj: type | None) -> bool:
+    if obj is None:
+        return False
+    return _is_list_basemodel_type(obj) or issubclass(obj, BaseModel)
+
+
 def default_model_bool_predicate(model: BaseModel) -> bool:
     """Default predicate for determining model truthiness.
 
