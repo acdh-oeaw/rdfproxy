@@ -2,7 +2,7 @@
 
 from itertools import chain
 import re
-from typing import overload
+from typing import cast, overload
 
 from rdflib import Variable
 from rdflib.plugins.sparql.parser import parseQuery
@@ -81,7 +81,7 @@ def _compvalue_to_dict(comp_value: dict | CompValue) -> dict: ...
 def _compvalue_to_dict(comp_value: list | ParseResults) -> list: ...
 
 
-def _compvalue_to_dict(comp_value: CompValue):
+def _compvalue_to_dict(comp_value):
     """Convert a CompValue parsing object into a Python dict/list representation.
 
     Helper for get_query_projection.
@@ -113,6 +113,6 @@ def get_query_projection(query: str) -> list[Variable]:
             )
             return list(projection)
         case {"where": {"part": [{"var": var}]}}:
-            return var
+            return cast(list, var)
         case _:  # pragma: no cover
             raise Exception("Unable to obtain query projection.")

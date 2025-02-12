@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import TypeGuard, get_args, get_origin
+from typing import TypeGuard, cast, get_args, get_origin
 
 from pydantic import BaseModel
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelBoolValue
@@ -59,6 +59,7 @@ def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
     if (model_bool_value := model.model_config.get("model_bool", None)) is None:
         model_bool_predicate = default_model_bool_predicate
     else:
+        model_bool_value = cast(_TModelBoolValue, model_bool_value)
         model_bool_predicate = _get_model_bool_predicate_from_config_value(
             model_bool_value
         )

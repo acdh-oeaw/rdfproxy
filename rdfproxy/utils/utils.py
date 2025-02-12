@@ -43,7 +43,7 @@ class FieldsBindingsMap(UserDict):
 def compose_left(*fns: Callable[[T], T]) -> Callable[[T], T]:
     """Left associative compose."""
 
-    def _left_wrapper(*fns):
+    def _left_wrapper(*fns: Callable[[T], T]) -> Callable[[T], T]:
         fn, *rest_fns = fns
 
         if rest_fns:
@@ -66,7 +66,7 @@ class QueryConstructorComponent:
         self.f = f
         self.kwargs = kwargs
 
-    def __call__(self, query) -> str:
+    def __call__(self, query: str) -> str:
         if tkwargs := {k: v for k, v in self.kwargs.items() if v is not None}:
             return partial(self.f, **tkwargs)(query)
         return query
