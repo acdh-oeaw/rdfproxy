@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.3.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.2.0...v0.3.0) (2025-02-12)
+
+
+### Features
+
+* add __init__ for rdfproxy.utils ([99cd75d](https://github.com/acdh-oeaw/rdfproxy/commit/99cd75d3b2382e028e654b218c2df068344c54f8))
+* add QueryParameters default argument ([88cdcfb](https://github.com/acdh-oeaw/rdfproxy/commit/88cdcfbcdbce21d874ad88cbe907cec840c1b7e9))
+* change _ModelBindingsMapper bindings param to take an Iterable ([b06eb36](https://github.com/acdh-oeaw/rdfproxy/commit/b06eb36cfa2497b5b651ccaf39f1f38fed555bfd))
+* implement basic logging for SPARQLModelAdapter ([dd2a1b3](https://github.com/acdh-oeaw/rdfproxy/commit/dd2a1b37a3a66d6dde92455f056191a56ee8a478))
+* implement query checking ([d25b5af](https://github.com/acdh-oeaw/rdfproxy/commit/d25b5afee9c4954a6d6102e9e60938ca6d8b5a57))
+* implement thin httpx SPARQLWrapper ([800ddec](https://github.com/acdh-oeaw/rdfproxy/commit/800ddec18fcda93485d12faf29e6d582366e3718))
+* mark QueryConstructor class private ([4769423](https://github.com/acdh-oeaw/rdfproxy/commit/4769423888882d7925532c3efdf396ffb5e88f22))
+* **SPARQLWrapper:** implement RDFLib-based response extraction ([17b3693](https://github.com/acdh-oeaw/rdfproxy/commit/17b3693eef327196a16b4c72381281e7221277d1))
+
+
+### Bug Fixes
+
+* **docs:** use correct link to tests badge ([65b5abb](https://github.com/acdh-oeaw/rdfproxy/commit/65b5abb2bfb8eda3342e6cc0966f5bdf901553c9))
+* handle all-UNDEF binding aggregation ([9be99ba](https://github.com/acdh-oeaw/rdfproxy/commit/9be99ba8a4d84818428de21197aaf739db23ecbe))
+* **logging:** use % format specifier for logging ([b1ea529](https://github.com/acdh-oeaw/rdfproxy/commit/b1ea5294dfee823aec6ebcc68d33b60e2bedcc1a))
+* reference private _QueryConstructor correctly in mkdocs ([1968eb7](https://github.com/acdh-oeaw/rdfproxy/commit/1968eb7fb1994f77fa24ad5b78f1679142263862))
+* **test:** fix sketchy test for ModelBindingsMapper ([6ba1e49](https://github.com/acdh-oeaw/rdfproxy/commit/6ba1e493b292fb17ce849af4170cde4bc1325499))
+
+
+### Documentation
+
+* **readme:** add docs status badge to readme ([4d15e06](https://github.com/acdh-oeaw/rdfproxy/commit/4d15e06c62271af9ebd3fd366bbf72ef4a6bc87a))
+* setup basic mkdocs ([2b1dba2](https://github.com/acdh-oeaw/rdfproxy/commit/2b1dba2ab097a4fdbcefe11bc390aadc9975304d))
+* update examples README ([686864e](https://github.com/acdh-oeaw/rdfproxy/commit/686864e185736fbd6aa3fa81e90c69513714549b))
+
 ## [0.2.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.1.0...v0.2.0) (2024-12-23)
 
 
