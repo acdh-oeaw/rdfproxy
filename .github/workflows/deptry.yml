@@ -3,7 +3,7 @@ name: Run deptry dependency checker
 on: [push, pull_request]
 
 jobs:
-  docs:
+  run-deptry:
     runs-on: ubuntu-latest
 
     steps:

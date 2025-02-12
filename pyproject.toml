@@ -24,7 +24,6 @@ dev = [
     "pytest-randomly>=3.15.0,<4",
     "mkdocstrings[python]>=0.27.0,<0.28",
     "mkdocs-material>=9.5.50,<10",
-    "mypy>=1.15.0",
 ]
 examples = [
     "fastapi[standard]>=0.115.8",
@@ -50,13 +49,3 @@ extend_exclude = ["examples"]
 markers = [
 	"remote: Mark tests that connect to a remote service",
 ]
-
-[tool.mypy]
-# strict = true
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = ["pandas.*"]
-ignore_missing_imports = true

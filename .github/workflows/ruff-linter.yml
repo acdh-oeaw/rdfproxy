@@ -3,7 +3,7 @@ name: Run ruff linter
 on: [push, pull_request]
 
 jobs:
-  docs:
+  run-ruff-linter:
     runs-on: ubuntu-latest
 
     steps:
