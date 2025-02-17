@@ -8,11 +8,8 @@ import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from pydantic import BaseModel
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
-from rdfproxy.utils.mapper_utils import (
-    _is_list_basemodel_type,
-    _is_list_type,
-    get_model_bool_predicate,
-)
+from rdfproxy.utils._typing import _is_list_basemodel_type, _is_list_type
+from rdfproxy.utils.mapper_utils import get_model_bool_predicate
 from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
 
 

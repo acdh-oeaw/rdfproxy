@@ -1,25 +1,8 @@
 from collections.abc import Iterable
-from typing import TypeGuard, get_args, get_origin
+from typing import TypeGuard
 
 from pydantic import BaseModel
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelBoolValue
-
-
-def _is_type(obj: type | None, _type: type) -> bool:
-    """Check if an obj is type _type or a GenericAlias with origin _type."""
-    return (obj is _type) or (get_origin(obj) is _type)
-
-
-def _is_list_type(obj: type | None) -> bool:
-    """Check if obj is a list type."""
-    return _is_type(obj, list)
-
-
-def _is_list_basemodel_type(obj: type | None) -> bool:
-    """Check if a type is list[pydantic.BaseModel]."""
-    return (get_origin(obj) is list) and all(
-        issubclass(cls, BaseModel) for cls in get_args(obj)
-    )
 
 
 def default_model_bool_predicate(model: BaseModel) -> bool:
