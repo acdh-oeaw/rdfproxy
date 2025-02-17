@@ -15,11 +15,29 @@ def _is_list_type(obj: type | None) -> bool:
     return _is_type(obj, list)
 
 
+def _is_scalar_type(obj) -> bool:
+    """Todo: this is clearly buggy. fix for actual implemenation."""
+    if obj is None:
+        return True
+    elif _is_list_type(obj):
+        return False
+    elif args := get_args(obj):
+        return all(_is_scalar_type(o) for o in args)
+    else:
+        return not issubclass(obj, BaseModel)
+
+
 def _is_list_basemodel_type(obj: type | None) -> bool:
     """Check if a type is list[pydantic.BaseModel]."""
     return (get_origin(obj) is list) and all(
         issubclass(cls, BaseModel) for cls in get_args(obj)
     )
+
+
+def _is_model_or_list_model_type(obj: type | None) -> bool:
+    if obj is None:
+        return False
+    return _is_list_basemodel_type(obj) or issubclass(obj, BaseModel)
 
 
 def default_model_bool_predicate(model: BaseModel) -> bool:
