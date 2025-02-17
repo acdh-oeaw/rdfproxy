@@ -9,6 +9,7 @@ from rdfproxy.constructor import _QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparqlwrapper import SPARQLWrapper
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
 
@@ -41,7 +42,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
     ) -> None:
         self._target = target
         self._query = check_query(query)
-        self._model = model
+        self._model = check_model(model)
 
         self.sparqlwrapper = SPARQLWrapper(self._target)
 
