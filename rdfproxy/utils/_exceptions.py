@@ -26,3 +26,15 @@ class QueryParseException(Exception):
     parseQuery raises a pyparsing.exceptions.ParseException,
     which would require to introduce pyparsing as a dependency just for testing.
     """
+
+
+class RDFProxyModelValidationException(Exception):
+    """Exception for indicating that a model is invalid according to RDFProxy semantics"""
+
+
+class RDFProxyGroupByException(RDFProxyModelValidationException):
+    """Exception for indicating invalid group_by definitions."""
+
+
+class RDFProxyModelBoolException(RDFProxyModelValidationException):
+    """Exception for indicating invalid model_bool definitions."""
