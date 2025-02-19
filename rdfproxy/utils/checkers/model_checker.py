@@ -2,8 +2,8 @@
 
 from rdfproxy.utils._exceptions import RDFProxyGroupByException
 from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils._typing import _is_list_type
 from rdfproxy.utils.model_utils import model_traverse
+from rdfproxy.utils.type_utils import _is_list_static_type
 from rdfproxy.utils.utils import compose_left
 
 
@@ -11,7 +11,7 @@ def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance
     """Model checker for group_by config settings and grouping model semantics."""
     model_group_by_value: str | None = model.model_config.get("group_by")
     model_has_list_field: bool = any(
-        _is_list_type(value.annotation) for value in model.model_fields.values()
+        _is_list_static_type(value.annotation) for value in model.model_fields.values()
     )
 
     match model_group_by_value, model_has_list_field:
@@ -34,7 +34,7 @@ def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance
             applicable_keys: list[str] = [
                 k
                 for k, v in model.model_fields.items()
-                if not _is_list_type(v.annotation)
+                if not _is_list_static_type(v.annotation)
             ]
 
             if model_group_by_value in applicable_keys:
