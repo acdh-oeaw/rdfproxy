@@ -4,10 +4,10 @@ from collections.abc import Callable, Iterator
 from typing import TypeVar, get_args
 
 from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils._typing import (
-    _is_list_basemodel_type,
-    _is_pydantic_model_class,
-    _is_union_pydantic_model_type,
+from rdfproxy.utils.type_utils import (
+    _is_list_pydantic_model_static_type,
+    _is_pydantic_model_static_type,
+    _is_union_pydantic_model_static_type,
 )
 
 
@@ -28,15 +28,15 @@ def model_traverse(
         yield f(model)
 
     for _, field_info in model.model_fields.items():
-        if _is_list_basemodel_type(list_model := field_info.annotation):
+        if _is_list_pydantic_model_static_type(list_model := field_info.annotation):
             nested_model, *_ = get_args(list_model)
             yield from model_traverse(nested_model, f)
 
-        elif _is_pydantic_model_class(nested_model := field_info.annotation):
+        elif _is_pydantic_model_static_type(nested_model := field_info.annotation):
             yield from model_traverse(nested_model, f)
 
-        elif _is_union_pydantic_model_type(union := field_info.annotation):
-            _model_filter = filter(_is_pydantic_model_class, get_args(union))
+        elif _is_union_pydantic_model_static_type(union := field_info.annotation):
+            _model_filter = filter(_is_pydantic_model_static_type, get_args(union))
             nested_model = next(_model_filter)
 
             _multi_model_union = next(_model_filter, False)

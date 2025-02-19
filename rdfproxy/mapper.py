@@ -8,8 +8,11 @@ import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from pydantic import BaseModel
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
-from rdfproxy.utils._typing import _is_list_basemodel_type, _is_list_type
 from rdfproxy.utils.mapper_utils import get_model_bool_predicate
+from rdfproxy.utils.type_utils import (
+    _is_list_pydantic_model_static_type,
+    _is_list_static_type,
+)
 from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
 
 
@@ -130,12 +133,12 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         curried_model = CurryModel(model=model)
 
         for field_name, field_info in model.model_fields.items():
-            if _is_list_basemodel_type(field_info.annotation):
+            if _is_list_pydantic_model_static_type(field_info.annotation):
                 nested_model, *_ = get_args(field_info.annotation)
                 value = self._get_unique_models(
                     self._instantiate_models(df, nested_model)
                 )
-            elif _is_list_type(field_info.annotation):
+            elif _is_list_static_type(field_info.annotation):
                 value = list(dict.fromkeys(df[alias_map[field_name]].dropna()))
             elif isinstance(nested_model := field_info.annotation, type(BaseModel)):
                 first_row = df.iloc[0]
