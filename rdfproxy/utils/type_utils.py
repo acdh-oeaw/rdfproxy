@@ -37,3 +37,15 @@ def _is_union_pydantic_model_static_type(
     )
 
     return is_union_type and has_any_model
+
+
+def _is_scalar_type(obj) -> bool:
+    """Todo: this is clearly buggy. fix for actual implemenation."""
+    if obj is None:
+        return True
+    elif _is_list_static_type(obj):
+        return False
+    elif args := get_args(obj):
+        return all(_is_scalar_type(o) for o in args)
+    else:
+        return not issubclass(obj, BaseModel)
