@@ -1,9 +1,11 @@
 """Pydantic Model definitions for rdfproxy."""
 
+from enum import StrEnum
 from typing import Any, Generic
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, create_model, model_validator
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.utils import OrderByFieldBindingsMap
 
 
 class Page(BaseModel, Generic[_TModelInstance]):
@@ -23,7 +25,7 @@ class Page(BaseModel, Generic[_TModelInstance]):
     pages: int
 
 
-class QueryParameters(BaseModel):
+class QueryParameters(BaseModel, Generic[_TModelInstance]):
     """Query parameter model for SPARQLModelAdapter.query.
 
     See https://fastapi.tiangolo.com/tutorial/query-param-models/
@@ -53,3 +55,9 @@ class QueryParameters(BaseModel):
                 raise ValueError("Field 'desc' requires field 'order_by'.")
 
         return data
+
+    def __class_getitem__(cls, model: type[_TModelInstance]):
+        _order_by_fields = [(k, k) for k in OrderByFieldBindingsMap(model).keys()]
+        OrderByEnum = StrEnum("OrderByEnum", _order_by_fields)
+
+        return create_model(cls.__name__, order_by=(OrderByEnum, None), __base__=cls)
