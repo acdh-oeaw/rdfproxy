@@ -29,12 +29,12 @@ parameters = [
     ),
     AddSolutionModifierParameter(
         query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
-        parameters={"order_by": "x", "limit": None, "offset": None},
+        parameters={"order_by": "?x", "limit": None, "offset": None},
         expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by ?x",
     ),
     AddSolutionModifierParameter(
         query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
-        parameters={"order_by": "x", "limit": 1, "offset": 1},
+        parameters={"order_by": "?x", "limit": 1, "offset": 1},
         expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by ?x limit 1 offset 1",
     ),
     # order
@@ -50,18 +50,29 @@ parameters = [
     ),
     AddSolutionModifierParameter(
         query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
-        parameters={"offset": 1, "limit": None, "order_by": "x"},
+        parameters={"offset": 1, "limit": None, "order_by": "?x"},
         expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by ?x offset 1",
     ),
     AddSolutionModifierParameter(
         query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
-        parameters={"offset": None, "limit": 1, "order_by": "x"},
+        parameters={"offset": None, "limit": 1, "order_by": "?x"},
         expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by ?x limit 1",
     ),
     AddSolutionModifierParameter(
         query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
-        parameters={"offset": 1, "limit": 1, "order_by": "x"},
+        parameters={"offset": 1, "limit": 1, "order_by": "?x"},
         expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by ?x limit 1 offset 1",
+    ),
+    # asc/desc
+    AddSolutionModifierParameter(
+        query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
+        parameters={"offset": 1, "limit": 1, "order_by": "ASC(?x)"},
+        expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by ASC(?x) limit 1 offset 1",
+    ),
+    AddSolutionModifierParameter(
+        query="prefix ns: <https://some.namespace> select * where {?s ?p ?o }",
+        parameters={"offset": 1, "limit": 1, "order_by": "DESC(?x)"},
+        expected="prefix ns: <https://some.namespace> select * where {?s ?p ?o } order by DESC(?x) limit 1 offset 1",
     ),
 ]
 
