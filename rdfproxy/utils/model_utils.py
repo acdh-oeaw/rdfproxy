@@ -3,7 +3,7 @@
 from collections.abc import Callable, Iterator
 from typing import TypeVar, get_args
 
-from rdfproxy.utils._types import _TModelInstance
+from pydantic import BaseModel
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_pydantic_model_static_type,
@@ -15,8 +15,8 @@ T = TypeVar("T")
 
 
 def model_traverse(
-    model: type[_TModelInstance],
-    f: Callable[[type[_TModelInstance]], T],
+    model: type[BaseModel],
+    f: Callable[[type[BaseModel]], T],
     _self: bool = True,
 ) -> Iterator[T]:
     """Recursively traverse a model and apply a callable to all (sub)models.
