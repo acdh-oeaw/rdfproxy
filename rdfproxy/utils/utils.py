@@ -1,13 +1,15 @@
 """SPARQL/FastAPI utils."""
 
 from collections import UserDict
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 from functools import partial
-from typing import Any, Generic, Self, TypeVar
+from typing import Any, Generic, NoReturn, Self, TypeVar
 
-from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils._types import SPARQLBinding
-
+from rdfproxy.utils._types import SPARQLBinding, _TModelInstance
+from rdfproxy.utils.type_utils import (
+    _is_list_static_type,
+    _is_pydantic_model_static_type,
+)
 
 T = TypeVar("T")
 
@@ -20,9 +22,13 @@ class FieldsBindingsMap(UserDict):
     (i.e. from SPARQLBindings to model fields).
 
     Note: It might be useful to recursively resolve aliases for nested models.
+    This would allow to e.g. just use a single FieldsBindingsMap instance in rdfproxy.mapper.
+    Introduction of a type_utils union predicate ("_is_any_pydantic_model_static_type")
+    could be an applicable approach for recursively resolving aliases.
     """
 
     def __init__(self, model: type[_TModelInstance]) -> None:
+        self.model = model
         self.data = self._get_field_binding_mapping(model)
         self._reversed = {v: k for k, v in self.data.items()}
 
@@ -38,6 +44,36 @@ class FieldsBindingsMap(UserDict):
             k: next(filter(lambda x: isinstance(x, SPARQLBinding), v.metadata), k)
             for k, v in model.model_fields.items()
         }
+
+
+class OrderableFieldsBindingsMap(FieldsBindingsMap):
+    """Recursive FieldsBindingsMap that generates namespaced key entries for orderable fields."""
+
+    def __missing__(self, key: Hashable) -> NoReturn:
+        orderable_fields = [f"'{k}'" for k in self.data.keys()]
+        model_name = self.model.__name__
+
+        raise ValueError(
+            f"Parameter '{key}' does not reference an orderable field of model '{model_name}'.\n"
+            f"Applicable values for order_by: {', '.join(orderable_fields)}."
+        )
+
+    @staticmethod
+    def _get_field_binding_mapping(model: type[_TModelInstance]) -> dict[str, str]:
+        """Resolve model fields against rdfproxy.SPARQLBindings."""
+
+        def _construct_bindings(model, top_level=True):
+            bindings_map = FieldsBindingsMap(model)
+
+            for k, v in model.model_fields.items():
+                # note: check for union model type might be required in the future
+                if _is_pydantic_model_static_type(v.annotation):
+                    yield from _construct_bindings(v.annotation, top_level=False)
+
+                elif not _is_list_static_type(v.annotation):
+                    yield (k if top_level else f"{model.__name__}.{k}", bindings_map[k])
+
+        return dict(_construct_bindings(model))
 
 
 def compose_left(*fns: Callable[[T], T]) -> Callable[[T], T]:
