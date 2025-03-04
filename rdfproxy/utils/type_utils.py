@@ -30,7 +30,7 @@ def _is_list_pydantic_model_static_type(
 def _is_union_pydantic_model_static_type(
     obj: Any,
 ) -> bool:
-    """Check if a object is a union type of a Pydantic model."""
+    """Check if object is a union type of a Pydantic model."""
     is_union_type: bool = get_origin(obj) is types.UnionType
     has_any_model: bool = any(
         _is_pydantic_model_static_type(obj) for obj in get_args(obj)
