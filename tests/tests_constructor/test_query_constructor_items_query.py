@@ -2,9 +2,8 @@
 
 from typing import NamedTuple
 
-import pytest
-
 from pydantic import BaseModel
+import pytest
 from rdfproxy.constructor import _QueryConstructor
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.models import QueryParameters
@@ -38,30 +37,30 @@ class QueryConstructorParameters(NamedTuple):
 parameters = [
     # ungrouped
     QueryConstructorParameters(
-        query="select * where {?s ?p ?o}",
+        query="select * where {?x ?p ?y}",
         query_parameters=QueryParameters(),
         model=UngroupedModel,
         expected=Expected(
-            count_query="select (count(*) as ?cnt) where {?s ?p ?o}",
-            items_query="select * where {?s ?p ?o} order by ?s limit 100 offset 0",
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select * where {?x ?p ?y} order by ?x limit 100 offset 0",
         ),
     ),
     QueryConstructorParameters(
-        query="select ?p ?o where {?s ?p ?o}",
+        query="select ?p ?y where {?x ?p ?y}",
         query_parameters=QueryParameters(),
         model=UngroupedModel,
         expected=Expected(
-            count_query="select (count(*) as ?cnt) where {?s ?p ?o}",
-            items_query="select ?p ?o where {?s ?p ?o} order by ?p limit 100 offset 0",
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select ?p ?y where {?x ?p ?y} order by ?p limit 100 offset 0",
         ),
     ),
     QueryConstructorParameters(
-        query="select * where {?s ?p ?o}",
+        query="select * where {?x ?p ?y}",
         query_parameters=QueryParameters(page=2, size=2),
         model=UngroupedModel,
         expected=Expected(
-            count_query="select (count(*) as ?cnt) where {?s ?p ?o}",
-            items_query="select * where {?s ?p ?o} order by ?s limit 2 offset 2",
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select * where {?x ?p ?y} order by ?x limit 2 offset 2",
         ),
     ),
     # grouped
