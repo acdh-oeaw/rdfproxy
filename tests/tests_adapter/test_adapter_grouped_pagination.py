@@ -81,7 +81,7 @@ class Parent(BaseModel):
 
 
 class AdapterParameter(NamedTuple):
-    model: BaseModel
+    model: type[BaseModel]
     query: str
     query_parameters: dict[str, Any]
     expected: Page
@@ -94,8 +94,8 @@ binding_adapter_parameters = [
         query_parameters={"page": 1, "size": 2},
         expected=Page[BindingParent](
             items=[
-                {"parent": "x", "children": [{"name": "foo"}]},
-                {"parent": "y", "children": []},
+                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                BindingParent(**{"parent": "y", "children": []}),
             ],
             page=1,
             size=2,
@@ -108,7 +108,7 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 2, "size": 2},
         expected=Page[BindingParent](
-            items=[{"parent": "z", "children": []}],
+            items=[BindingParent(**{"parent": "z", "children": []})],
             page=2,
             size=2,
             total=3,
@@ -120,7 +120,7 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 1, "size": 1},
         expected=Page[BindingParent](
-            items=[{"parent": "x", "children": [{"name": "foo"}]}],
+            items=[BindingParent(**{"parent": "x", "children": [{"name": "foo"}]})],
             page=1,
             size=1,
             total=3,
@@ -132,7 +132,11 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 2, "size": 1},
         expected=Page[BindingParent](
-            items=[{"parent": "y", "children": []}], page=2, size=1, total=3, pages=3
+            items=[BindingParent(**{"parent": "y", "children": []})],
+            page=2,
+            size=1,
+            total=3,
+            pages=3,
         ),
     ),
     AdapterParameter(
@@ -140,7 +144,11 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 3, "size": 1},
         expected=Page[BindingParent](
-            items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
+            items=[BindingParent(**{"parent": "z", "children": []})],
+            page=3,
+            size=1,
+            total=3,
+            pages=3,
         ),
     ),
     AdapterParameter(
@@ -149,9 +157,9 @@ binding_adapter_parameters = [
         query_parameters={},
         expected=Page[BindingParent](
             items=[
-                {"parent": "x", "children": [{"name": "foo"}]},
-                {"parent": "y", "children": []},
-                {"parent": "z", "children": []},
+                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                BindingParent(**{"parent": "y", "children": []}),
+                BindingParent(**{"parent": "z", "children": []}),
             ],
             page=1,
             size=100,
@@ -168,8 +176,8 @@ adapter_parameters = [
         query_parameters={"page": 1, "size": 2},
         expected=Page[Parent](
             items=[
-                {"parent": "x", "children": [{"name": "foo"}]},
-                {"parent": "y", "children": []},
+                Parent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                Parent(**{"parent": "y", "children": []}),
             ],
             page=1,
             size=2,
@@ -182,7 +190,7 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 2, "size": 2},
         expected=Page[Parent](
-            items=[{"parent": "z", "children": []}],
+            items=[Parent(**{"parent": "z", "children": []})],
             page=2,
             size=2,
             total=3,
@@ -194,7 +202,7 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 1, "size": 1},
         expected=Page[Parent](
-            items=[{"parent": "x", "children": [{"name": "foo"}]}],
+            items=[Parent(**{"parent": "x", "children": [{"name": "foo"}]})],
             page=1,
             size=1,
             total=3,
@@ -206,7 +214,11 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 2, "size": 1},
         expected=Page[Parent](
-            items=[{"parent": "y", "children": []}], page=2, size=1, total=3, pages=3
+            items=[Parent(**{"parent": "y", "children": []})],
+            page=2,
+            size=1,
+            total=3,
+            pages=3,
         ),
     ),
     AdapterParameter(
@@ -214,7 +226,11 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 3, "size": 1},
         expected=Page[Parent](
-            items=[{"parent": "z", "children": []}], page=3, size=1, total=3, pages=3
+            items=[Parent(**{"parent": "z", "children": []})],
+            page=3,
+            size=1,
+            total=3,
+            pages=3,
         ),
     ),
     AdapterParameter(
@@ -223,9 +239,9 @@ adapter_parameters = [
         query_parameters={},
         expected=Page[Parent](
             items=[
-                {"parent": "x", "children": [{"name": "foo"}]},
-                {"parent": "y", "children": []},
-                {"parent": "z", "children": []},
+                Parent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                Parent(**{"parent": "y", "children": []}),
+                Parent(**{"parent": "z", "children": []}),
             ],
             page=1,
             size=100,
@@ -241,7 +257,7 @@ ungrouped_adapter_parameters = [
         query=query,
         query_parameters={"page": 1, "size": 100},
         expected=Page[Child](
-            items=[{"name": "foo"}], page=1, size=100, total=1, pages=1
+            items=[Child(**{"name": "foo"})], page=1, size=100, total=1, pages=1
         ),
     ),
     AdapterParameter(
@@ -249,7 +265,7 @@ ungrouped_adapter_parameters = [
         query=query,
         query_parameters={},
         expected=Page[Child](
-            items=[{"name": "foo"}], page=1, size=100, total=1, pages=1
+            items=[Child(**{"name": "foo"})], page=1, size=100, total=1, pages=1
         ),
     ),
 ]
