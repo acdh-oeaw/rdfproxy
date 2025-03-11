@@ -305,10 +305,132 @@ all_undef_adapter_parameters = [
     ),
 ]
 
+ordered_binding_adapter_parameters = [
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"order_by": "parent"},
+        expected=Page[BindingParent](
+            items=[
+                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                BindingParent(**{"parent": "y", "children": []}),
+                BindingParent(**{"parent": "z", "children": []}),
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"order_by": "parent", "desc": False},
+        expected=Page[BindingParent](
+            items=[
+                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                BindingParent(**{"parent": "y", "children": []}),
+                BindingParent(**{"parent": "z", "children": []}),
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"order_by": "parent", "desc": True},
+        expected=Page[BindingParent](
+            items=[
+                BindingParent(**{"parent": "z", "children": []}),
+                BindingParent(**{"parent": "y", "children": []}),
+                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+            ],
+            page=1,
+            size=100,
+            total=3,
+            pages=1,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"page": 1, "size": 2, "order_by": "parent", "desc": True},
+        expected=Page[BindingParent](
+            items=[
+                BindingParent(**{"parent": "z", "children": []}),
+                BindingParent(**{"parent": "y", "children": []}),
+            ],
+            page=1,
+            size=2,
+            total=3,
+            pages=2,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"page": 2, "size": 2, "order_by": "parent", "desc": True},
+        expected=Page[BindingParent](
+            items=[
+                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+            ],
+            page=2,
+            size=2,
+            total=3,
+            pages=2,
+        ),
+    ),
+    #
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"page": 1, "size": 1, "order_by": "parent", "desc": True},
+        expected=Page[BindingParent](
+            items=[BindingParent(**{"parent": "z", "children": []})],
+            page=1,
+            size=1,
+            total=3,
+            pages=3,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"page": 2, "size": 1, "desc": True, "order_by": "parent"},
+        expected=Page[BindingParent](
+            items=[BindingParent(**{"parent": "y", "children": []})],
+            page=2,
+            size=1,
+            total=3,
+            pages=3,
+        ),
+    ),
+    AdapterParameter(
+        model=BindingParent,
+        query=binding_query,
+        query_parameters={"page": 3, "size": 1, "order_by": "parent", "desc": True},
+        expected=Page[BindingParent](
+            items=[BindingParent(**{"parent": "x", "children": [{"name": "foo"}]})],
+            page=3,
+            size=1,
+            total=3,
+            pages=3,
+        ),
+    ),
+]
+
 
 @pytest.mark.parametrize(
     "params",
-    chain(binding_adapter_parameters, adapter_parameters, all_undef_adapter_parameters),
+    chain(
+        binding_adapter_parameters,
+        adapter_parameters,
+        all_undef_adapter_parameters,
+        ordered_binding_adapter_parameters,
+    ),
 )
 def test_adapter_grouped_pagination(params):
     adapter = SPARQLModelAdapter(
