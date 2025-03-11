@@ -91,6 +91,116 @@ parameters = [
             items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 2 offset 2} }",
         ),
     ),
+    # ordered / ungrouped
+    QueryConstructorParameters(
+        query="select * where {?x ?p ?y}",
+        query_parameters=QueryParameters(order_by="x"),
+        model=UngroupedModel,
+        expected=Expected(
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select * where {?x ?p ?y} order by ASC(?x) limit 100 offset 0",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select * where {?x ?p ?y}",
+        query_parameters=QueryParameters(order_by="x", desc=True),
+        model=UngroupedModel,
+        expected=Expected(
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select * where {?x ?p ?y} order by DESC(?x) limit 100 offset 0",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select ?p ?y where {?x ?p ?y}",
+        query_parameters=QueryParameters(order_by="y"),
+        model=UngroupedModel,
+        expected=Expected(
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select ?p ?y where {?x ?p ?y} order by ASC(?y) limit 100 offset 0",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select ?p ?y where {?x ?p ?y}",
+        query_parameters=QueryParameters(order_by="y", desc=True),
+        model=UngroupedModel,
+        expected=Expected(
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select ?p ?y where {?x ?p ?y} order by DESC(?y) limit 100 offset 0",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select * where {?x ?p ?y}",
+        query_parameters=QueryParameters(page=2, size=2, order_by="x"),
+        model=UngroupedModel,
+        expected=Expected(
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select * where {?x ?p ?y} order by ASC(?x) limit 2 offset 2",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select * where {?x ?p ?y}",
+        query_parameters=QueryParameters(page=2, size=2, order_by="x", desc=True),
+        model=UngroupedModel,
+        expected=Expected(
+            count_query="select (count(*) as ?cnt) where {?x ?p ?y}",
+            items_query="select * where {?x ?p ?y} order by DESC(?x) limit 2 offset 2",
+        ),
+    ),
+    # ordered / grouped
+    QueryConstructorParameters(
+        query="select * where {?x a ?y}",
+        query_parameters=QueryParameters(order_by="x"),
+        model=GroupedModel,
+        expected=Expected(
+            count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
+            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 100 offset 0} }",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select * where {?x a ?y}",
+        query_parameters=QueryParameters(order_by="x", desc=True),
+        model=GroupedModel,
+        expected=Expected(
+            count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
+            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 100 offset 0} }",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select ?x ?y where {?x a ?y}",
+        query_parameters=QueryParameters(order_by="x"),
+        model=GroupedModel,
+        expected=Expected(
+            count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 100 offset 0} }",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select ?x ?y where {?x a ?y}",
+        query_parameters=QueryParameters(order_by="x", desc=True),
+        model=GroupedModel,
+        expected=Expected(
+            count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 100 offset 0} }",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select ?x ?y where {?x a ?y}",
+        query_parameters=QueryParameters(page=2, size=2, order_by="x"),
+        model=GroupedModel,
+        expected=Expected(
+            count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 2 offset 2} }",
+        ),
+    ),
+    QueryConstructorParameters(
+        query="select ?x ?y where {?x a ?y}",
+        query_parameters=QueryParameters(page=2, size=2, order_by="x", desc=True),
+        model=GroupedModel,
+        expected=Expected(
+            count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 2 offset 2} }",
+        ),
+    ),
 ]
 
 
