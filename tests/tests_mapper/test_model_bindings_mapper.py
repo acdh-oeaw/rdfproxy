@@ -1,8 +1,7 @@
 """Pytest entry point for basic rdfproxy.mapper.ModelBindingsMapper."""
 
-import pytest
-
 from pydantic import BaseModel
+import pytest
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.tests_mapper.params.model_bindings_mapper_parameters import (
     author_array_collection_parameters,
@@ -13,6 +12,7 @@ from tests.tests_mapper.params.model_bindings_mapper_parameters import (
     grouping_parameters,
     nested_grouping_parameters,
     none_model_parameters,
+    optional_fields_model_parameters,
 )
 
 
@@ -27,6 +27,7 @@ from tests.tests_mapper.params.model_bindings_mapper_parameters import (
         *grouping_nested_model_parameters,
         *empty_default_only_model_parameters,
         *none_model_parameters,
+        *optional_fields_model_parameters,
     ],
 )
 def test_basic_model_bindings_mapper(model, bindings, expected):
