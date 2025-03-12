@@ -36,8 +36,7 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         self.model = model
         self.bindings = bindings
 
-        self.df = pd.DataFrame(data=self.bindings)
-        self.df.replace(pd.NA, None, inplace=True)
+        self.df = pd.DataFrame(data=self.bindings, dtype=object)
 
     def get_models(self) -> list[_TModelInstance]:
         """Run the model mapping logic against bindings and collect a list of model instances."""
