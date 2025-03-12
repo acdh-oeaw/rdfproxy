@@ -1,3 +1,5 @@
+import datetime
+
 from tests.tests_mapper.params.models.author_array_collection_model import (
     Author as ArrayAuthor,
 )
@@ -19,6 +21,14 @@ from tests.tests_mapper.params.models.none_models import (
     TwoFieldNoneModel,
 )
 from tests.utils._types import ModelBindingsMapperParameter
+
+from tests.tests_mapper.params.models.optional_fields_models import (
+    OptionalDateFieldModel,
+    OptionalIntFieldModel,
+    OptionalStrFieldCoerceModel,
+    OptionalStrFieldModel,
+    OptionalStrFieldStrictModel,
+)
 
 
 author_array_collection_parameters = [
@@ -315,5 +325,33 @@ none_model_parameters = [
         model=TwoFieldNoneModel,
         bindings=[{"x": 2, "y": None}],
         expected=[{"x": 2, "y": None}],
+    ),
+]
+
+optional_fields_model_parameters = [
+    ModelBindingsMapperParameter(
+        model=OptionalIntFieldModel,
+        bindings=[{"x": 1}, {"x": None}],
+        expected=[{"x": 1}, {"x": None}],
+    ),
+    ModelBindingsMapperParameter(
+        model=OptionalStrFieldCoerceModel,
+        bindings=[{"x": 1}, {"x": None}],
+        expected=[{"x": "1"}, {"x": None}],
+    ),
+    ModelBindingsMapperParameter(
+        model=OptionalStrFieldModel,
+        bindings=[{"x": "1"}, {"x": None}],
+        expected=[{"x": "1"}, {"x": None}],
+    ),
+    ModelBindingsMapperParameter(
+        model=OptionalStrFieldStrictModel,
+        bindings=[{"x": "1"}, {"x": None}],
+        expected=[{"x": "1"}, {"x": None}],
+    ),
+    ModelBindingsMapperParameter(
+        model=OptionalDateFieldModel,
+        bindings=[{"x": datetime.date.today()}, {"x": None}],
+        expected=[{"x": datetime.date.today()}, {"x": None}],
     ),
 ]
