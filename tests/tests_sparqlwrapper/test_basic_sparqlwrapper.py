@@ -4,7 +4,8 @@ import datetime
 from decimal import Decimal
 
 import pytest
-from rdflib import BNode, URIRef
+
+from rdflib import BNode, Literal, URIRef, XSD
 from rdfproxy.sparqlwrapper import SPARQLWrapper
 
 
@@ -17,6 +18,8 @@ where {
      (UNDEF)
      (<https://test.uri>)
      ('2024-01-01'^^xsd:date)
+     ('2024'^^xsd:gYear)
+     ('2024-01'^^xsd:gYearMonth)
     }
 }
 """
@@ -41,6 +44,8 @@ def test_sparqlwrapper_python_cast_types():
         {"x": None},
         {"x": URIRef("https://test.uri")},
         {"x": datetime.date(2024, 1, 1)},
+        {"x": Literal("2024", datatype=XSD.gYear)},
+        {"x": Literal("2024-01", datatype=XSD.gYearMonth)},
     ]
 
     assert result == expected
