@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from typing import Any
 
 import httpx
-from rdflib import BNode, Literal, URIRef
+from rdflib import BNode, Literal, URIRef, XSD
 
 
 class SPARQLWrapper:
@@ -39,13 +39,19 @@ class SPARQLWrapper:
                     case "uri":
                         yield (var, URIRef(binding_data["value"]))
                     case "literal":
-                        yield (
-                            var,
-                            Literal(
-                                binding_data["value"],
-                                datatype=binding_data.get("datatype", None),
-                            ).toPython(),
+                        literal = Literal(
+                            binding_data["value"],
+                            datatype=binding_data.get("datatype", None),
                         )
+
+                        # call toPython in any case for validation
+                        literal_to_python = literal.toPython()
+
+                        if literal.datatype in (XSD.gYear, XSD.gYearMonth):
+                            yield (var, literal)
+                        else:
+                            yield (var, literal_to_python)
+
                     case "bnode":
                         yield (var, BNode(binding_data["value"]))
                     case _:  # pragma: no cover
