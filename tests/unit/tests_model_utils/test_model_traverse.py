@@ -2,8 +2,9 @@
 
 from typing import Annotated
 
-from pydantic import BaseModel
 import pytest
+
+from pydantic import BaseModel
 from rdfproxy.utils._types import SPARQLBinding
 from rdfproxy.utils.model_utils import model_traverse
 
@@ -63,5 +64,5 @@ def test_model_traverse_self_true(model, expected):
 
 @pytest.mark.parametrize(["model", "expected"], self_false_parameters)
 def test_model_traverse_self_false(model, expected):
-    result = list(model_traverse(model, lambda x: x.__name__, _self=False))
+    result = list(model_traverse(model, lambda x: x.__name__, include_root_model=False))
     assert result == expected
