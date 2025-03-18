@@ -1,71 +1,53 @@
 """Functionality for performing RDFProxy-compliance checks on Pydantic models."""
 
-from rdfproxy.utils._exceptions import RDFProxyGroupByException
+from collections.abc import Callable
+
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.checkers._model_checks import (
+    _check_group_by_config,
+    _check_model_bool_config_root_model,
+    _check_model_bool_config_sub_models,
+)
 from rdfproxy.utils.model_utils import model_traverse
-from rdfproxy.utils.type_utils import _is_list_static_type
-from rdfproxy.utils.utils import compose_left
+from rdfproxy.utils.utils import compose_left, consume
 
 
-def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance]:
-    """Model checker for group_by config settings and grouping model semantics."""
-    model_group_by_value: str | None = model.model_config.get("group_by")
-    model_has_list_field: bool = any(
-        _is_list_static_type(value.annotation) for value in model.model_fields.values()
-    )
-
-    match model_group_by_value, model_has_list_field:
-        case None, False:
-            return model
-
-        case None, True:
-            raise RDFProxyGroupByException(
-                f"Model '{model.__name__}' has a list-annotated field "
-                "but  does not specify 'group_by' in its model_config."
-            )
-
-        case str(), False:
-            raise RDFProxyGroupByException(
-                f"Model '{model.__name__}' does not specify "
-                "a grouping target (i.e. a list-annotated field)."
-            )
-
-        case str(), True:
-            applicable_keys: list[str] = [
-                k
-                for k, v in model.model_fields.items()
-                if not _is_list_static_type(v.annotation)
-            ]
-
-            if model_group_by_value in applicable_keys:
-                return model
-
-            applicable_fields_message: str = (
-                "No applicable fields."
-                if not applicable_keys
-                else f"Applicable grouping field(s): {', '.join(applicable_keys)}"
-            )
-
-            raise RDFProxyGroupByException(
-                f"Requested grouping key '{model_group_by_value}' does not denote "
-                f"an applicable grouping field. {applicable_fields_message}"
-            )
-
-        case _:  # pragma: no cover
-            raise AssertionError("This should never happen.")
+_TModelCheck = Callable[[type[_TModelInstance]], type[_TModelInstance]]
 
 
-def _check_model_bool_config(model: type[_TModelInstance]) -> type[_TModelInstance]:
-    """Model checker for model_bool config settings.
+def _root_model_check_runner(
+    model: type[_TModelInstance], *checks: _TModelCheck
+) -> None:
+    """Run checks only against the root model."""
 
-    This is a stub for now, the model_bool feature is in flux right now,
-    see issues #176 and #219.
-    """
-    return model
+    compose_left(*checks)(model)
+
+
+def _sub_model_check_runner(
+    model: type[_TModelInstance], *checks: _TModelCheck
+) -> None:
+    """Run checks recursively; exclude the root model."""
+
+    composite = compose_left(*checks)
+    consume(
+        model_traverse(model, composite, include_root_model=False)
+    )  # exhaust for traversal
+
+
+def _full_model_check_runner(
+    model: type[_TModelInstance], *checks: _TModelCheck
+) -> None:
+    """Run checks recursively; include the root model."""
+
+    composite = compose_left(*checks)
+    consume(model_traverse(model, composite))  # exhaust for traversal
 
 
 def check_model(model: type[_TModelInstance]) -> type[_TModelInstance]:
-    composite = compose_left(_check_group_by_config, _check_model_bool_config)
-    _model, *_ = model_traverse(model, composite)  # exhaust iterator for full traversal
+    """Main model checker: Run model checks using the appropriate check runners."""
 
-    return _model
+    _root_model_check_runner(model, _check_model_bool_config_root_model)
+    _sub_model_check_runner(model, _check_model_bool_config_sub_models)
+    _full_model_check_runner(model, _check_group_by_config)
+
+    return model
