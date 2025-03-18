@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.3.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.2.0...v0.3.0) (2025-03-18)
+
+
+### Features
+
+* add __init__ for rdfproxy.utils ([99cd75d](https://github.com/acdh-oeaw/rdfproxy/commit/99cd75d3b2382e028e654b218c2df068344c54f8))
+* add order_by and desc fields to QueryParameters model ([b0a6e2c](https://github.com/acdh-oeaw/rdfproxy/commit/b0a6e2c4e1c79e72eeb4dd656c184579c39799fe))
+* add QueryParameters default argument ([88cdcfb](https://github.com/acdh-oeaw/rdfproxy/commit/88cdcfbcdbce21d874ad88cbe907cec840c1b7e9))
+* change _ModelBindingsMapper bindings param to take an Iterable ([b06eb36](https://github.com/acdh-oeaw/rdfproxy/commit/b06eb36cfa2497b5b651ccaf39f1f38fed555bfd))
+* implement basic logging for SPARQLModelAdapter ([dd2a1b3](https://github.com/acdh-oeaw/rdfproxy/commit/dd2a1b37a3a66d6dde92455f056191a56ee8a478))
+* implement generic model traversal function ([858657c](https://github.com/acdh-oeaw/rdfproxy/commit/858657c36dc3e50188cbe76c35effc3d38870da4))
+* implement model checking ([07669cb](https://github.com/acdh-oeaw/rdfproxy/commit/07669cb8da67163bb0cd703919d34a68b70634f2))
+* implement order_by value injection in _QueryConstructor ([bae2c1f](https://github.com/acdh-oeaw/rdfproxy/commit/bae2c1fd1f8b965e660a90aef0238d5409f93eb6))
+* implement OrderableFieldsBindingsMap ([eab26d3](https://github.com/acdh-oeaw/rdfproxy/commit/eab26d338743486b4406cdac80bb955d632baa9c))
+* implement query checking ([d25b5af](https://github.com/acdh-oeaw/rdfproxy/commit/d25b5afee9c4954a6d6102e9e60938ca6d8b5a57))
+* implement thin httpx SPARQLWrapper ([800ddec](https://github.com/acdh-oeaw/rdfproxy/commit/800ddec18fcda93485d12faf29e6d582366e3718))
+* implement toPyton workaround for xsd:gYear/xsd:gYearMonth ([87fc55d](https://github.com/acdh-oeaw/rdfproxy/commit/87fc55db367ee0c1cbbcf9c4c946d503e08c1c30))
+* introduce rdfproxy.utils._typing module ([981eea3](https://github.com/acdh-oeaw/rdfproxy/commit/981eea3066e94814995cee9f3383c280a189748f))
+* mark QueryConstructor class private ([4769423](https://github.com/acdh-oeaw/rdfproxy/commit/4769423888882d7925532c3efdf396ffb5e88f22))
+* **SPARQLWrapper:** implement RDFLib-based response extraction ([17b3693](https://github.com/acdh-oeaw/rdfproxy/commit/17b3693eef327196a16b4c72381281e7221277d1))
+
+
+### Bug Fixes
+
+* adapt types in full_static_model_fastapi_example.py ([2689b32](https://github.com/acdh-oeaw/rdfproxy/commit/2689b32dc0900ef191f9391a0b2c8115024fa3f6))
+* correct pre-commit yaml and deactivate hooks ([08c8e07](https://github.com/acdh-oeaw/rdfproxy/commit/08c8e07b5be1ab8811ea0c07d9e58477ebebb6e7))
+* **docs:** use correct link to tests badge ([65b5abb](https://github.com/acdh-oeaw/rdfproxy/commit/65b5abb2bfb8eda3342e6cc0966f5bdf901553c9))
+* handle all-UNDEF binding aggregation ([9be99ba](https://github.com/acdh-oeaw/rdfproxy/commit/9be99ba8a4d84818428de21197aaf739db23ecbe))
+* initialize pd.DataFrame with arbitrary Python types ([bd3522b](https://github.com/acdh-oeaw/rdfproxy/commit/bd3522b6f134389df573646835bf91f391ba0e81))
+* **logging:** use % format specifier for logging ([b1ea529](https://github.com/acdh-oeaw/rdfproxy/commit/b1ea5294dfee823aec6ebcc68d33b60e2bedcc1a))
+* reference private _QueryConstructor correctly in mkdocs ([1968eb7](https://github.com/acdh-oeaw/rdfproxy/commit/1968eb7fb1994f77fa24ad5b78f1679142263862))
+* require SPARQL variable marker in add_solution_modifier ([1f122c1](https://github.com/acdh-oeaw/rdfproxy/commit/1f122c19769ab8067b7e50a8c5c55d59f0194427))
+* **test:** adapt SPARQL bindings to match model fields ([90a6a9a](https://github.com/acdh-oeaw/rdfproxy/commit/90a6a9a6790cf07fc5361a4509cbb516d98756e7))
+* **test:** fix sketchy test for ModelBindingsMapper ([6ba1e49](https://github.com/acdh-oeaw/rdfproxy/commit/6ba1e493b292fb17ce849af4170cde4bc1325499))
+* **test:** use actual models for Page.items in test parameters ([e117388](https://github.com/acdh-oeaw/rdfproxy/commit/e11738841af84e52d2fa1b8d6bcda0b786cc22a7))
+
+
+### Documentation
+
+* adapt examples to parametrized Queryparameters model feature ([b15a316](https://github.com/acdh-oeaw/rdfproxy/commit/b15a316b3f3b57e5f6c6728a405e0b2baa29cf89))
+* correct minor typo in docstring ([7ba2772](https://github.com/acdh-oeaw/rdfproxy/commit/7ba2772581b3a1341a728d3b4a0185f013110fc4))
+* **readme:** add docs status badge to readme ([4d15e06](https://github.com/acdh-oeaw/rdfproxy/commit/4d15e06c62271af9ebd3fd366bbf72ef4a6bc87a))
+* setup basic mkdocs ([2b1dba2](https://github.com/acdh-oeaw/rdfproxy/commit/2b1dba2ab097a4fdbcefe11bc390aadc9975304d))
+* update examples README ([686864e](https://github.com/acdh-oeaw/rdfproxy/commit/686864e185736fbd6aa3fa81e90c69513714549b))
+
 ## [0.2.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.1.0...v0.2.0) (2024-12-23)
 
 
