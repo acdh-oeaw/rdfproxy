@@ -17,14 +17,14 @@ T = TypeVar("T")
 def model_traverse(
     model: type[BaseModel],
     f: Callable[[type[BaseModel]], T],
-    _self: bool = True,
+    include_root_model: bool = True,
 ) -> Iterator[T]:
     """Recursively traverse a model and apply a callable to all (sub)models.
 
-    If the _self flag is set to True, the callable will be applied to the root model model as well.
-    Recursive calls intentionally do not pass on the _self flag.
+    If the include_root_model flag is set to True, the callable will be applied to the root model model as well.
+    Recursive calls intentionally do not pass on the include_root_model flag.
     """
-    if _self:
+    if include_root_model:
         yield f(model)
 
     for _, field_info in model.model_fields.items():
