@@ -1,5 +1,7 @@
 """Compliance checks for RDFProxy Pydantic models."""
 
+from collections.abc import Iterable
+
 from rdfproxy.utils._exceptions import (
     RDFProxyGroupByException,
     RDFProxyModelBoolException,
@@ -60,15 +62,27 @@ def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance
 def _check_model_bool_config_sub_models(
     model: type[_TModelInstance],
 ) -> type[_TModelInstance]:
-    """Model check for model_bool config settings in submodels.
+    """Model check for model_bool config settings in submodels."""
 
-    Stub for now.
-    This check could run against all keys in OrderableFieldsBindingsMap -
-    which should be the fields applicable for model_bool checking.
+    model_bool_value = model.model_config.get("model_bool")
 
-    Invalid model_bool values currently fail in the mapper (e.g. with KeyError),
-    so a check might not actually be needed.
-    """
+    if model_bool_value is None:
+        return model
+
+    def _check_field_name(field_name: str) -> None:
+        if field_name not in model.model_fields.keys():
+            raise RDFProxyModelBoolException(
+                f"model_bool value '{field_name}' does not reference "
+                f"a field of model '{model.__name__}'."
+            )
+
+    match model_bool_value:
+        case str():
+            _check_field_name(model_bool_value)
+        case Iterable():
+            for value in model_bool_value:
+                _check_field_name(value)
+
     return model
 
 
