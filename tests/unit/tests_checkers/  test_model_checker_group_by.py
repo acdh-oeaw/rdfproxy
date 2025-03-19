@@ -1,7 +1,8 @@
-"""Unit test for rdfproxy.utils.checkers.model_checker."""
+"""Unit tests for group_by config model checkers."""
+
+import pytest
 
 from pydantic import BaseModel, create_model
-import pytest
 from rdfproxy.utils._exceptions import RDFProxyGroupByException
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.checkers.model_checker import check_model
