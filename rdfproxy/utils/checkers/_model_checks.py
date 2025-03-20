@@ -1,12 +1,10 @@
 """Compliance checks for RDFProxy Pydantic models."""
 
-from collections.abc import Iterable
-
 from rdfproxy.utils._exceptions import (
     RDFProxyGroupByException,
     RDFProxyModelBoolException,
 )
-from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
 from rdfproxy.utils.type_utils import _is_list_static_type
 
 
@@ -62,11 +60,13 @@ def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance
 def _check_model_bool_config_sub_models(
     model: type[_TModelInstance],
 ) -> type[_TModelInstance]:
-    """Model check for model_bool config settings in submodels."""
+    """Model check for model_bool config settings in submodels.
 
-    model_bool_value = model.model_config.get("model_bool")
+    Values for model_bool must be of type ModelBoolPredicate | str | set[str];
+    in case of str | set[str], check if model field references exist.
+    """
 
-    if model_bool_value is None:
+    if (model_bool_value := model.model_config.get("model_bool")) is None:
         return model
 
     def _check_field_name(field_name: str) -> None:
@@ -77,11 +77,19 @@ def _check_model_bool_config_sub_models(
             )
 
     match model_bool_value:
+        case ModelBoolPredicate():
+            pass
         case str():
             _check_field_name(model_bool_value)
-        case Iterable():
+        case set():
             for value in model_bool_value:
                 _check_field_name(value)
+        case _:
+            raise TypeError(
+                "Argument for 'model_bool' must be of type "
+                "ModelBoolPredicate (Callable) | str | set[str].\n"
+                f"Received '{type(model_bool_value)}'."
+            )
 
     return model
 
@@ -89,7 +97,8 @@ def _check_model_bool_config_sub_models(
 def _check_model_bool_config_root_model(
     model: type[_TModelInstance],
 ) -> type[_TModelInstance]:
-    """Model check for disallowing model_bool in root models."""
+    """.
+    ()Model check for disallowing model_bool in root models."""
 
     if model.model_config.get("model_bool") is not None:
         raise RDFProxyModelBoolException(

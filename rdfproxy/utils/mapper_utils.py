@@ -1,6 +1,3 @@
-from collections.abc import Iterable
-from typing import TypeGuard
-
 from pydantic import BaseModel
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelBoolValue
 
@@ -13,12 +10,6 @@ def default_model_bool_predicate(model: BaseModel) -> bool:
     return any(dict(model).values())
 
 
-def _is_iterable_of_str(iterable: Iterable) -> TypeGuard[Iterable[str]]:
-    return (not isinstance(iterable, str)) and all(
-        map(lambda i: isinstance(i, str), iterable)
-    )
-
-
 def _get_model_bool_predicate_from_config_value(
     model_bool_value: _TModelBoolValue,
 ) -> ModelBoolPredicate:
@@ -28,13 +19,10 @@ def _get_model_bool_predicate_from_config_value(
             return model_bool_value
         case str():
             return lambda model: bool(dict(model)[model_bool_value])
-        case model_bool_value if _is_iterable_of_str(model_bool_value):
+        case set():
             return lambda model: all(map(lambda k: dict(model)[k], model_bool_value))
         case _:  # pragma: no cover
-            raise TypeError(
-                "Argument for 'model_bool' must be of type ModelBoolPredicate | str | Iterable[str].\n"
-                f"Received {type(model_bool_value)}"
-            )
+            assert False, "This should never happen."
 
 
 def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
