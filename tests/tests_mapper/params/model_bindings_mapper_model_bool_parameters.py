@@ -44,7 +44,7 @@ class Child5(BaseModel):
 
 
 class Child6(BaseModel):
-    model_config = ConfigDict(model_bool=["name", "child"])
+    model_config = ConfigDict(model_bool={"name", "child"})
 
     name: str | None = None
     child: str | None = None
