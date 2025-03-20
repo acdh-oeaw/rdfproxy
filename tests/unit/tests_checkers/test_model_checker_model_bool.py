@@ -49,12 +49,12 @@ class InvalidSub3(BaseModel):
 
 
 class InvalidSub4(BaseModel):
-    model_config = ConfigDict(model_bool=["x"])
+    model_config = ConfigDict(model_bool={"x"})
     y: int
 
 
 class InvalidSub5(BaseModel):
-    model_config = ConfigDict(model_bool=["y", "x"])
+    model_config = ConfigDict(model_bool={"x", "y"})
     y: int
 
 
@@ -70,14 +70,14 @@ class ValidSub1(BaseModel):
 
 
 class ValidSub2(BaseModel):
-    model_config = ConfigDict(model_bool=["x", "y"])
+    model_config = ConfigDict(model_bool={"x", "y"})
 
     x: int
     y: int
 
 
 class ValidSub3(BaseModel):
-    model_config = ConfigDict(model_bool={"x", "y"})
+    model_config = ConfigDict(model_bool={"y", "x"})
 
     x: int
     y: int
@@ -95,10 +95,31 @@ class ValidSub5(BaseModel):
 
 
 class ValidSub6(BaseModel):
-    model_config = ConfigDict(model_bool=["x", "y"])
+    model_config = ConfigDict(model_bool={"x", "y"})
 
     x: int = Field(exclude=True)
     y: int
+
+
+class ValidSub7(BaseModel):
+    x: int
+    y: int
+
+
+class InvalidTypeSub1(BaseModel):
+    model_config = ConfigDict(model_bool=["x"])
+
+
+class InvalidTypeSub2(BaseModel):
+    model_config = ConfigDict(model_bool=("x",))
+
+
+class InvalidTypeSub3(BaseModel):
+    model_config = ConfigDict(model_bool=(i for i in ["x", "y"]))
+
+
+class InvalidTypeSub4(BaseModel):
+    model_config = ConfigDict(model_bool=object())
 
 
 invalid_root_models = [
@@ -116,6 +137,13 @@ invalid_sub_models = [
     InvalidSub6,
 ]
 
+invalid_type_sub_models = [
+    InvalidTypeSub1,
+    InvalidTypeSub2,
+    InvalidTypeSub3,
+    InvalidTypeSub4,
+]
+
 valid_sub_models = [
     ValidSub1,
     ValidSub2,
@@ -123,6 +151,7 @@ valid_sub_models = [
     ValidSub4,
     ValidSub5,
     ValidSub6,
+    ValidSub7,
 ]
 
 
@@ -137,6 +166,14 @@ def test_check_invalid_model_bool_sub_models(invalid_model):
     Root: type[BaseModel] = create_model("Root", sub=(invalid_model, ...))
 
     with pytest.raises(RDFProxyModelBoolException):
+        check_model(Root)
+
+
+@pytest.mark.parametrize("invalid_model", invalid_type_sub_models)
+def test_check_invalid_type_model_bool_sub_models(invalid_model):
+    Root: type[BaseModel] = create_model("Root", sub=(invalid_model, ...))
+
+    with pytest.raises(TypeError):
         check_model(Root)
 
 
