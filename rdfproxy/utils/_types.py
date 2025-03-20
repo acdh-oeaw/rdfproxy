@@ -1,7 +1,6 @@
 """Type definitions for rdfproxy."""
 
 from collections import UserString
-from collections.abc import Iterable
 from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict as PydanticConfigDict
@@ -45,7 +44,7 @@ class ModelBoolPredicate(Protocol):
     def __call__(self, model: BaseModel) -> bool: ...
 
 
-_TModelBoolValue: TypeAlias = ModelBoolPredicate | str | Iterable[str]
+_TModelBoolValue: TypeAlias = ModelBoolPredicate | str | set[str]
 
 
 class ConfigDict(PydanticConfigDict, total=False):
