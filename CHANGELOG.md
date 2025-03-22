@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.3.0...v0.4.0) (2025-03-22)
+
+
+### Features
+
+* add consume function ([7bb3d12](https://github.com/acdh-oeaw/rdfproxy/commit/7bb3d1202aeeccdb0c940e5447214a3f876e56fe))
+* implement model_bool check for sub models ([df91d1d](https://github.com/acdh-oeaw/rdfproxy/commit/df91d1db717311085dcd38f53549525a4de34520))
+* refactor model checking and add model_bool root model check ([3350739](https://github.com/acdh-oeaw/rdfproxy/commit/3350739f49096cc3a7bdb50d911f7d96ef658fd1))
+
+
+### Bug Fixes
+
+* allow set[str] instead of arbitrary Iterables for model_bool ([87cee36](https://github.com/acdh-oeaw/rdfproxy/commit/87cee361da67f5ea214b0804c168ea4b64687b35))
+
 ## [0.3.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.2.0...v0.3.0) (2025-03-18)
 
 
