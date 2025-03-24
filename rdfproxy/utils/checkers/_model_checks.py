@@ -3,9 +3,13 @@
 from rdfproxy.utils._exceptions import (
     RDFProxyGroupByException,
     RDFProxyModelBoolException,
+    RDFProxyModelFieldException,
 )
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
-from rdfproxy.utils.type_utils import _is_list_static_type
+from rdfproxy.utils.type_utils import (
+    _is_list_static_type,
+    _is_union_pydantic_model_static_type,
+)
 
 
 def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance]:
@@ -97,8 +101,7 @@ def _check_model_bool_config_sub_models(
 def _check_model_bool_config_root_model(
     model: type[_TModelInstance],
 ) -> type[_TModelInstance]:
-    """.
-    ()Model check for disallowing model_bool in root models."""
+    """Model check for disallowing model_bool in root models."""
 
     if model.model_config.get("model_bool") is not None:
         raise RDFProxyModelBoolException(
@@ -107,5 +110,19 @@ def _check_model_bool_config_root_model(
             "explicitely with SPARQL query result sets.\n"
             "See #176 (https://github.com/acdh-oeaw/rdfproxy/issues/176)."
         )
+
+    return model
+
+
+def _check_union_model_types(
+    model: type[_TModelInstance],
+) -> type[_TModelInstance]:
+    """Model check for union model field types in submodels."""
+
+    for _, v in model.model_fields.items():
+        if _is_union_pydantic_model_static_type(v.annotation) and v.is_required():
+            raise RDFProxyModelFieldException(
+                f"Union model type '{v.annotation}' must define a default value."
+            )
 
     return model
