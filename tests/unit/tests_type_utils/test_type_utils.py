@@ -1,8 +1,9 @@
 """Unit tests for the type_utils module."""
 
-import pytest
+from typing import Optional, Union
 
 from pydantic import BaseModel, create_model
+import pytest
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_list_static_type,
@@ -62,6 +63,16 @@ pydantic_model_static_type_false_parameters = [
     type,
 ]
 
+union_pydantic_model_static_type_true_parameters = [
+    Model | None,
+    None | Model,
+    str | None | Model,
+    Optional[Model],
+    Union[Model, None],
+    Union[None, Model],
+    Union[str, None, Model],
+]
+
 
 @pytest.mark.parametrize("obj", pydantic_model_static_type_true_parameters)
 def test_is_pydantic_model_static_type_true(obj):
@@ -85,7 +96,7 @@ def test_is_list_pydantic_model_static_type_false(obj):
     assert not _is_list_pydantic_model_static_type(obj)
 
 
-@pytest.mark.parametrize("obj", [Model | None])
+@pytest.mark.parametrize("obj", union_pydantic_model_static_type_true_parameters)
 def test_is_union_pydantic_model_static_type_true(obj):
     assert _is_union_pydantic_model_static_type(obj)
 
