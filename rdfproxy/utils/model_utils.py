@@ -36,13 +36,8 @@ def model_traverse(
             yield from model_traverse(nested_model, f)
 
         elif _is_union_pydantic_model_static_type(union := field_info.annotation):
-            _model_filter = filter(_is_pydantic_model_static_type, get_args(union))
-            nested_model = next(_model_filter)
-
-            _multi_model_union = next(_model_filter, False)
-            assert not _multi_model_union, "Multiple model unions are not supported."
-
-            yield from model_traverse(nested_model, f)
+            for nested_model in filter(_is_pydantic_model_static_type, get_args(union)):
+                yield from model_traverse(nested_model, f)
 
         else:
             continue
