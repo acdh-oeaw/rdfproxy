@@ -1,6 +1,7 @@
 """RDFProxy typing utils."""
 
 import types
+import typing
 from typing import Any, TypeGuard, get_args, get_origin
 
 from pydantic import BaseModel
@@ -31,7 +32,7 @@ def _is_union_pydantic_model_static_type(
     obj: Any,
 ) -> bool:
     """Check if object is a union type of a Pydantic model."""
-    is_union_type: bool = get_origin(obj) is types.UnionType
+    is_union_type: bool = get_origin(obj) in (types.UnionType, typing.Union)
     has_any_model: bool = any(
         _is_pydantic_model_static_type(obj) for obj in get_args(obj)
     )
