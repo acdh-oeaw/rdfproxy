@@ -38,3 +38,7 @@ class RDFProxyGroupByException(RDFProxyModelValidationException):
 
 class RDFProxyModelBoolException(RDFProxyModelValidationException):
     """Exception for indicating invalid model_bool definitions."""
+
+
+class RDFProxyModelFieldException(RDFProxyModelValidationException):
+    """Exception for indicating invalid model field definitions."""

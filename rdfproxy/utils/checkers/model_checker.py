@@ -7,6 +7,7 @@ from rdfproxy.utils.checkers._model_checks import (
     _check_group_by_config,
     _check_model_bool_config_root_model,
     _check_model_bool_config_sub_models,
+    _check_union_model_types,
 )
 from rdfproxy.utils.model_utils import model_traverse
 from rdfproxy.utils.utils import compose_left, consume
@@ -48,6 +49,6 @@ def check_model(model: type[_TModelInstance]) -> type[_TModelInstance]:
 
     _root_model_check_runner(model, _check_model_bool_config_root_model)
     _sub_model_check_runner(model, _check_model_bool_config_sub_models)
-    _full_model_check_runner(model, _check_group_by_config)
+    _full_model_check_runner(model, _check_group_by_config, _check_union_model_types)
 
     return model
