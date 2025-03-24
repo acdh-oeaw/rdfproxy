@@ -7,11 +7,14 @@ from typing import Generic, get_args
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from pydantic import BaseModel
+from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
 from rdfproxy.utils.mapper_utils import get_model_bool_predicate
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_list_static_type,
+    _is_pydantic_model_static_type,
+    _is_union_pydantic_model_static_type,
 )
 from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
 
@@ -62,6 +65,34 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
             for _, group_df in group_by_object:
                 yield self._instantiate_grouped_model_from_df(group_df, model)
 
+    def _get_union_model_field_value(self, field_info: FieldInfo, row: pd.Series):
+        """Compute the value for union model fields.
+
+        The method instantiates the first model of a union model type
+        and runs model_bool against that model instance. If model_bool is falsey
+        the required default value is returned instead of the model instance.
+        """
+        assert not field_info.is_required(), "Default value required."
+
+        union_model = field_info.annotation
+        nested_model: type[BaseModel] = next(
+            filter(_is_pydantic_model_static_type, get_args(union_model))
+        )
+        nested_model_instance: BaseModel = self._instantiate_ungrouped_model_from_row(
+            row,
+            nested_model,  # type: ignore
+        )
+
+        model_bool_predicate: ModelBoolPredicate = get_model_bool_predicate(
+            nested_model_instance
+        )
+
+        return (
+            nested_model_instance
+            if model_bool_predicate(nested_model_instance)
+            else field_info.default
+        )
+
     def _instantiate_ungrouped_model_from_row(
         self, row: pd.Series, model: type[_TModelInstance]
     ) -> _TModelInstance:
@@ -82,6 +113,11 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                         )
                     }
                 )
+            elif _is_union_pydantic_model_static_type(field_info.annotation):
+                value = self._get_union_model_field_value(
+                    field_info=field_info, row=row
+                )
+                curried_model(**{field_name: value})
             else:
                 _sentinel = object()
                 field_value = (
@@ -144,6 +180,11 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                 value = self._instantiate_ungrouped_model_from_row(
                     first_row,
                     nested_model,  # type: ignore
+                )
+            elif _is_union_pydantic_model_static_type(field_info.annotation):
+                first_row = df.iloc[0]
+                value = self._get_union_model_field_value(
+                    field_info=field_info, row=first_row
                 )
             else:
                 first_row = df.iloc[0]
