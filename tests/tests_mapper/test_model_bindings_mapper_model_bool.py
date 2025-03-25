@@ -1,17 +1,22 @@
 """Pytest entry point for testing rdfproxy.mapper.ModelBindingsMapper with model_flag config."""
 
-import pytest
+from itertools import chain
 
 from pydantic import BaseModel
+import pytest
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.tests_mapper.params.model_bindings_mapper_model_bool_parameters import (
     parent_child_parameters,
 )
 
+from tests.tests_mapper.params.model_bindings_mapper_model_bool_union_model_parameters import (
+    ungrouped_model_bool_union_model_parameters,
+)
+
 
 @pytest.mark.parametrize(
     ["model", "bindings", "expected"],
-    parent_child_parameters,
+    chain(parent_child_parameters, ungrouped_model_bool_union_model_parameters),
 )
 def test_basic_model_bindings_mapper(model, bindings, expected):
     """Test for rdfproxy.ModelBindingsMapper with model_bool config..
