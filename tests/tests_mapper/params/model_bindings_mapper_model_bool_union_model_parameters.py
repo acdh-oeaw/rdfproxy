@@ -201,4 +201,277 @@ ungrouped_model_bool_union_model_parameters = [
     ),
 ]
 
-grouped_model_bool_union_model_parameters = []
+
+class GroupedNested1(BaseModel):
+    model_config = ConfigDict(model_bool="y")
+
+    y: int | None
+    z: int = 3
+
+
+class GroupedNested2(BaseModel):
+    y: int | None
+    z: int = 3
+
+
+class GroupedModel1(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: GroupedNested1 | str = "default"
+    model_aggregation: list[GroupedNested1]
+
+
+class GroupedModel2(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: GroupedNested2 | str = "default"
+    model_aggregation: list[GroupedNested2]
+
+
+class GroupedNested3(BaseModel):
+    model_config = ConfigDict(model_bool=lambda model: False)
+
+
+class GroupedModel3(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: GroupedNested3 | str = "default"
+    model_aggregation: list[GroupedNested3]
+
+
+class GroupedModel4(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: GroupedNested3 | None = None
+    model_aggregation: list[GroupedNested3]
+
+
+class GroupedModel5(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: Union[GroupedNested3, None] = None
+    model_aggregation: list[GroupedNested3]
+
+
+class GroupedModel6(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: Optional[GroupedNested3] = None
+    model_aggregation: list[GroupedNested3]
+
+
+##
+
+
+class GroupedNested5(BaseModel):
+    model_config = ConfigDict(model_bool=lambda model: True)
+
+    y: int | None
+    z: int = 3
+
+
+class GroupedModel7(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: Optional[GroupedNested5] = None
+    model_aggregation: list[GroupedNested5]
+
+
+class GroupedNested6(BaseModel):
+    model_config = ConfigDict(model_bool={"y", "z"})
+
+    y: int | None
+    z: int = 3
+
+
+class GroupedModel8(BaseModel):
+    model_config = ConfigDict(group_by="x")
+
+    x: int
+    y: list[int]
+    model_union: Optional[GroupedNested6] = None
+    model_aggregation: list[GroupedNested6]
+
+
+grouped_model_bool_union_model_parameters = [
+    ModelBindingsMapperParameter(
+        model=GroupedModel1,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": {"y": 2, "z": 3},
+                "model_aggregation": [{"y": 2, "z": 3}, {"y": 3, "z": 3}],
+            },
+            {"x": 2, "y": [], "model_union": "default", "model_aggregation": []},
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel2,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": {"y": 2, "z": 3},
+                "model_aggregation": [{"y": 2, "z": 3}, {"y": 3, "z": 3}],
+            },
+            {
+                "x": 2,
+                "y": [],
+                "model_union": {"y": None, "z": 3},
+                "model_aggregation": [{"y": None, "z": 3}],
+            },
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel3,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": "default",
+                "model_aggregation": [],
+            },
+            {
+                "x": 2,
+                "y": [],
+                "model_union": "default",
+                "model_aggregation": [],
+            },
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel4,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": None,
+                "model_aggregation": [],
+            },
+            {
+                "x": 2,
+                "y": [],
+                "model_union": None,
+                "model_aggregation": [],
+            },
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel5,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": None,
+                "model_aggregation": [],
+            },
+            {
+                "x": 2,
+                "y": [],
+                "model_union": None,
+                "model_aggregation": [],
+            },
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel6,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": None,
+                "model_aggregation": [],
+            },
+            {
+                "x": 2,
+                "y": [],
+                "model_union": None,
+                "model_aggregation": [],
+            },
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel7,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": {"y": 2, "z": 3},
+                "model_aggregation": [{"y": 2, "z": 3}, {"y": 3, "z": 3}],
+            },
+            {
+                "x": 2,
+                "y": [],
+                "model_union": {"y": None, "z": 3},
+                "model_aggregation": [{"y": None, "z": 3}],
+            },
+        ],
+    ),
+    ModelBindingsMapperParameter(
+        model=GroupedModel8,
+        bindings=[
+            {"x": 1, "y": 2},
+            {"x": 1, "y": 3},
+            {"x": 2, "y": None},
+        ],
+        expected=[
+            {
+                "x": 1,
+                "y": [2, 3],
+                "model_union": {"y": 2, "z": 3},
+                "model_aggregation": [{"y": 2, "z": 3}, {"y": 3, "z": 3}],
+            },
+            {"x": 2, "y": [], "model_union": None, "model_aggregation": []},
+        ],
+    ),
+]
