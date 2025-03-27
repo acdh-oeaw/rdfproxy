@@ -2,9 +2,8 @@
 
 from typing import Annotated
 
-import pytest
-
 from pydantic import BaseModel
+import pytest
 from rdfproxy.utils._types import SPARQLBinding
 from rdfproxy.utils.model_utils import model_traverse
 
@@ -25,6 +24,10 @@ class NestedModel(BaseModel):
     deeply_nested: DeeplyNestedModel
 
 
+class NestedModelUnion(BaseModel):
+    nested_model_union: SomeModel | DeeplyNestedModel
+
+
 class TopModel(BaseModel):
     a: int = 1
     b: list[int] = []
@@ -32,6 +35,10 @@ class TopModel(BaseModel):
     x: NestedModel
     y: list[SomeModel]
     z: SomeModel | None
+
+
+class OtherTopModel(TopModel):
+    nested_model_union: NestedModelUnion
 
 
 self_true_parameters = [
@@ -49,6 +56,30 @@ self_true_parameters = [
     (NestedModel, ["NestedModel", "DeeplyNestedModel", "ReallyDeeplyNestedModel"]),
     (DeeplyNestedModel, ["DeeplyNestedModel", "ReallyDeeplyNestedModel"]),
     (ReallyDeeplyNestedModel, ["ReallyDeeplyNestedModel"]),
+    (
+        NestedModelUnion,
+        [
+            "NestedModelUnion",
+            "SomeModel",
+            "DeeplyNestedModel",
+            "ReallyDeeplyNestedModel",
+        ],
+    ),
+    (
+        OtherTopModel,
+        [
+            "OtherTopModel",
+            "NestedModel",
+            "DeeplyNestedModel",
+            "ReallyDeeplyNestedModel",
+            "SomeModel",
+            "SomeModel",
+            "NestedModelUnion",
+            "SomeModel",
+            "DeeplyNestedModel",
+            "ReallyDeeplyNestedModel",
+        ],
+    ),
 ]
 
 self_false_parameters = map(
