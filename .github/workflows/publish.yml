@@ -1,0 +1,33 @@
+name: Build and upload to PyPI
+
+on:
+  release:
+    types: [published]
+
+  workflow_dispatch
+
+jobs:
+  pypi-publish:
+    runs-on: ubuntu-latest
+
+    environment: pypi
+    permissions:
+      id-token: write
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.26"
+
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Build distribution
+        run: uv build
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
