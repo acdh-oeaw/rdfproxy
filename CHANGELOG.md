@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.4.0...v0.4.1) (2025-04-01)
+
+
+### Bug Fixes
+
+* correct yaml syntax in publish action ([b195a39](https://github.com/acdh-oeaw/rdfproxy/commit/b195a391b8c1029cce2a15e2543cb061a82d43f2))
+
 ## [0.4.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.3.0...v0.4.0) (2025-04-01)
 
 
