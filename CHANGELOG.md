@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.4.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.3.0...v0.4.0) (2025-04-01)
+
+
+### Features
+
+* add checker for union model type fields ([b066986](https://github.com/acdh-oeaw/rdfproxy/commit/b066986ee6f338b738e4ebdb3239d55ae4cb65ee))
+* add consume function ([7bb3d12](https://github.com/acdh-oeaw/rdfproxy/commit/7bb3d1202aeeccdb0c940e5447214a3f876e56fe))
+* add mapper code paths for handling union models ([c1c2ea4](https://github.com/acdh-oeaw/rdfproxy/commit/c1c2ea46446a2edc95d93b60987df925d2e39c2d))
+* allow traversal of union models in model_traverse ([217fed7](https://github.com/acdh-oeaw/rdfproxy/commit/217fed7713c3c59f1feef0bc4c97cb93ad9bd425))
+* implement model_bool check for sub models ([df91d1d](https://github.com/acdh-oeaw/rdfproxy/commit/df91d1db717311085dcd38f53549525a4de34520))
+* refactor model checking and add model_bool root model check ([3350739](https://github.com/acdh-oeaw/rdfproxy/commit/3350739f49096cc3a7bdb50d911f7d96ef658fd1))
+
+
+### Bug Fixes
+
+* allow set[str] instead of arbitrary Iterables for model_bool ([87cee36](https://github.com/acdh-oeaw/rdfproxy/commit/87cee361da67f5ea214b0804c168ea4b64687b35))
+* check for types.UnionType AND typing.Union ([433224d](https://github.com/acdh-oeaw/rdfproxy/commit/433224d2e3ff8f833cb01ac68e07812cb169d0d0))
+
+
+### Documentation
+
+* **examples:** add example of model_bool for union models ([7fe4f6c](https://github.com/acdh-oeaw/rdfproxy/commit/7fe4f6c9d8c864deb4578c313427ed6c98a05744))
+
 ## [0.3.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.2.0...v0.3.0) (2025-03-18)
 
 
