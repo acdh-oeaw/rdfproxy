@@ -2,16 +2,16 @@
 
 from itertools import chain
 
-import pytest
-
 from pydantic import BaseModel
+import pytest
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.tests_mapper.params.model_bindings_mapper_model_bool_parameters import (
     parent_child_parameters,
 )
-from tests.tests_mapper.params.model_bindings_mapper_model_bool_union_model_parameters import (
-    grouped_model_bool_union_model_parameters,
-    ungrouped_model_bool_union_model_parameters,
+
+from tests.tests_mapper.params.model_bindings_mapper_model_bool_model_union_parameters import (
+    grouped_model_bool_model_union_parameters,
+    ungrouped_model_bool_model_union_parameters,
 )
 
 
@@ -19,8 +19,8 @@ from tests.tests_mapper.params.model_bindings_mapper_model_bool_union_model_para
     ["model", "bindings", "expected"],
     chain(
         parent_child_parameters,
-        ungrouped_model_bool_union_model_parameters,
-        grouped_model_bool_union_model_parameters,
+        ungrouped_model_bool_model_union_parameters,
+        grouped_model_bool_model_union_parameters,
     ),
 )
 def test_basic_model_bindings_mapper(model, bindings, expected):

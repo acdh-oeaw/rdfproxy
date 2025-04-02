@@ -8,7 +8,7 @@ from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_list_static_type,
     _is_pydantic_model_static_type,
-    _is_union_pydantic_model_static_type,
+    _is_pydantic_model_union_static_type,
 )
 
 
@@ -63,7 +63,7 @@ pydantic_model_static_type_false_parameters = [
     type,
 ]
 
-union_pydantic_model_static_type_true_parameters = [
+pydantic_model_union_static_type_true_parameters = [
     Model | None,
     None | Model,
     str | None | Model,
@@ -96,11 +96,11 @@ def test_is_list_pydantic_model_static_type_false(obj):
     assert not _is_list_pydantic_model_static_type(obj)
 
 
-@pytest.mark.parametrize("obj", union_pydantic_model_static_type_true_parameters)
-def test_is_union_pydantic_model_static_type_true(obj):
-    assert _is_union_pydantic_model_static_type(obj)
+@pytest.mark.parametrize("obj", pydantic_model_union_static_type_true_parameters)
+def test_is_pydantic_model_union_static_type_true(obj):
+    assert _is_pydantic_model_union_static_type(obj)
 
 
 @pytest.mark.parametrize("obj", list_static_type_false_parameters)
-def test_is_union_pydantic_model_static_type_false(obj):
-    assert not _is_union_pydantic_model_static_type(obj)
+def test_is_pydantic_model_union_static_type_false(obj):
+    assert not _is_pydantic_model_union_static_type(obj)
