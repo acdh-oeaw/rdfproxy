@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v3
         with:
+          token: ${{ secrets.rdfproxy }}
           release-type: python
           package-name: rdfproxy
           bump-minor-pre-major: true
