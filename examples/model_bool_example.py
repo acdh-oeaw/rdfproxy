@@ -1,4 +1,4 @@
-"""A somewhat abstract example of the model_bool config option for aggregation and union model fields."""
+"""A somewhat abstract example of the model_bool config option for aggregation and model union fields."""
 
 from typing import Annotated
 

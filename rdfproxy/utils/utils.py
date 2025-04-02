@@ -69,7 +69,7 @@ class OrderableFieldsBindingsMap(FieldsBindingsMap):
             bindings_map = FieldsBindingsMap(model)
 
             for k, v in model.model_fields.items():
-                # note: check for union model type might be required in the future
+                # note: check for model union type might be required in the future
                 if _is_pydantic_model_static_type(v.annotation):
                     yield from _construct_bindings(v.annotation, top_level=False)
 

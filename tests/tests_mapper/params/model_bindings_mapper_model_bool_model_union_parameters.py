@@ -1,4 +1,4 @@
-"""Parameters for testing ModelBindingsMapper with the model_bool config option for union models."""
+"""Parameters for testing ModelBindingsMapper with the model_bool config option for model unions."""
 
 from typing import Optional, Union
 
@@ -108,7 +108,7 @@ class Model16(BaseModel):
     nested: Nested7 | str = "default"
 
 
-ungrouped_model_bool_union_model_parameters = [
+ungrouped_model_bool_model_union_parameters = [
     ModelBindingsMapperParameter(
         model=Model1,
         bindings=[{}, {}, {}],
@@ -307,7 +307,7 @@ class GroupedModel8(BaseModel):
     model_aggregation: list[GroupedNested6]
 
 
-grouped_model_bool_union_model_parameters = [
+grouped_model_bool_model_union_parameters = [
     ModelBindingsMapperParameter(
         model=GroupedModel1,
         bindings=[

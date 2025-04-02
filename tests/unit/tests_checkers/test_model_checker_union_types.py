@@ -1,4 +1,4 @@
-"""Unit tests for union model type field checks."""
+"""Unit tests for model union type field checks."""
 
 from typing import Any, Optional, Union
 
@@ -55,7 +55,7 @@ class InvalidModelUnionField9(BaseModel):
     deeply_nested: DeeplyNested
 
 
-invalid_union_models = [
+invalid_model_unions = [
     InvalidModelUnionField1,
     InvalidModelUnionField2,
     InvalidModelUnionField3,
@@ -104,7 +104,7 @@ class ValidModelUnionField9(BaseModel):
     nested: Union[Nested, None, str] = ""
 
 
-valid_union_models = [
+valid_model_unions = [
     ValidModelUnionField1,
     ValidModelUnionField2,
     ValidModelUnionField3,
@@ -117,12 +117,12 @@ valid_union_models = [
 ]
 
 
-@pytest.mark.parametrize("model", invalid_union_models)
+@pytest.mark.parametrize("model", invalid_model_unions)
 def test_check_invalid_union_type_fields(model):
     with pytest.raises(RDFProxyModelFieldException):
         check_model(model)
 
 
-@pytest.mark.parametrize("model", valid_union_models)
+@pytest.mark.parametrize("model", valid_model_unions)
 def test_check_valid_union_type_fields(model):
     check_model(model)

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_pydantic_model_static_type,
-    _is_union_pydantic_model_static_type,
+    _is_pydantic_model_union_static_type,
 )
 
 
@@ -42,7 +42,7 @@ def model_traverse(
         elif _is_pydantic_model_static_type(nested_model := field_info.annotation):
             yield from model_traverse(nested_model, f)
 
-        elif _is_union_pydantic_model_static_type(union := field_info.annotation):
+        elif _is_pydantic_model_union_static_type(union := field_info.annotation):
             for nested_model in filter(_is_pydantic_model_static_type, get_args(union)):
                 yield from model_traverse(nested_model, f)
 
