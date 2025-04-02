@@ -2,7 +2,7 @@ name: Build and upload to PyPI
 
 on:
   release:
-    types: [published]
+    types: [released]
 
   workflow_dispatch:
 
