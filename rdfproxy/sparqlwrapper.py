@@ -14,6 +14,8 @@ class SPARQLWrapper:
     def query(self, query: str) -> Iterator[dict[str, Any]]:
         """Run a SPARQL query against endpoint and return an Iterator of flat result mappings."""
         result: httpx.Response = self._httpx_run_sparql_query(query)
+        result.raise_for_status()
+
         return self._get_bindings_from_json_response(result.json())
 
     @staticmethod
