@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.0...v0.5.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* use token env var ([409554c](https://github.com/acdh-oeaw/rdfproxy/commit/409554c51bc1152c305164e843b977b3e45b2961))
+
 ## [0.5.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.4.1...v0.5.0) (2025-04-02)
 
 
