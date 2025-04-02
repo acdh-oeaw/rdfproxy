@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.4.1...v0.5.0) (2025-04-02)
+
+
+### Features
+
+* raise HTTP status in SPARQLWrapper.query ([c9fb82b](https://github.com/acdh-oeaw/rdfproxy/commit/c9fb82b632318d8e6582ed319b1b73562112f9f0))
+
 ## [0.4.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.4.0...v0.4.1) (2025-04-01)
 
 
