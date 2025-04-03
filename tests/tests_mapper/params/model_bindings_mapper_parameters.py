@@ -20,8 +20,6 @@ from tests.tests_mapper.params.models.none_models import (
     SimpleNoneModel,
     TwoFieldNoneModel,
 )
-from tests.utils._types import ModelBindingsMapperParameter
-
 from tests.tests_mapper.params.models.optional_fields_models import (
     OptionalDateFieldModel,
     OptionalIntFieldModel,
@@ -29,6 +27,7 @@ from tests.tests_mapper.params.models.optional_fields_models import (
     OptionalStrFieldModel,
     OptionalStrFieldStrictModel,
 )
+from tests.utils._types import ModelBindingsMapperParameter
 
 
 author_array_collection_parameters = [
@@ -300,13 +299,24 @@ grouping_nested_model_parameters = [
 empty_default_only_model_parameters = [
     ModelBindingsMapperParameter(
         model=Empty,
-        bindings=[{} for _ in range(100)],
-        expected=[{} for _ in range(100)],
+        bindings=[],
+        expected=[],
     ),
     ModelBindingsMapperParameter(
         model=DefaultOnly,
-        bindings=[{} for _ in range(100)],
-        expected=[{"x": 1} for _ in range(100)],
+        bindings=[],
+        expected=[],
+    ),
+    ## revise
+    ModelBindingsMapperParameter(
+        model=Empty,
+        bindings=[{"whatever": 1}, {"whatever": 2}],
+        expected=[{}, {}],
+    ),
+    ModelBindingsMapperParameter(
+        model=DefaultOnly,
+        bindings=[{"whatever": 1}, {"whatever": 2}],
+        expected=[{"x": 1}, {"x": 1}],
     ),
 ]
 
@@ -354,4 +364,27 @@ optional_fields_model_parameters = [
         bindings=[{"x": datetime.date.today()}, {"x": None}],
         expected=[{"x": datetime.date.today()}, {"x": None}],
     ),
+]
+
+empty_bindings_model_parameters = [
+    ModelBindingsMapperParameter(
+        model=model,
+        bindings=[],
+        expected=[],
+    )
+    for model in [
+        BasicComplexModel,
+        BasicNestedModel,
+        BasicSimpleModel,
+        GroupingNestedComplexModel,
+        NestedComplexModel,
+        NestedGroupingComplexModel,
+        SimpleNoneModel,
+        TwoFieldNoneModel,
+        OptionalDateFieldModel,
+        OptionalIntFieldModel,
+        OptionalStrFieldCoerceModel,
+        OptionalStrFieldModel,
+        OptionalStrFieldStrictModel,
+    ]
 ]
