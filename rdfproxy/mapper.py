@@ -1,7 +1,7 @@
 """ModelBindingsMapper: Functionality for mapping binding maps to a Pydantic model."""
 
 from collections.abc import Iterable, Iterator
-from itertools import chain
+from itertools import chain, tee
 from typing import Generic, get_args
 
 import pandas as pd
@@ -35,14 +35,31 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
     should be added to the _ModelBindingsMapper subclass.
     """
 
-    def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]):
+    def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]) -> None:
+        """Initializer for RDFProxy ModelBindingsMapper.
+
+        Note: It is possible to instantiate an empty pd.DataFrame
+        (according to pd.DataFrame.empty) from a non-empty/truthy Iterable;
+        e.g. pd.DataFrame(data=[{}]) results in an empty df.
+        This should be impossible to happen in RDFProxy, because bindings
+        for _ModelBindingsMapper will come from rdfproxy.SPARQLWrapper,
+        which either returns an empty Iterator or an Iterator of non-empty dicts;
+        nonetheless this is something worth explicating i.e. asserting.
+        """
         self.model = model
-        self.bindings = bindings
+        self.bindings, self._assert_bindings = tee(bindings)
 
         self.df = pd.DataFrame(data=self.bindings, dtype=object)
 
+        if self.df.empty:
+            assert not tuple(self._assert_bindings), (
+                "An empty dataframe should imply empty bindings."
+            )
+
     def get_models(self) -> list[_TModelInstance]:
         """Run the model mapping logic against bindings and collect a list of model instances."""
+        if self.df.empty:
+            return []
         return list(self._instantiate_models(self.df, self.model))
 
     def _instantiate_models(
