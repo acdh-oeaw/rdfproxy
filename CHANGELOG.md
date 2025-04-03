@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.1...v0.5.2) (2025-04-03)
+
+
+### Documentation
+
+* refine model_traverse function doc string ([9be52fd](https://github.com/acdh-oeaw/rdfproxy/commit/9be52fdefa922ebb91c3b5a3403c16fc4c2bacc2))
+
 ## [0.5.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.0...v0.5.1) (2025-04-02)
 
 
