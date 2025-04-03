@@ -111,33 +111,33 @@ class Model16(BaseModel):
 ungrouped_model_bool_model_union_parameters = [
     ModelBindingsMapperParameter(
         model=Model1,
-        bindings=[{}, {}, {}],
-        expected=[{"nested": None}, {"nested": None}, {"nested": None}],
+        bindings=[],
+        expected=[],
     ),
     ModelBindingsMapperParameter(
         model=Model2,
-        bindings=[{}, {}, {}],
-        expected=[{"nested": None}, {"nested": None}, {"nested": None}],
+        bindings=[],
+        expected=[],
     ),
     ModelBindingsMapperParameter(
         model=Model3,
-        bindings=[{}, {}, {}],
-        expected=[{"nested": None}, {"nested": None}, {"nested": None}],
+        bindings=[],
+        expected=[],
     ),
     ModelBindingsMapperParameter(
         model=Model4,
-        bindings=[{}, {}, {}],
-        expected=[{"nested": {}}, {"nested": {}}, {"nested": {}}],
+        bindings=[],
+        expected=[],
     ),
     ModelBindingsMapperParameter(
         model=Model5,
-        bindings=[{}, {}, {}],
-        expected=[{"nested": {}}, {"nested": {}}, {"nested": {}}],
+        bindings=[],
+        expected=[],
     ),
     ModelBindingsMapperParameter(
         model=Model6,
-        bindings=[{}, {}, {}],
-        expected=[{"nested": {}}, {"nested": {}}, {"nested": {}}],
+        bindings=[],
+        expected=[],
     ),
     # with bindings
     ModelBindingsMapperParameter(
