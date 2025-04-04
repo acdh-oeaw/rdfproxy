@@ -37,12 +37,17 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
 
     def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]):
         self.model = model
-        self.bindings = bindings
+        self.bindings = list(bindings)
 
         self.df = pd.DataFrame(data=self.bindings, dtype=object)
 
+        if self.df.empty:
+            assert not self.bindings, "An empty dataframe should imply empty bindings."
+
     def get_models(self) -> list[_TModelInstance]:
         """Run the model mapping logic against bindings and collect a list of model instances."""
+        if self.df.empty:
+            return []
         return list(self._instantiate_models(self.df, self.model))
 
     def _instantiate_models(

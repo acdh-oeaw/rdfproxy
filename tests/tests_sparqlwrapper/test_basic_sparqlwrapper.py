@@ -2,9 +2,9 @@
 
 import datetime
 from decimal import Decimal
+from uuid import uuid4
 
 import pytest
-
 from rdflib import BNode, Literal, URIRef, XSD
 from rdfproxy.sparqlwrapper import SPARQLWrapper
 
@@ -58,3 +58,17 @@ def test_sparqlwrapper_python_cast_bnodes():
     result, *_ = list(sparql_wrapper.query(query_bnode))
 
     assert isinstance(result["x"], BNode)
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        "select * where {?s ?p ?o .} limit 0",
+        f"select * where {{<urn:{uuid4()}> <urn:{uuid4()}> '{uuid4()}'}}",
+    ],
+)
+def test_sparqlwrapper_empty_result_set(query):
+    """Check if SPARQLWrapper.query produces empty iterators given empty SPARQL result sets."""
+    sparql_wrapper = SPARQLWrapper("https://graphdb.r11.eu/repositories/RELEVEN")
+    result = sparql_wrapper.query(query)
+    assert list(result) == []
