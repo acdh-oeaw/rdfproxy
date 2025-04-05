@@ -77,7 +77,9 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                 yield self._instantiate_ungrouped_model_from_row(row, model)
         else:
             group_by = alias_map[_group_by]
-            group_by_object: DataFrameGroupBy = df.groupby(group_by, sort=False)
+            group_by_object: DataFrameGroupBy = df.groupby(
+                group_by, sort=False, dropna=False
+            )
 
             for _, group_df in group_by_object:
                 yield self._instantiate_grouped_model_from_df(group_df, model)
@@ -205,7 +207,14 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                 )
             else:
                 first_row = df.iloc[0]
-                value = first_row.get(alias_map[field_name]) or field_info.default
+
+                _sentinel = object()
+                value = (
+                    field_info.default
+                    if (_value := first_row.get(alias_map[field_name], _sentinel))
+                    is _sentinel
+                    else _value
+                )
 
             curried_model(**{field_name: value})
 
