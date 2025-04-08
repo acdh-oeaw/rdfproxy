@@ -5,6 +5,7 @@ import logging
 import math
 from typing import Generic
 
+from rdflib import Graph
 from rdfproxy.constructor import _QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparqlwrapper import SPARQLWrapper
@@ -36,7 +37,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
     def __init__(
         self,
-        target: str,
+        target: str | Graph,
         query: str,
         model: type[_TModelInstance],
     ) -> None:
@@ -47,7 +48,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         self.sparqlwrapper = SPARQLWrapper(self._target)
 
         logger.info("Initialized SPARQLModelAdapter.")
-        logger.debug("Endpoint: %s", self._target)
+        logger.debug("Target: %s", self._target)
         logger.debug("Model: %s", self._model)
         logger.debug("Query: \n%s", self._query)
 
@@ -56,7 +57,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
     ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
         logger.info(
-            "Running SPARQLModelAdapter.query against endpoint '%'", self._target
+            "Running SPARQLModelAdapter.query against endpoint '%s'", self._target
         )
 
         query_constructor = _QueryConstructor(
