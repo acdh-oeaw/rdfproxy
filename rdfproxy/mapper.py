@@ -9,6 +9,7 @@ from pandas.api.typing import DataFrameGroupBy
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
+from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.mapper_utils import get_model_bool_predicate
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
@@ -221,3 +222,15 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         model_instance = curried_model()
         assert isinstance(model_instance, model)  # type narrow
         return model_instance
+
+
+class ModelBindingsMapper(_ModelBindingsMapper):  # pragma: no cover
+    """Functionality for mapping bindings to nested/grouped Pydantic models.
+
+    This is a shallow subclass of _ModelBindingsMapper that runs model sanity checks
+    upon initialization and is therefore recommended for public/standalone use.
+    """
+
+    def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]) -> None:
+        checked_model = check_model(model)
+        super().__init__(model=checked_model, bindings=bindings)
