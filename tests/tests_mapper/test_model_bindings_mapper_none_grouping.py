@@ -1,62 +1,63 @@
-"""Pytest entry point for _ModelBindingsMapper tests for grouping by None-valued fields.
-
-The tests defined here implement the cases mentioned in issue #262."""
-
-from typing import Annotated
+"""Pytest entry point for _ModelBindingsMapper tests for grouping by None-valued fields."""
 
 from pydantic import BaseModel
 import pytest
-from rdfproxy import ConfigDict, SPARQLBinding
+from rdfproxy import ConfigDict
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.utils._types import ModelBindingsMapperParameter
 
 
-bindings_all_none = [
-    {
-        "subject": None,
-        "event_id": None,
-        "event_label": None,
-    }
-]
-
-bindings_subject_uri = [
-    {
-        "subject": "https://hanslick.acdh.oeaw.ac.at/hsl_person_id_110",
-        "event_id": None,
-        "event_label": None,
-    }
-]
-
-
 class DeeplyNested(BaseModel):
-    pass
+    z: int | None
 
 
 class Nested(BaseModel):
-    model_config = ConfigDict(group_by="id")
+    model_config = ConfigDict(group_by="y")
 
-    id: Annotated[str | None, SPARQLBinding("event_id")]
-    label: Annotated[str | None, SPARQLBinding("event_label")]
+    y: int | None
     deeply_nested: list[DeeplyNested]
 
 
 class Model(BaseModel):
-    model_config = ConfigDict(group_by="id")
+    model_config = ConfigDict(group_by="x")
 
-    id: Annotated[str | None, SPARQLBinding("subject")]
-    events: list[Nested]
+    x: int | None
+    nested: list[Nested]
 
 
 params = [
+    ## failed with []
     ModelBindingsMapperParameter(
-        model=Model, bindings=bindings_all_none, expected=[{"id": None, "events": []}]
+        model=Model,
+        bindings=[{"x": None, "y": None, "z": None}],
+        expected=[{"x": None, "nested": []}],
     ),
     ModelBindingsMapperParameter(
         model=Model,
-        bindings=bindings_subject_uri,
-        expected=[
-            {"id": "https://hanslick.acdh.oeaw.ac.at/hsl_person_id_110", "events": []}
-        ],
+        bindings=[{"x": None, "y": 2, "z": None}],
+        expected=[{"x": None, "nested": [{"y": 2, "deeply_nested": []}]}],
+    ),
+    ModelBindingsMapperParameter(
+        model=Model,
+        bindings=[{"x": None, "y": None, "z": 3}],
+        expected=[{"x": None, "nested": [{"y": None, "deeply_nested": [{"z": 3}]}]}],
+    ),
+    ## failed with AssertionError
+    ModelBindingsMapperParameter(
+        model=Model,
+        bindings=[{"x": 1, "y": None, "z": None}],
+        expected=[{"x": 1, "nested": []}],
+    ),
+    ## also passed before bug fix, but still test-worthy
+    ModelBindingsMapperParameter(
+        model=Model,
+        bindings=[{"x": 1, "y": 2, "z": None}],
+        expected=[{"x": 1, "nested": [{"y": 2, "deeply_nested": []}]}],
+    ),
+    ModelBindingsMapperParameter(
+        model=Model,
+        bindings=[{"x": 1, "y": 2, "z": 3}],
+        expected=[{"x": 1, "nested": [{"y": 2, "deeply_nested": [{"z": 3}]}]}],
     ),
 ]
 
