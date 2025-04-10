@@ -2,7 +2,6 @@
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 import pytest
-from rdfproxy.sparqlwrapper import SPARQLWrapper
 
 
 query_str_decimal = """
@@ -54,9 +53,8 @@ class IntModelStrict(BaseModel):
     ["query", "model"],
     [(query_str_decimal, StrFloatModel), (query_decimal, IntModel)],
 )
-def test_sparql_wrapper_model_instantiate_success(query, model):
+def test_sparql_wrapper_model_instantiate_success(sparql_wrapper, query, model):
     """Check if model instantiation with wrong type SUCCEEDS with type coercion."""
-    sparql_wrapper = SPARQLWrapper("https://graphdb.r11.eu/repositories/RELEVEN")
     result, *_ = sparql_wrapper.query(query)
 
     assert model(**dict(result))
@@ -66,9 +64,8 @@ def test_sparql_wrapper_model_instantiate_success(query, model):
     ["query", "model"],
     [(query_str_decimal, StrFloatModelStrict), (query_decimal, IntModelStrict)],
 )
-def test_sparql_wrapper_model_instantiate_fail(query, model):
+def test_sparql_wrapper_model_instantiate_fail(sparql_wrapper, query, model):
     """Check if model instantiation with wrong type FAILS with strict model."""
-    sparql_wrapper = SPARQLWrapper("https://graphdb.r11.eu/repositories/RELEVEN")
     result, *_ = sparql_wrapper.query(query)
 
     with pytest.raises(ValidationError):
