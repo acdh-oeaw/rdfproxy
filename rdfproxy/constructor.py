@@ -90,7 +90,9 @@ class _QueryConstructor:
             ),
         )(self.query)
 
-        return inject_into_query(self.query, subquery)
+        return add_solution_modifier(
+            inject_into_query(self.query, subquery), order_by=order_by_value
+        )
 
     def _get_ungrouped_items_query(self) -> str:
         """Construct a SPARQL items query for ungrouped models."""
