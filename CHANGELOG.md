@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.2](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.1...v0.5.2) (2025-04-10)
+
+
+### Bug Fixes
+
+* handle empty SPARQL bindings/dataframes in mapper ([4e31e4a](https://github.com/acdh-oeaw/rdfproxy/commit/4e31e4a24c749e916a7c3394f3cf47f7c15cc6dd))
+* handle None-valued group keys correctly in mapper aggregation ([8bc260a](https://github.com/acdh-oeaw/rdfproxy/commit/8bc260ab4ccf6d1b981a5d1532dfebddd9d73aa8))
+
+
+### Documentation
+
+* refine model_traverse function doc string ([9be52fd](https://github.com/acdh-oeaw/rdfproxy/commit/9be52fdefa922ebb91c3b5a3403c16fc4c2bacc2))
+
 ## [0.5.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.0...v0.5.1) (2025-04-02)
 
 
