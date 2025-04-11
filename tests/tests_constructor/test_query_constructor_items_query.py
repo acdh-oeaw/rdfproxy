@@ -70,7 +70,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 100 offset 0} }",
+            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 100 offset 0} } order by ?x",
         ),
     ),
     QueryConstructorParameters(
@@ -79,7 +79,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 100 offset 0} }",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 100 offset 0} } order by ?x",
         ),
     ),
     QueryConstructorParameters(
@@ -88,7 +88,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 2 offset 2} }",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ?x limit 2 offset 2} } order by ?x",
         ),
     ),
     # ordered / ungrouped
@@ -153,7 +153,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 100 offset 0} }",
+            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 100 offset 0} } order by ASC(?x)",
         ),
     ),
     QueryConstructorParameters(
@@ -162,7 +162,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 100 offset 0} }",
+            items_query="select * where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 100 offset 0} } order by DESC(?x)",
         ),
     ),
     QueryConstructorParameters(
@@ -171,7 +171,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 100 offset 0} }",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 100 offset 0} } order by ASC(?x)",
         ),
     ),
     QueryConstructorParameters(
@@ -180,7 +180,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 100 offset 0} }",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 100 offset 0} } order by DESC(?x)",
         ),
     ),
     QueryConstructorParameters(
@@ -189,7 +189,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 2 offset 2} }",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by ASC(?x) limit 2 offset 2} } order by ASC(?x)",
         ),
     ),
     QueryConstructorParameters(
@@ -198,7 +198,7 @@ parameters = [
         model=GroupedModel,
         expected=Expected(
             count_query="select (count(distinct ?x) as ?cnt) where {?x a ?y}",
-            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 2 offset 2} }",
+            items_query="select ?x ?y where {?x a ?y {select distinct ?x where {?x a ?y} order by DESC(?x) limit 2 offset 2} } order by DESC(?x)",
         ),
     ),
 ]

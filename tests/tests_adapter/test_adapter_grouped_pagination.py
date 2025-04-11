@@ -383,7 +383,6 @@ ordered_binding_adapter_parameters = [
             pages=2,
         ),
     ),
-    #
     AdapterParameter(
         model=BindingParent,
         query=binding_query,
@@ -432,9 +431,9 @@ ordered_binding_adapter_parameters = [
         ordered_binding_adapter_parameters,
     ),
 )
-def test_adapter_grouped_pagination(params):
+def test_adapter_grouped_pagination(target, params):
     adapter = SPARQLModelAdapter(
-        target="https://graphdb.r11.eu/repositories/RELEVEN",
+        target=target,
         query=params.query,
         model=params.model,
     )
@@ -444,12 +443,11 @@ def test_adapter_grouped_pagination(params):
 
 
 @pytest.mark.xfail
-@pytest.mark.remote
 @pytest.mark.parametrize("params", ungrouped_adapter_parameters)
-def test_basic_ungrouped_pagination(params):
+def test_basic_ungrouped_pagination(target, params):
     """This shows a possible pagination count bug that needs investigating."""
     adapter = SPARQLModelAdapter(
-        target="https://graphdb.r11.eu/repositories/RELEVEN",
+        target=target,
         query=params.query,
         model=params.model,
     )
