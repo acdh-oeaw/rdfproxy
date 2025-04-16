@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.6.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.1...v0.6.0) (2025-04-16)
+
+
+### Features
+
+* implement public ModelBindingsMapper subclass ([df1894b](https://github.com/acdh-oeaw/rdfproxy/commit/df1894b697a77a22cfed97e69cdd0906c2abb341))
+* support rdflib.Graph as a SPARQL target ([b9a53c7](https://github.com/acdh-oeaw/rdfproxy/commit/b9a53c76ee9dc37da956a33a9fe23b6035e345d5))
+
+
+### Bug Fixes
+
+* add order by solution modifier for outer query ([bdb47e5](https://github.com/acdh-oeaw/rdfproxy/commit/bdb47e5b05d1f70e34ceb2e6be1ad60704d22314))
+* handle empty SPARQL bindings/dataframes in mapper ([4e31e4a](https://github.com/acdh-oeaw/rdfproxy/commit/4e31e4a24c749e916a7c3394f3cf47f7c15cc6dd))
+* handle None-valued group keys correctly in mapper aggregation ([8bc260a](https://github.com/acdh-oeaw/rdfproxy/commit/8bc260ab4ccf6d1b981a5d1532dfebddd9d73aa8))
+
+
+### Documentation
+
+* refine model_traverse function doc string ([9be52fd](https://github.com/acdh-oeaw/rdfproxy/commit/9be52fdefa922ebb91c3b5a3403c16fc4c2bacc2))
+
 ## [0.5.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.0...v0.5.1) (2025-04-02)
 
 
