@@ -1,6 +1,6 @@
 """Unit tests for QueryParameters model parametrization."""
 
-from typing import Annotated
+from typing import Annotated, get_args
 
 from pydantic import BaseModel
 from rdfproxy.utils._types import SPARQLBinding
@@ -34,7 +34,7 @@ def test_query_parameters_model_parametrization():
     order_by_values = parametrized_model.model_fields["order_by"]
     orderable_fields = [
         field.value
-        for field in order_by_values.annotation  # type: ignore
+        for field in get_args(order_by_values.annotation)[0]  # can be hardcoded
     ]
 
     assert orderable_fields == ["a", "NestedModel.b", "ReallyDeeplyNestedModel.c"]
