@@ -60,4 +60,6 @@ class QueryParameters(BaseModel):
         _order_by_fields = [(k, k) for k in OrderableFieldsBindingsMap(model).keys()]
         OrderByEnum = StrEnum("OrderByEnum", _order_by_fields)
 
-        return create_model(cls.__name__, order_by=(OrderByEnum, None), __base__=cls)
+        return create_model(
+            cls.__name__, order_by=(OrderByEnum | None, None), __base__=cls
+        )
