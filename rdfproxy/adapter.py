@@ -14,6 +14,8 @@ from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
 
+from plum import dispatch
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +54,26 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug("Model: %s", self._model)
         logger.debug("Query: \n%s", self._query)
 
+    @dispatch
     def query(
+        self,
+        page: int = 1,
+        size: int = 100,
+        order_by: str | None = None,
+        desc: bool | None = None,
+    ):
+        query_parameters = QueryParameters(
+            page=page, size=size, order_by=order_by, desc=desc
+        )
+        return self._query_with_parameters_model(query_parameters=query_parameters)
+
+    @dispatch
+    def query(
+        self, query_parameters: QueryParameters = QueryParameters()
+    ) -> Page[_TModelInstance]:
+        return self._query_with_parameters_model(query_parameters=query_parameters)
+
+    def _query_with_parameters_model(
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
