@@ -13,6 +13,7 @@ dependencies = [
     "httpx>=0.28.1,<0.29",
     "rdflib>=7.1.1,<8",
     "pandas>=2.2.3,<3",
+    "multipledispatch>=1.0.0",
 ]
 
 [dependency-groups]
