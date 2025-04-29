@@ -1,6 +1,5 @@
 """SPARQLModelAdapter class for SPARQL query result set to Pydantic model conversions."""
 
-from collections.abc import Iterator
 import logging
 import math
 from typing import Generic
@@ -70,14 +69,15 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         items_query = query_constructor.get_items_query()
 
         logger.debug("Running items query: \n%s", items_query)
+        logger.debug("Running count query: \n%s", count_query)
 
-        items_query_bindings: Iterator[dict] = self.sparqlwrapper.query(items_query)
+        items_query_bindings, count_query_bindings = self.sparqlwrapper.queries(
+            items_query, count_query
+        )
+
         mapper = _ModelBindingsMapper(self._model, items_query_bindings)
         items: list[_TModelInstance] = mapper.get_models()
 
-        logger.debug("Running count query: \n%s", count_query)
-
-        count_query_bindings: Iterator[dict] = self.sparqlwrapper.query(count_query)
         total: int = int(next(count_query_bindings)["cnt"])
         pages: int = math.ceil(total / query_parameters.size)
 
