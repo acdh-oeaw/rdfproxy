@@ -33,7 +33,7 @@ where {
 
 def test_sparqlwrapper_python_cast_types(sparql_wrapper):
     """Run a query featuring several RDF types and check for Python-casting."""
-    result = list(sparql_wrapper.query(query_types))
+    result, *_ = sparql_wrapper.queries(query_types)
 
     expected = [
         {"x": 2},
@@ -45,12 +45,12 @@ def test_sparqlwrapper_python_cast_types(sparql_wrapper):
         {"x": Literal("2024-01", datatype=XSD.gYearMonth)},
     ]
 
-    assert result == expected
+    assert list(result) == expected
 
 
 def test_sparqlwrapper_python_cast_bnodes(sparql_wrapper):
     """Run a query which mocks a BNode and check for BNode-casting."""
-    result, *_ = list(sparql_wrapper.query(query_bnode))
+    (result, *_), *_ = sparql_wrapper.queries(query_bnode)
 
     assert isinstance(result["x"], BNode)
 
@@ -68,5 +68,5 @@ def test_sparqlwrapper_empty_result_set(sparql_wrapper, query):
     The test parametrization uses decorator stacking over itertools.product
     because this allows to mark the GraphDB targeting SPARQLWrapper as 'remote'.
     """
-    result = sparql_wrapper.query(query)
+    result, *_ = sparql_wrapper.queries(query)
     assert list(result) == []

@@ -55,7 +55,7 @@ class IntModelStrict(BaseModel):
 )
 def test_sparql_wrapper_model_instantiate_success(sparql_wrapper, query, model):
     """Check if model instantiation with wrong type SUCCEEDS with type coercion."""
-    result, *_ = sparql_wrapper.query(query)
+    (result, *_), *_ = sparql_wrapper.queries(query)
 
     assert model(**dict(result))
 
@@ -66,7 +66,7 @@ def test_sparql_wrapper_model_instantiate_success(sparql_wrapper, query, model):
 )
 def test_sparql_wrapper_model_instantiate_fail(sparql_wrapper, query, model):
     """Check if model instantiation with wrong type FAILS with strict model."""
-    result, *_ = sparql_wrapper.query(query)
+    (result, *_), *_ = sparql_wrapper.queries(query)
 
     with pytest.raises(ValidationError):
         assert model(**dict(result))
