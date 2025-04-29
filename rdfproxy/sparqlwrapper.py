@@ -1,10 +1,12 @@
+import asyncio
 from collections.abc import Iterator
 import json
-from typing import Any, cast
-
-from rdflib import BNode, Graph, Literal, URIRef, XSD
+from typing import Any
 
 import httpx
+from rdflib import BNode, Graph, Literal, URIRef, XSD
+from rdflib.query import Result as SPARQLQueryResult
+from rdfproxy.utils.utils import compose_left
 
 
 class SPARQLWrapper:
@@ -13,42 +15,85 @@ class SPARQLWrapper:
     def __init__(self, target: str | Graph):
         self.target = target
 
-    def query(self, query: str) -> Iterator[dict[str, Any]]:
-        """Run a SPARQL query against target and return an Iterator of flat result mappings."""
+    def queries(self, *queries: str) -> list[Iterator[dict[str, Any]]]:
+        """Synchronous wrapper for asynchronous SPARQL query execution.
+
+        SPARQLWrapper.queries takes multiple SPARQL queries, runs them
+        against a service and returns a list of result iterators.
+        """
         if isinstance(self.target, Graph):
-            return self._query_graph_object(query)
+            queries_coroutine = self._aqueries_graph_object
         elif isinstance(self.target, str):
-            return self._query_remote_endpoint(query)
+            queries_coroutine = self._aqueries_remote_endpoint
         else:  # pragma: no cover
-            raise Exception("Parameter 'target' expects argument of type str | Graph.")
+            raise TypeError("Parameter 'target' expects argument of type str | Graph.")
 
-    def _query_remote_endpoint(self, query: str) -> Iterator[dict[str, Any]]:
-        """Run a SPARQL query against a remote endpoint."""
-        result: httpx.Response = self._httpx_run_sparql_query(query)
-        result.raise_for_status()
+        return asyncio.run(queries_coroutine(*queries))
 
-        return self._get_bindings_from_json_response(result.json())
+    async def _aqueries_remote_endpoint(
+        self, *queries: str
+    ) -> list[Iterator[dict[str, Any]]]:
+        """Coroutine for running multiple queries against a remote target."""
+        assert isinstance(self.target, str)  # type narrow
 
-    def _query_graph_object(self, query: str) -> Iterator[dict[str, Any]]:
-        """Run a SPARQL query against an rdflib.Graph instance.
+        async with httpx.AsyncClient() as aclient, asyncio.TaskGroup() as tg:
+            tasks = [
+                tg.create_task(
+                    aclient.post(
+                        self.target,
+                        data={"output": "json", "query": query},
+                        headers={
+                            "Accept": "application/sparql-results+json",
+                        },
+                    )
+                )
+                for query in queries
+            ]
 
-        Note: rdflib.query.Result.serialize has a union return type;
-        the return type can be safely cast though, because the union-relevant
-        code path depends on the destination parameter, which isn't used here.
+        results: list[httpx.Response] = [task.result() for task in tasks]
+
+        python_results = map(
+            compose_left(httpx.Response.json, self._get_bindings_from_json_response),
+            results,
+        )
+
+        return list(python_results)
+
+    @staticmethod
+    async def _agraph_query(graph: Graph, query: str) -> SPARQLQueryResult:
+        """Thin async-thread wrapper for rdflib.Graph.query."""
+        return await asyncio.to_thread(graph.query, query)
+
+    async def _aqueries_graph_object(
+        self, *queries: str
+    ) -> list[Iterator[dict[str, Any]]]:
+        """Coroutine for running multiple queries against an rdflib.Graph target.
+
+        Note that _aquery_graph_object wraps rdflib.Graph.query
+        in a separate thread using asyncio.to_thread.
         """
         assert isinstance(self.target, Graph)  # type narrow
 
-        _result = self.target.query(query)
-        _serialized = cast(bytes, _result.serialize(format="json"))
-        _result_json = json.loads(_serialized)
+        tasks = [self._agraph_query(self.target, query) for query in queries]
+        results: list[SPARQLQueryResult] = await asyncio.gather(*tasks)
 
-        return self._get_bindings_from_json_response(_result_json)
+        python_results = map(
+            compose_left(
+                lambda result: result.serialize(format="json"),
+                json.loads,
+                self._get_bindings_from_json_response,
+            ),
+            results,
+        )
+
+        return list(python_results)
 
     @staticmethod
     def _get_bindings_from_json_response(
-        json_response: dict,
+        json_response: dict[str, Any],
     ) -> Iterator[dict[str, Any]]:
         """Get flat dicts from a SPARQL SELECT JSON response."""
+
         variables = json_response["head"]["vars"]
         response_bindings = json_response["results"]["bindings"]
 
@@ -87,20 +132,3 @@ class SPARQLWrapper:
 
         for binding in response_bindings:
             yield dict(_get_binding_pairs(binding))
-
-    def _httpx_run_sparql_query(self, query: str) -> httpx.Response:
-        """Run a query against endpoint using httpx.post."""
-        assert isinstance(self.target, str)
-
-        data = {"output": "json", "query": query}
-        headers = {
-            "Accept": "application/sparql-results+json",
-        }
-
-        response = httpx.post(
-            self.target,
-            headers=headers,
-            data=data,
-        )
-
-        return response
