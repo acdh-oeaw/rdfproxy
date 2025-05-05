@@ -4,6 +4,7 @@ import logging
 import math
 from typing import Generic
 
+import httpx
 from rdflib import Graph
 from rdfproxy.constructor import _QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
@@ -39,12 +40,17 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         target: str | Graph,
         query: str,
         model: type[_TModelInstance],
+        aclient: httpx.AsyncClient | None = None,
     ) -> None:
         self._target = target
         self._query = check_query(query)
         self._model = check_model(model)
 
-        self.sparqlwrapper = SPARQLWrapper(self._target)
+        self.sparqlwrapper = (
+            SPARQLWrapper(target=self._target)
+            if aclient is None
+            else SPARQLWrapper(target=self._target, aclient=aclient)
+        )
 
         logger.info("Initialized SPARQLModelAdapter.")
         logger.debug("Target: %s", self._target)

@@ -1,7 +1,8 @@
 import asyncio
 from collections.abc import Iterator
 import json
-from typing import Any
+from typing import Any, AsyncContextManager
+import warnings
 
 import httpx
 from rdflib import BNode, Graph, Literal, URIRef, XSD
@@ -9,11 +10,47 @@ from rdflib.query import Result as RDFLibQueryResult
 from rdfproxy.utils.utils import compose_left
 
 
+warnings.simplefilter("default")
+
+
+class _AsyncClientWrapper:
+    """Simple wrapper for httpx.AysncClient.
+
+    The class implements the async context manager protocol
+    and overwrites __aexit__ so that the httpx.AsyncClient
+    is not closed an context manager exit. All other attribute access
+    is rerouted to the httpx.AsyncClient component.
+    """
+
+    def __init__(self, aclient: httpx.AsyncClient) -> None:
+        self.aclient = aclient
+
+    def __getattr__(self, value):
+        return getattr(self.aclient, value)
+
+    async def __aenter__(self):
+        return await self.aclient.__aenter__()
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        warnings.warn(
+            f"httpx.AsyncClient instance '{self.aclient}' is still open. "
+            "httpx.AsyncClient.aclose should be called at some point, "
+            "e.g. on application shutdown using a FastAPI lifespan event."
+        )
+
+
 class SPARQLWrapper:
     """Simple httpx-based SPARQLWrapper implementaton for RDFProxy."""
 
-    def __init__(self, target: str | Graph):
+    def __init__(
+        self, target: str | Graph, aclient: httpx.AsyncClient | None = None
+    ) -> None:
         self.target = target
+        self.aclient: AsyncContextManager = (
+            httpx.AsyncClient()
+            if aclient is None
+            else _AsyncClientWrapper(aclient=aclient)
+        )
 
     def queries(self, *queries: str) -> list[Iterator[dict[str, Any]]]:
         """Synchronous wrapper for asynchronous SPARQL query execution.
@@ -35,11 +72,12 @@ class SPARQLWrapper:
     ) -> list[Iterator[dict[str, Any]]]:
         """Coroutine for running multiple queries against a remote target."""
         assert isinstance(self.target, str)  # type narrow
+        # assert isinstance(self.aclient, AsyncContextManager)  # type narrow
 
-        async with httpx.AsyncClient() as aclient, asyncio.TaskGroup() as tg:
+        async with self.aclient, asyncio.TaskGroup() as tg:
             tasks = [
                 tg.create_task(
-                    aclient.post(
+                    self.aclient.post(
                         self.target,
                         data={"output": "json", "query": query},
                         headers={
