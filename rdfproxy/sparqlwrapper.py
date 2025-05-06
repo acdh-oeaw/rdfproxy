@@ -29,7 +29,9 @@ class _AsyncClientWrapper:
         return getattr(self.aclient, value)
 
     async def __aenter__(self):
-        return await self.aclient.__aenter__()
+        if self.aclient.is_closed:
+            return await self.aclient.__aenter__()
+        return self.aclient
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         warnings.warn(
