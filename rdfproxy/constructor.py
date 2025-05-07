@@ -71,7 +71,7 @@ class _DetailQueryConstructor:
         return detail_filter_clause
 
 
-class _QueryConstructor:
+class _PageQueryConstructor:
     """The class encapsulates dynamic SPARQL query modification logic
     for implementing purely SPARQL-based, deterministic pagination.
 

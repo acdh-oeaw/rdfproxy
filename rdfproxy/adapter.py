@@ -6,7 +6,7 @@ from typing import Generic
 import warnings
 
 from rdflib import Graph
-from rdfproxy.constructor import _DetailQueryConstructor, _QueryConstructor
+from rdfproxy.constructor import _DetailQueryConstructor, _PageQueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparqlwrapper import SPARQLWrapper
 from rdfproxy.utils._types import _TModelInstance
@@ -83,7 +83,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             "Running SPARQLModelAdapter.query against endpoint '%s'", self._target
         )
 
-        query_constructor = _QueryConstructor(
+        query_constructor = _PageQueryConstructor(
             query=self._query,
             query_parameters=query_parameters,
             model=self._model,
