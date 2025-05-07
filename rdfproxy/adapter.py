@@ -6,10 +6,11 @@ from typing import Generic
 import warnings
 
 from rdflib import Graph
-from rdfproxy.constructor import _QueryConstructor
+from rdfproxy.constructor import _ItemQueryConstructor, _PageQueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparqlwrapper import SPARQLWrapper
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.checkers.item_checker import check_item_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
@@ -53,12 +54,42 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug("Model: %s", self._model)
         logger.debug("Query: \n%s", self._query)
 
+    def get_item(
+        self, *, xsd_type: str | None = None, lang_tag: str | None = None, **key
+    ) -> _TModelInstance:
+        """Run a query against a target and return a model instance."""
+        logger.info(
+            "Running SPARQLModelAdapter.get_item against endpoint '%s'", self._target
+        )
+
+        check_key(key=key, query=self._query, model=self._model)
+
+        query_constructor = _ItemQueryConstructor(
+            key=key,
+            xsd_type=xsd_type,
+            lang_tag=lang_tag,
+            query=self._query,
+            model=self._model,
+        )
+        item_query = query_constructor.get_item_query()
+
+        logger.debug("Running item query: \n%s", item_query)
+
+        item_query_bindings, *_ = self.sparqlwrapper.queries(item_query)
+        mapper = _ModelBindingsMapper(self._model, item_query_bindings)
+
+        item_model = check_item_model(
+            models=mapper.get_models(), model_type=self._model, key=key
+        )
+
+        return item_model
+
     def get_page(
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
-        """Run a query against an endpoint and return a Page model object."""
+        """Run a query against a target and return a Page model object."""
         logger.info(
-            "Running SPARQLModelAdapter.query against endpoint '%s'", self._target
+            "Running SPARQLModelAdapter.get_page against endpoint '%s'", self._target
         )
 
         query_constructor = _QueryConstructor(

@@ -42,3 +42,15 @@ class RDFProxyModelBoolException(RDFProxyModelValidationException):
 
 class RDFProxyModelFieldException(RDFProxyModelValidationException):
     """Exception for indicating invalid model field definitions."""
+
+
+class RDFProxyNoResultsFound(Exception):
+    """Exception for indicating that no results where found for an item request."""
+
+
+class RDFProxyMultipleResultsFound(Exception):
+    """Exception for indicating that multiple results where found for an item request."""
+
+
+class UnprojectedKeyBindingException(Exception):
+    """Exception for indicating that a request item key does not have corresponding binding in the projection."""
