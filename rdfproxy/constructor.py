@@ -1,3 +1,6 @@
+from typing import Any
+
+from rdflib import Literal
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import QueryParameters
 from rdfproxy.utils.sparql_utils import (
@@ -15,8 +18,66 @@ from rdfproxy.utils.utils import (
 )
 
 
-class _QueryConstructor:
-    """The class encapsulates dynamic SPARQL query modification logic
+class _ItemQueryConstructor:
+    """SPARQL query constructor for SPARQLModelAdapter.get_item.
+
+    The class encapsulates dynamic SPARQL query modification logic
+    for single item requests according to an ID key.
+    """
+
+    def __init__(
+        self,
+        key: dict[str, Any],
+        xsd_type: str | None,
+        lang_tag: str | None,
+        query: str,
+        model: type[_TModelInstance],
+    ) -> None:
+        self.key = key
+        self.xsd_type = xsd_type
+        self.lang_tag = lang_tag
+        self.query = query
+
+        self.bindings_map = FieldsBindingsMap(model)
+
+    def get_item_query(self) -> str:
+        """Construct a SPARQL item query for use in rdfproxy.SPARQLModelAdapter."""
+        detail_filter_clause: str = self._get_item_filter_clause()
+        return inject_into_query(
+            self.query, detail_filter_clause, inject_into_pattern=False
+        )
+
+    def _get_item_filter_clause(self) -> str:
+        """Compute a FILTER clause for SPARQL item query construction."""
+
+        (_key_key, _key_value), *_ = self.key.items()
+
+        key_key = self.bindings_map[_key_key]
+        key_value = Literal(
+            _key_value
+        )._quote_encode()  # Literal.n3 would also be an option
+
+        match (self.xsd_type, self.lang_tag):
+            case None, None:
+                filter_clause = f"filter (str(?{key_key}) = {key_value})"
+            case xsd_type, None:
+                filter_clause = f"filter (?{key_key} = {key_value}^^<{xsd_type}>)"
+            case None, lang_tag:
+                filter_clause = f"filter (?{key_key} = {key_value}@{lang_tag})"
+            case xsd_type, lang_tag:
+                raise ValueError(
+                    "Parameters xsd_type and lang_tag are mutually exclusive."
+                )
+            case _:  # pragma: no cover
+                assert False, "This should never happen."
+
+        return filter_clause
+
+
+class _PageQueryConstructor:
+    """SPARQL query constructor SPARQLModelAdapter.get_page.
+
+    The class encapsulates dynamic SPARQL query modification logic
     for implementing purely SPARQL-based, deterministic pagination.
 
     Public methods get_items_query and get_count_query are used in rdfproxy.SPARQLModelAdapter

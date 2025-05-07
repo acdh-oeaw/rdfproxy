@@ -46,3 +46,15 @@ class ModelBoolException(ModelValidationException):
 
 class ModelFieldException(ModelValidationException):
     """Exception for indicating invalid model field definitions."""
+
+
+class NoResultsFound(Exception):
+    """Exception for indicating that no results where found for an item request."""
+
+
+class MultipleResultsFound(Exception):
+    """Exception for indicating that multiple results where found for an item request."""
+
+
+class UnprojectedKeyBindingException(Exception):
+    """Exception for indicating that a request item key does not have corresponding binding in the projection."""
