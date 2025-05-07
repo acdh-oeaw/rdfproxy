@@ -92,7 +92,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             "Running SPARQLModelAdapter.get_page against endpoint '%s'", self._target
         )
 
-        query_constructor = _QueryConstructor(
+        query_constructor = _PageQueryConstructor(
             query=self._query,
             query_parameters=query_parameters,
             model=self._model,
