@@ -3,6 +3,7 @@
 import logging
 import math
 from typing import Generic
+import warnings
 
 from rdflib import Graph
 from rdfproxy.constructor import _QueryConstructor
@@ -15,6 +16,7 @@ from rdfproxy.utils.models import Page, QueryParameters
 
 
 logger = logging.getLogger(__name__)
+warnings.simplefilter("always")
 
 
 class SPARQLModelAdapter(Generic[_TModelInstance]):
@@ -51,7 +53,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug("Model: %s", self._model)
         logger.debug("Query: \n%s", self._query)
 
-    def query(
+    def get_page(
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
         """Run a query against an endpoint and return a Page model object."""
@@ -88,3 +90,13 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             total=total,
             pages=pages,
         )
+
+    def query(
+        self, query_parameters: QueryParameters = QueryParameters()
+    ) -> Page[_TModelInstance]:
+        warnings.warn(
+            "SPARQLModelAdapter.query is deprecated. "
+            "Use SPARQLModelAdapter.get_page instead.",
+            PendingDeprecationWarning,
+        )
+        return self.get_page(query_parameters=query_parameters)
