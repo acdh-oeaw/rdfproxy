@@ -42,3 +42,11 @@ class RDFProxyModelBoolException(RDFProxyModelValidationException):
 
 class RDFProxyModelFieldException(RDFProxyModelValidationException):
     """Exception for indicating invalid model field definitions."""
+
+
+class RDFProxyNoResultsFound(Exception):
+    """Exception for indicating that no results where found for a Detail request."""
+
+
+class RDFProxyMultipleResultsFound(Exception):
+    """Exception for indicating that multiple results where found for a Detail request."""

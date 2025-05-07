@@ -6,10 +6,11 @@ from typing import Generic
 import warnings
 
 from rdflib import Graph
-from rdfproxy.constructor import _QueryConstructor
+from rdfproxy.constructor import _DetailQueryConstructor, _QueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparqlwrapper import SPARQLWrapper
 from rdfproxy.utils._types import _TModelInstance
+from rdfproxy.utils.checkers.detail_checker import check_detail_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
@@ -53,10 +54,31 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug("Model: %s", self._model)
         logger.debug("Query: \n%s", self._query)
 
+    def get_detail(
+        self, *, xsd_type: str | None = None, lang_tag: str | None = None, **key
+    ) -> _TModelInstance:
+        """Run a query against a target and return a model instance."""
+        check_key(key=key, query=self._query, model=self._model)
+
+        query_constructor = _DetailQueryConstructor(
+            key=key,
+            xsd_type=xsd_type,
+            lang_tag=lang_tag,
+            query=self._query,
+            model=self._model,
+        )
+        detail_query = query_constructor.get_detail_query()
+
+        detail_query_bindings, *_ = self.sparqlwrapper.queries(detail_query)
+        mapper = _ModelBindingsMapper(self._model, detail_query_bindings)
+
+        detail_model: _TModelInstance = check_detail_model(mapper.get_models())
+        return detail_model
+
     def get_page(
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
-        """Run a query against an endpoint and return a Page model object."""
+        """Run a query against a target and return a Page model object."""
         logger.info(
             "Running SPARQLModelAdapter.query against endpoint '%s'", self._target
         )

@@ -1,3 +1,6 @@
+from typing import Any
+
+from rdflib import Literal
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import QueryParameters
 from rdfproxy.utils.sparql_utils import (
@@ -13,6 +16,59 @@ from rdfproxy.utils.utils import (
     QueryConstructorComponent as component,
     compose_left,
 )
+
+
+class _DetailQueryConstructor:
+    def __init__(
+        self,
+        key: dict[str, Any],
+        xsd_type: str | None,
+        lang_tag: str | None,
+        query: str,
+        model: type[_TModelInstance],
+    ) -> None:
+        self.key = key
+        self.xsd_type = xsd_type
+        self.lang_tag = lang_tag
+        self.query = query
+
+        self.bindings_map = FieldsBindingsMap(model)
+
+    def get_detail_query(self) -> str:
+        """Construct a SPARQL detail query for use in rdfproxy.SPARQLModelAdapter."""
+        detail_filter_clause: str = self._get_detail_filter_clause()
+        return inject_into_query(self.query, detail_filter_clause)
+
+    def _get_detail_filter_clause(self) -> str:
+        """Compute a FILTER clause for SPARQL detail query construction."""
+
+        (_key_key, _key_value), *_ = self.key.items()
+        key_key = self.bindings_map[_key_key]
+        key_value = Literal(
+            _key_value
+        )._quote_encode()  # Literal.n3 would also be an option
+
+        match (self.xsd_type, self.lang_tag):
+            case None, None:
+                detail_filter_clause = (
+                    f"filter (coalesce(str(?{key_key}) = {key_value}, false))"
+                )
+            case xsd_type, None:
+                detail_filter_clause = (
+                    f"filter (coalesce(?{key_key} = {key_value}^^<{xsd_type}>, false))"
+                )
+            case None, lang_tag:
+                detail_filter_clause = (
+                    f"filter (coalesce(?{key_key} = {key_value}@{lang_tag}, false))"
+                )
+            case xsd_type, lang_tag:
+                raise ValueError(
+                    "Parameters xsd_type and lang_tag are mutually exclusive."
+                )
+            case _:  # pragma: no cover
+                assert False, "This should never happen."
+
+        return detail_filter_clause
 
 
 class _QueryConstructor:
