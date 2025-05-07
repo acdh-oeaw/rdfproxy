@@ -4,7 +4,7 @@ from typing import NamedTuple
 
 from pydantic import BaseModel
 import pytest
-from rdfproxy.constructor import _QueryConstructor
+from rdfproxy.constructor import _PageQueryConstructor
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.models import QueryParameters
 
@@ -206,7 +206,7 @@ parameters = [
 
 @pytest.mark.parametrize(["query", "query_parameters", "model", "expected"], parameters)
 def test_query_constructor_items_query(query, query_parameters, model, expected):
-    constructor = _QueryConstructor(
+    constructor = _PageQueryConstructor(
         query=query, query_parameters=query_parameters, model=model
     )
 

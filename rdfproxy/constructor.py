@@ -75,9 +75,7 @@ class _ItemQueryConstructor:
 
 
 class _PageQueryConstructor:
-    """SPARQL query constructor SPARQLModelAdapter.get_page.
-
-    The class encapsulates dynamic SPARQL query modification logic
+    """The class encapsulates dynamic SPARQL query modification logic
     for implementing purely SPARQL-based, deterministic pagination.
 
     Public methods get_items_query and get_count_query are used in rdfproxy.SPARQLModelAdapter
