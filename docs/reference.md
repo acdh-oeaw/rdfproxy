@@ -3,7 +3,7 @@ This part of the documentation provides automatically generated information abou
 ---
 ::: rdfproxy.adapter.SPARQLModelAdapter
 ---
-::: rdfproxy.constructor._QueryConstructor
+::: rdfproxy.constructor._PageQueryConstructor
 ---
 ::: rdfproxy.mapper._ModelBindingsMapper
 ---
