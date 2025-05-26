@@ -3,8 +3,9 @@
 from itertools import chain
 from typing import Annotated, Any, NamedTuple
 
-from pydantic import BaseModel
 import pytest
+
+from pydantic import BaseModel
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -439,7 +440,10 @@ def test_adapter_grouped_pagination(target, params):
     )
 
     parameters = QueryParameters(**params.query_parameters)
-    assert adapter.query(parameters) == params.expected
+    assert adapter.get_page(parameters) == params.expected
+
+    with pytest.deprecated_call():
+        assert adapter.query(parameters) == params.expected
 
 
 @pytest.mark.xfail
