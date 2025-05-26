@@ -1,9 +1,10 @@
-"""Basic tests for the QueryConstructor class."""
+"""Basic tests for the _PageQueryConstructor class."""
 
 from typing import NamedTuple
 
-from pydantic import BaseModel
 import pytest
+
+from pydantic import BaseModel
 from rdfproxy.constructor import _PageQueryConstructor
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.models import QueryParameters
