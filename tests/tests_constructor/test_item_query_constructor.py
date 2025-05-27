@@ -32,7 +32,7 @@ constructor_parameters = [
         lang_tag=None,
         query="select * where {?x <urn:p> ?y}",
         model=Model,
-        expected='select * where {?x <urn:p> ?y {filter (str(?x) = "1")} }',
+        expected='select * where {?x <urn:p> ?y filter (str(?x) = "1") }',
     ),
     ConstructorParameters(
         key={"y": 1},
@@ -40,7 +40,7 @@ constructor_parameters = [
         lang_tag=None,
         query="select * where {?x <urn:p> ?y}",
         model=Model,
-        expected='select * where {?x <urn:p> ?y {filter (str(?y_alias) = "1")} }',
+        expected='select * where {?x <urn:p> ?y filter (str(?y_alias) = "1") }',
     ),
     ConstructorParameters(
         key={"x": 1},
@@ -48,7 +48,7 @@ constructor_parameters = [
         lang_tag=None,
         query="select * where {?x <urn:p> ?y}",
         model=Model,
-        expected=f'select * where {{?x <urn:p> ?y {{filter (?x = "1"^^<{XSD.integer}>)}} }}',
+        expected=f'select * where {{?x <urn:p> ?y filter (?x = "1"^^<{XSD.integer}>) }}',
     ),
     ConstructorParameters(
         key={"x": 1},
@@ -56,7 +56,7 @@ constructor_parameters = [
         lang_tag="en",
         query="select * where {?x <urn:p> ?y}",
         model=Model,
-        expected='select * where {?x <urn:p> ?y {filter (?x = "1"@en)} }',
+        expected='select * where {?x <urn:p> ?y filter (?x = "1"@en) }',
     ),
 ]
 
