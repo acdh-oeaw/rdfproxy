@@ -41,15 +41,22 @@ def remove_sparql_prefixes(query: str) -> str:
     return cleaned_query
 
 
-def inject_into_query(query: str, injectant: str) -> str:
-    """Inject some injectant (e.g. subquery or filter clause) into a query."""
+def inject_into_query(
+    query: str, injectant: str, inject_into_pattern: bool = True
+) -> str:
+    """Inject some injectant (e.g. subquery or filter clause) into a query.
+
+    If inject_into_pattern is True, the injectant will be wrapped in its own graph pattern.
+    """
     if (tail := re.search(r"}[^}]*\Z", query)) is None:
         raise QueryConstructionException(
             "Unable to inject subquery."
-        )  # pragma: no cover ; this will be unreachable once query checking runs
+        )  # pragma: no cover
 
-    tail_index: int = tail.start()
-    injected_query: str = f"{query[:tail_index]} {{{injectant}}} {query[tail_index:]}"
+    _tail_index: int = tail.start()
+    _injectant: str = f"{{{injectant}}}" if inject_into_pattern else injectant
+
+    injected_query: str = f"{query[:_tail_index]} {_injectant} {query[_tail_index:]}"
     return injected_query
 
 
