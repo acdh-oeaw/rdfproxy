@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.6.0...v0.7.0) (2025-05-28)
+
+
+### Features
+
+* make graph pattern injection optional in inject_into_query ([9671265](https://github.com/acdh-oeaw/rdfproxy/commit/967126569ce89af98d42186091270b4f9a7daead))
+* make SPARQLWrapper/SPARQLModelAdapter asynchronous ([ee18122](https://github.com/acdh-oeaw/rdfproxy/commit/ee18122ac322cab6256c13206fa2ffe82c396208))
+
+
+### Bug Fixes
+
+* use OrderByEnum | None type for QueryParameters.order_by ([9eae9cb](https://github.com/acdh-oeaw/rdfproxy/commit/9eae9cb440330b45810da06352fd32fbb2d7eb11))
+
 ## [0.6.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.1...v0.6.0) (2025-04-16)
 
 
