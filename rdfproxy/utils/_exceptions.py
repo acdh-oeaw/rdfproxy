@@ -1,23 +1,27 @@
 """Custom exceptions for RDFProxy."""
 
 
-class MissingModelConfigException(Exception):
+class RDFProxyBaseException(Exception):
+    """Base Exception class for RDFProxy exceptions."""
+
+
+class MissingModelConfigException(RDFProxyBaseException):
     """Exception for indicating that an expected Config class is missing in a Pydantic model definition."""
 
 
-class InvalidGroupingKeyException(Exception):
+class InvalidGroupingKeyException(RDFProxyBaseException):
     """Exception for indicating that an invalid grouping key has been encountered."""
 
 
-class QueryConstructionException(Exception):
+class QueryConstructionException(RDFProxyBaseException):
     """Exception for indicating failed SPARQL query construction."""
 
 
-class UnsupportedQueryException(Exception):
+class UnsupportedQueryException(RDFProxyBaseException):
     """Exception for indicating that a given SPARQL query is not supported."""
 
 
-class QueryParseException(Exception):
+class QueryParseException(RDFProxyBaseException):
     """Exception for indicating that a given SPARQL query raised a parse error.
 
     This exception is intended to wrap and re-raise all exceptions
@@ -28,17 +32,17 @@ class QueryParseException(Exception):
     """
 
 
-class RDFProxyModelValidationException(Exception):
+class ModelValidationException(RDFProxyBaseException):
     """Exception for indicating that a model is invalid according to RDFProxy semantics"""
 
 
-class RDFProxyGroupByException(RDFProxyModelValidationException):
+class GroupByException(ModelValidationException):
     """Exception for indicating invalid group_by definitions."""
 
 
-class RDFProxyModelBoolException(RDFProxyModelValidationException):
+class ModelBoolException(ModelValidationException):
     """Exception for indicating invalid model_bool definitions."""
 
 
-class RDFProxyModelFieldException(RDFProxyModelValidationException):
+class ModelFieldException(ModelValidationException):
     """Exception for indicating invalid model field definitions."""
