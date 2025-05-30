@@ -1,8 +1,9 @@
 """Unit tests for model_bool config model checkers."""
 
-from pydantic import BaseModel, Field, create_model
 import pytest
-from rdfproxy.utils._exceptions import RDFProxyModelBoolException
+
+from pydantic import BaseModel, Field, create_model
+from rdfproxy.utils._exceptions import ModelBoolException
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.checkers.model_checker import check_model
 
@@ -157,7 +158,7 @@ valid_sub_models = [
 
 @pytest.mark.parametrize("invalid_model", invalid_root_models)
 def test_check_invalid_model_bool_root_models(invalid_model):
-    with pytest.raises(RDFProxyModelBoolException):
+    with pytest.raises(ModelBoolException):
         check_model(invalid_model)
 
 
@@ -165,7 +166,7 @@ def test_check_invalid_model_bool_root_models(invalid_model):
 def test_check_invalid_model_bool_sub_models(invalid_model):
     Root: type[BaseModel] = create_model("Root", sub=(invalid_model, ...))
 
-    with pytest.raises(RDFProxyModelBoolException):
+    with pytest.raises(ModelBoolException):
         check_model(Root)
 
 
