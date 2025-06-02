@@ -7,7 +7,7 @@ from typing import overload
 from rdflib import Variable
 from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue, ParseResults
-from rdfproxy.utils._exceptions import QueryConstructionException
+from rdfproxy.utils.exceptions import QueryConstructionException
 
 
 def replace_query_select_clause(query: str, repl: str) -> str:

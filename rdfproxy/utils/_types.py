@@ -6,7 +6,7 @@ from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 from pydantic import BaseModel, ConfigDict as PydanticConfigDict
 from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue
-from rdfproxy.utils._exceptions import QueryParseException
+from rdfproxy.utils.exceptions import QueryParseException
 
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)

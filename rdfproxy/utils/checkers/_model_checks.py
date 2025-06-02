@@ -1,11 +1,11 @@
 """Compliance checks for RDFProxy Pydantic models."""
 
-from rdfproxy.utils._exceptions import (
-    RDFProxyGroupByException,
-    RDFProxyModelBoolException,
-    RDFProxyModelFieldException,
-)
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
+from rdfproxy.utils.exceptions import (
+    GroupByException,
+    ModelBoolException,
+    ModelFieldException,
+)
 from rdfproxy.utils.type_utils import (
     _is_list_static_type,
     _is_pydantic_model_union_static_type,
@@ -25,13 +25,13 @@ def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance
             return model
 
         case None, True:
-            raise RDFProxyGroupByException(
+            raise GroupByException(
                 f"Model '{model.__name__}' has a list-annotated field "
                 "but  does not specify 'group_by' in its model_config."
             )
 
         case str(), False:
-            raise RDFProxyGroupByException(
+            raise GroupByException(
                 f"Model '{model.__name__}' does not specify "
                 "a grouping target (i.e. a list-annotated field)."
             )
@@ -52,7 +52,7 @@ def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance
                 else f"Applicable grouping field(s): {', '.join(applicable_keys)}"
             )
 
-            raise RDFProxyGroupByException(
+            raise GroupByException(
                 f"Requested grouping key '{model_group_by_value}' does not denote "
                 f"an applicable grouping field. {applicable_fields_message}"
             )
@@ -75,7 +75,7 @@ def _check_model_bool_config_sub_models(
 
     def _check_field_name(field_name: str) -> None:
         if field_name not in model.model_fields.keys():
-            raise RDFProxyModelBoolException(
+            raise ModelBoolException(
                 f"model_bool value '{field_name}' does not reference "
                 f"a field of model '{model.__name__}'."
             )
@@ -104,7 +104,7 @@ def _check_model_bool_config_root_model(
     """Model check for disallowing model_bool in root models."""
 
     if model.model_config.get("model_bool") is not None:
-        raise RDFProxyModelBoolException(
+        raise ModelBoolException(
             "Setting model_bool in root models is not supported. "
             "model_bool semantics of root models should be controlled "
             "explicitely with SPARQL query result sets.\n"
@@ -121,7 +121,7 @@ def _check_model_union_types(
 
     for _, v in model.model_fields.items():
         if _is_pydantic_model_union_static_type(v.annotation) and v.is_required():
-            raise RDFProxyModelFieldException(
+            raise ModelFieldException(
                 f"Model union type '{v.annotation}' must define a default value."
             )
 
