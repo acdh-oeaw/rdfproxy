@@ -1,12 +1,11 @@
-import pytest
-
 from pydantic import BaseModel
+import pytest
 from rdfproxy.mapper import _ModelBindingsMapper
-from rdfproxy.utils._exceptions import (
+from rdfproxy.utils._types import ConfigDict
+from rdfproxy.utils.exceptions import (
     InvalidGroupingKeyException,
     MissingModelConfigException,
 )
-from rdfproxy.utils._types import ConfigDict
 
 
 class ModelMissingGroupByConfig(BaseModel):

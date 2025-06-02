@@ -1,11 +1,10 @@
 """Unit tests for group_by config model checkers."""
 
-import pytest
-
 from pydantic import BaseModel, create_model
-from rdfproxy.utils._exceptions import RDFProxyGroupByException
+import pytest
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.checkers.model_checker import check_model
+from rdfproxy.utils.exceptions import GroupByException
 
 
 class Invalid1(BaseModel):
@@ -93,7 +92,7 @@ valid_group_by_models = [Valid1, Valid2, Valid3]
 
 @pytest.mark.parametrize("model", invalid_group_by_models)
 def test_check_invalid_group_by_models(model):
-    with pytest.raises(RDFProxyGroupByException):
+    with pytest.raises(GroupByException):
         check_model(model)
 
 
@@ -105,7 +104,7 @@ def test_check_valid_group_by_models(model):
 @pytest.mark.parametrize("model", invalid_group_by_models)
 def test_check_nested_invalid_group_by_models(model):
     nested_model = create_model("NestedModel", nested=(model, ...))
-    with pytest.raises(RDFProxyGroupByException):
+    with pytest.raises(GroupByException):
         check_model(nested_model)
 
 

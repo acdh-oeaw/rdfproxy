@@ -2,8 +2,8 @@
 
 import logging
 
-from rdfproxy.utils._exceptions import UnsupportedQueryException
 from rdfproxy.utils._types import ParsedSPARQL, _TQuery
+from rdfproxy.utils.exceptions import UnsupportedQueryException
 from rdfproxy.utils.utils import compose_left
 
 

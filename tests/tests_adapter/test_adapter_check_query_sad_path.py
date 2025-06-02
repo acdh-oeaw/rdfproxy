@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 import pytest
 from rdfproxy.adapter import SPARQLModelAdapter
-from rdfproxy.utils._exceptions import QueryParseException, UnsupportedQueryException
+from rdfproxy.utils.exceptions import QueryParseException, UnsupportedQueryException
 from tests.unit.tests_checkers.test_query_checker import (
     fail_queries_parse_exception,
     fail_queries_unsupported,

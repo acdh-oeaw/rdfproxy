@@ -4,8 +4,8 @@ from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 import pytest
-from rdfproxy.utils._exceptions import RDFProxyModelFieldException
 from rdfproxy.utils.checkers.model_checker import check_model
+from rdfproxy.utils.exceptions import ModelFieldException
 
 
 class Nested(BaseModel):
@@ -119,7 +119,7 @@ valid_model_unions = [
 
 @pytest.mark.parametrize("model", invalid_model_unions)
 def test_check_invalid_union_type_fields(model):
-    with pytest.raises(RDFProxyModelFieldException):
+    with pytest.raises(ModelFieldException):
         check_model(model)
 
 
