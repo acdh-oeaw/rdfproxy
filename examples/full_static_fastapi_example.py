@@ -2,8 +2,9 @@
 
 from typing import Annotated
 
-from fastapi import FastAPI, Query
 from pydantic import BaseModel
+
+from fastapi import FastAPI, Query
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -53,8 +54,18 @@ adapter = SPARQLModelAdapter(
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/persons/")
 def base_route(
     query_parameters: Annotated[QueryParameters[Author], Query()],
 ) -> Page[Author]:
-    return adapter.query(query_parameters)
+    return adapter.get_page(query_parameters)
+
+
+@app.get("/person/gnd/{gnd}")
+def person_detail(gnd: int) -> Author:
+    return adapter.get_item(gnd=gnd)
+
+
+@app.get("/person/surname/{surname}")
+def person_surname(surname: str) -> Author:
+    return adapter.get_item(surname=surname)
