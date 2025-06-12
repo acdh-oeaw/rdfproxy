@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.6.0...v0.7.0) (2025-06-12)
+
+
+### Features
+
+* implement detail view feature ([335045d](https://github.com/acdh-oeaw/rdfproxy/commit/335045dc623f0f69d09d0e9b8613ad4aff6f9538))
+* make graph pattern injection optional in inject_into_query ([9671265](https://github.com/acdh-oeaw/rdfproxy/commit/967126569ce89af98d42186091270b4f9a7daead))
+* make SPARQLWrapper/SPARQLModelAdapter asynchronous ([ee18122](https://github.com/acdh-oeaw/rdfproxy/commit/ee18122ac322cab6256c13206fa2ffe82c396208))
+* update and publish RDFProxy exceptions ([642452f](https://github.com/acdh-oeaw/rdfproxy/commit/642452f92f6e545258eadff4b045751f8d204feb))
+
+
+### Bug Fixes
+
+* use OrderByEnum | None type for QueryParameters.order_by ([9eae9cb](https://github.com/acdh-oeaw/rdfproxy/commit/9eae9cb440330b45810da06352fd32fbb2d7eb11))
+
+
+### Documentation
+
+* add detail routes to full_static_fastapi_example ([32ee3df](https://github.com/acdh-oeaw/rdfproxy/commit/32ee3df30da7661f2a0468fd2c62652de1425c41))
+
 ## [0.6.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.5.1...v0.6.0) (2025-04-16)
 
 
