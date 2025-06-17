@@ -41,4 +41,4 @@ app = FastAPI()
 def base_route(
     query_parameters: Annotated[QueryParameters[Person], Query()],
 ) -> Page[Person]:
-    return adapter.query(query_parameters)
+    return adapter.get_page(query_parameters)
