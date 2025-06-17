@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.7.1](https://github.com/acdh-oeaw/rdfproxy/compare/v0.7.0...v0.7.1) (2025-06-17)
+
+
+### Documentation
+
+* update examples to new SPARQLModelAdapter API ([0f769da](https://github.com/acdh-oeaw/rdfproxy/commit/0f769dabbd1ec35fbfbfb51d5203b7e9750d2b6b))
+* update README to new SPARQLModelAdapter API ([8208585](https://github.com/acdh-oeaw/rdfproxy/commit/8208585b04d3c4edea1d0bd81ed544486903adec))
+* update Releven example ([3fdd167](https://github.com/acdh-oeaw/rdfproxy/commit/3fdd1677a5397cb7a95fe53619eb02bbc40e2582))
+
 ## [0.7.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.6.0...v0.7.0) (2025-06-12)
 
 
