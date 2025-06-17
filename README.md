@@ -7,13 +7,13 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 
-Functionality for mapping SPARQL result sets to Pydantic models.
+
+RDFProxy is a Python library for building REST APIs on top of SPARQL endpoints.
 
 
 ## SPARQLModelAdapter
 
-The `rdfproxy.SPARQLModelAdapter` class allows to run a query against an endpoint and map a flat SPARQL query result set to a potentially nested Pydantic model.
-The result is returned as a `Page` object.
+The `rdfproxy.SPARQLModelAdapter` class allows to run a SPARQL query against an endpoint and map the query result set to a potentially nested Pydantic model.
 
 The following example query
 
@@ -21,26 +21,26 @@ The following example query
 select *
 where {
     values (?gnd ?authorName ?educatedAt ?workName ?work ?viaf) {
-        (119359464 'Schindel' UNDEF 'Gebürtig' <http://www.wikidata.org/entity/Q1497409> UNDEF)
-        (115612815 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> 299260555)
-        (115612815 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> 6762154387354230970008)
-        (115612815 'Geiger' 'University of Vienna' 'Unter der Drachenwand' <http://www.wikidata.org/entity/Q58038819> 2277151717053313900002)
-        (1136992030 'Edelbauer' 'University of Vienna' 'Das flüssige Land' <http://www.wikidata.org/entity/Q100266054> UNDEF)
-        (1136992030 'Edelbauer' 'University of Applied Arts Vienna' 'Das flüssige Land' <http://www.wikidata.org/entity/Q100266054> UNDEF)
+        ("119359464" 'Schindel' UNDEF 'Gebürtig' <http://www.wikidata.org/entity/Q1497409> UNDEF)
+        ("115612815" 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> "299260555")
+        ("115612815" 'Geiger' 'University of Vienna' 'Der alte König in seinem Exil' <http://www.wikidata.org/entity/Q15805238> "6762154387354230970008")
+        ("115612815" 'Geiger' 'University of Vienna' 'Unter der Drachenwand' <http://www.wikidata.org/entity/Q58038819> "2277151717053313900002")
+        ("1136992030" 'Edelbauer' 'University of Vienna' 'Das flüssige Land' <http://www.wikidata.org/entity/Q100266054> UNDEF)
+        ("1136992030" 'Edelbauer' 'University of Applied Arts Vienna' 'Das flüssige Land' <http://www.wikidata.org/entity/Q100266054> UNDEF)
     }
 }
 ```
 
 retrieves the result set:
 
-| gnd        | nameLabel | educated_atLabel                  | work_name                     | work                                      | viaf                   |
-|------------|-----------|-----------------------------------|-------------------------------|-------------------------------------------|------------------------|
-| 119359464  | Schindel  |                                   | Gebürtig                      | http://www.wikidata.org/entity/Q1497409   |                        |
-| 115612815  | Geiger    | University of Vienna              | Der alte König in seinem Exil | http://www.wikidata.org/entity/Q15805238  | 299260555              |
-| 115612815  | Geiger    | University of Vienna              | Der alte König in seinem Exil | http://www.wikidata.org/entity/Q15805238  | 6762154387354230970008 |
-| 115612815  | Geiger    | University of Vienna              | Unter der Drachenwand         | http://www.wikidata.org/entity/Q58038819  | 2277151717053313900002 |
-| 1136992030 | Edelbauer | University of Vienna              | Das flüssige Land             | http://www.wikidata.org/entity/Q100266054 |                        |
-| 1136992030 | Edelbauer | University of Applied Arts Vienna | Das flüssige Land             | http://www.wikidata.org/entity/Q100266054 |                        |
+| gnd          | nameLabel | educated_atLabel                  | work_name                     | work                                      | viaf                     |
+|--------------|-----------|-----------------------------------|-------------------------------|-------------------------------------------|--------------------------|
+| "119359464"  | Schindel  |                                   | Gebürtig                      | http://www.wikidata.org/entity/Q1497409   |                          |
+| "115612815"  | Geiger    | University of Vienna              | Der alte König in seinem Exil | http://www.wikidata.org/entity/Q15805238  | "299260555"              |
+| "115612815"  | Geiger    | University of Vienna              | Der alte König in seinem Exil | http://www.wikidata.org/entity/Q15805238  | "6762154387354230970008" |
+| "115612815"  | Geiger    | University of Vienna              | Unter der Drachenwand         | http://www.wikidata.org/entity/Q58038819  | "2277151717053313900002" |
+| "1136992030" | Edelbauer | University of Vienna              | Das flüssige Land             | http://www.wikidata.org/entity/Q100266054 |                          |
+| "1136992030" | Edelbauer | University of Applied Arts Vienna | Das flüssige Land             | http://www.wikidata.org/entity/Q100266054 |                          |
 
 
 The result set can be mapped to a nested Pydantic model like so:
@@ -58,6 +58,7 @@ class Work(BaseModel):
     name: Annotated[str, SPARQLBinding("workName")]
     viafs: Annotated[list[str], SPARQLBinding("viaf")]
 
+
 class Author(BaseModel):
     model_config = ConfigDict(group_by="surname")
 
@@ -66,6 +67,7 @@ class Author(BaseModel):
     works: list[Work]
     education: Annotated[list[str], SPARQLBinding("educatedAt")]
 
+
 adapter = SPARQLModelAdapter(
     target="https://query.wikidata.org/bigdata/namespace/wdq/sparql",
     query=query,
@@ -73,14 +75,16 @@ adapter = SPARQLModelAdapter(
 )
 ```
 
-The `SPARQLModelAdapter.query` method runs the query and constructs a `Page` object which can then be served over a FastAPI route:
+Note that grouping and aggregation of scalar values and nested models is supported by specifying a `group_by` entry in the `rdfproxy.ConfigDict` and indicating an aggregation target with a `list`-annotated field in the model.
+
+The `SPARQLModelAdapter.get_page` method runs the query and constructs a `Page` object which can then be served over a FastAPI route:
 
 ```python
 app = FastAPI()
 
 @app.get("/")
 def base_route(query_parameters: Annotated[QueryParameters, Query()]) -> Page[Author]:
-    return adapter.query(query_parameters)
+    return adapter.get_page(query_parameters)
 ```
 
 This results in the following JSON output: 
