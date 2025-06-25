@@ -5,7 +5,7 @@ from typing import Any, Generic
 
 from pydantic import BaseModel, Field, create_model, model_validator
 from rdfproxy.utils._types import _TModelInstance
-from rdfproxy.utils.utils import OrderableFieldsBindingsMap
+from rdfproxy.utils.utils import ModelSPARQLMap
 
 
 class Page(BaseModel, Generic[_TModelInstance]):
@@ -57,7 +57,9 @@ class QueryParameters(BaseModel):
         return data
 
     def __class_getitem__(cls, model: type[_TModelInstance]):  # type: ignore
-        _order_by_fields = [(k, k) for k in OrderableFieldsBindingsMap(model).keys()]
+        _order_by_fields = [
+            (k, k) for k in ModelSPARQLMap(model=model, recursive=True).keys()
+        ]
         OrderByEnum = StrEnum("OrderByEnum", _order_by_fields)
 
         return create_model(

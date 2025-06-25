@@ -12,7 +12,7 @@ from rdfproxy.utils.sparql_utils import (
 )
 from rdfproxy.utils.utils import (
     FieldsBindingsMap,
-    OrderableFieldsBindingsMap,
+    ModelSPARQLMap,
     QueryConstructorComponent as component,
     compose_left,
 )
@@ -93,7 +93,7 @@ class _PageQueryConstructor:
         self.model = model
 
         self.bindings_map = FieldsBindingsMap(model)
-        self.orderable_bindings_map = OrderableFieldsBindingsMap(model)
+        self.orderable_bindings_map = ModelSPARQLMap(model, recursive=True)
 
         self.group_by: str | None = self.bindings_map.get(
             model.model_config.get("group_by")
