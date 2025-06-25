@@ -117,3 +117,16 @@ Return type provenance:
 
 _TSPARQLBindingValue: TypeAlias = URIRef | BNode | _TLiteralToPython
 "Return type for rdfproxy.SPARQLWrapper result mapping values."
+
+
+_TSPARQLBoundField: TypeAlias = _TSPARQLBindingValue | AnyUrl | str
+"""Return type for rdfproxy.SPARQLWrapper result mapping values AND respective Pydantic coercions.
+
+Currently, this type is used primarily for runtime checks against FieldInfo.annotations in ModelSPARQLMap.
+
+_TSPARQLBoundField is an extension of _TSPARQLBindingValue and aims to capture
+all possible types of rdfproxy.SPARQLWrapper result dict values
+and respective coercion types for Pydantic's non-strict mode.
+
+Note that _TSPARQBoundField might be incomplete and require additional union members.
+"""
