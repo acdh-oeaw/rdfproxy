@@ -1,11 +1,17 @@
 """Type definitions for rdfproxy."""
 
 from collections import UserString
+import datetime
+import decimal
 from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
+from xml.dom.minidom import Document
 
-from pydantic import BaseModel, ConfigDict as PydanticConfigDict
+from pydantic import AnyUrl, BaseModel, ConfigDict as PydanticConfigDict
+from rdflib import BNode, Literal, URIRef
+from rdflib.compat import long_type
 from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue
+from rdflib.xsd_datetime import Duration
 from rdfproxy.utils.exceptions import QueryParseException
 
 
@@ -73,3 +79,41 @@ class ParsedSPARQL(Generic[_TQuery], UserString):
         else:
             _, parse_object = _parsed
             return parse_object
+
+
+_TLiteralToPython: TypeAlias = (
+    Literal
+    | None
+    | datetime.date
+    | datetime.datetime
+    | datetime.time
+    | datetime.timedelta
+    | Duration
+    | bytes
+    | bool
+    | int
+    | float
+    | decimal.Decimal
+    | long_type
+    | Document
+)
+"""Return type for rdflib.Literal.toPython.
+
+This union type represents all possible return value types of Literal.toPython.
+Return type provenance:
+
+    - Literal: rdflib.Literal.toPython
+    - None: rdflib.term._castLexicalToPython
+    - datetime.date: rdflib.xsd_datetime.parse_date, rdflib.xsd_datetime.parse_xsd_date
+    - datetime.datetime: rdflib.xsd_datetime.parse_datetime
+    - datetime.time: rdflib.xsd_datetime.parse_time
+    - datetime.timedelta, Duration: parse_xsd_duration
+    - bytes: rdflib.term._unhexlify, base64.b64decode
+    - bool: rdflib.term._parseBoolean
+    - int, float, decimal.Decimal, long_type: rdflib.term.XSDToPython
+    - Document: rdflib.term._parseXML
+"""
+
+
+_TSPARQLBindingValue: TypeAlias = URIRef | BNode | _TLiteralToPython
+"Return type for rdfproxy.SPARQLWrapper result mapping values."

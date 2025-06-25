@@ -6,6 +6,7 @@ from typing import Any
 import httpx
 from rdflib import BNode, Graph, Literal, URIRef, XSD
 from rdflib.query import Result as SPARQLQueryResult
+from rdfproxy.utils._types import _TSPARQLBindingValue
 from rdfproxy.utils.utils import compose_left
 
 
@@ -15,7 +16,7 @@ class SPARQLWrapper:
     def __init__(self, target: str | Graph):
         self.target = target
 
-    def queries(self, *queries: str) -> list[Iterator[dict[str, Any]]]:
+    def queries(self, *queries: str) -> list[Iterator[dict[str, _TSPARQLBindingValue]]]:
         """Synchronous wrapper for asynchronous SPARQL query execution.
 
         SPARQLWrapper.queries takes multiple SPARQL queries, runs them
@@ -32,7 +33,7 @@ class SPARQLWrapper:
 
     async def _aqueries_remote_endpoint(
         self, *queries: str
-    ) -> list[Iterator[dict[str, Any]]]:
+    ) -> list[Iterator[dict[str, _TSPARQLBindingValue]]]:
         """Coroutine for running multiple queries against a remote target."""
         assert isinstance(self.target, str)  # type narrow
 
@@ -66,7 +67,7 @@ class SPARQLWrapper:
 
     async def _aqueries_graph_object(
         self, *queries: str
-    ) -> list[Iterator[dict[str, Any]]]:
+    ) -> list[Iterator[dict[str, _TSPARQLBindingValue]]]:
         """Coroutine for running multiple queries against an rdflib.Graph target.
 
         Note that _aquery_graph_object wraps rdflib.Graph.query
@@ -91,13 +92,13 @@ class SPARQLWrapper:
     @staticmethod
     def _get_bindings_from_json_response(
         json_response: dict[str, Any],
-    ) -> Iterator[dict[str, Any]]:
+    ) -> Iterator[dict[str, _TSPARQLBindingValue]]:
         """Get flat dicts from a SPARQL SELECT JSON response."""
 
         variables = json_response["head"]["vars"]
         response_bindings = json_response["results"]["bindings"]
 
-        def _get_binding_pairs(binding) -> Iterator[tuple[str, Any]]:
+        def _get_binding_pairs(binding) -> Iterator[tuple[str, _TSPARQLBindingValue]]:
             """Generate key value pairs from response_bindings.
 
             The 'type' and 'datatype' fields of the JSON response
