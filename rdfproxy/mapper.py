@@ -8,7 +8,11 @@ import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
-from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
+from rdfproxy.utils._types import (
+    ModelBoolPredicate,
+    _TModelInstance,
+    _TSPARQLBindingValue,
+)
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.mapper_utils import get_model_bool_predicate
 from rdfproxy.utils.type_utils import (
@@ -36,7 +40,11 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
     should be added to the _ModelBindingsMapper subclass.
     """
 
-    def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]) -> None:
+    def __init__(
+        self,
+        model: type[_TModelInstance],
+        bindings: Iterable[dict[str, _TSPARQLBindingValue]],
+    ) -> None:
         """Initializer for RDFProxy ModelBindingsMapper.
 
         Note: It is possible to instantiate an empty pd.DataFrame
@@ -231,6 +239,10 @@ class ModelBindingsMapper(_ModelBindingsMapper):  # pragma: no cover
     upon initialization and is therefore recommended for public/standalone use.
     """
 
-    def __init__(self, model: type[_TModelInstance], bindings: Iterable[dict]) -> None:
+    def __init__(
+        self,
+        model: type[_TModelInstance],
+        bindings: Iterable[dict[str, _TSPARQLBindingValue]],
+    ) -> None:
         checked_model = check_model(model)
         super().__init__(model=checked_model, bindings=bindings)
