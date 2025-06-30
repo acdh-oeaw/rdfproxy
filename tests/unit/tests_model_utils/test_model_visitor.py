@@ -1,11 +1,12 @@
 """Unit tests for model_traverse."""
 
+from collections import UserList
 from typing import Annotated
 
 from pydantic import BaseModel
 import pytest
 from rdfproxy.utils._types import SPARQLBinding
-from rdfproxy.utils.model_utils import model_traverse
+from rdfproxy.utils.model_utils import ModelVisitor
 
 
 class SomeModel(BaseModel):
@@ -41,7 +42,7 @@ class OtherTopModel(TopModel):
     nested_model_union: NestedModelUnion
 
 
-self_true_parameters = [
+traverse_all_parameters = [
     (
         TopModel,
         [
@@ -82,18 +83,49 @@ self_true_parameters = [
     ),
 ]
 
-self_false_parameters = map(
-    lambda param: (param[0], param[1][1:]), self_true_parameters
+traverse_submodels_parameters = map(
+    lambda param: (param[0], param[1][1:]), traverse_all_parameters
+)
+
+traverse_topmodel_parameters = map(
+    lambda param: (param[0], param[1][0]), traverse_all_parameters
 )
 
 
-@pytest.mark.parametrize(["model", "expected"], self_true_parameters)
+class Visited(UserList):
+    def __init__(self):
+        self.data = []
+
+    def __call__(self, model: type[BaseModel]) -> type[BaseModel]:
+        self.data.append(model)
+        return model
+
+
+@pytest.mark.parametrize(["model", "expected"], traverse_all_parameters)
 def test_model_traverse_self_true(model, expected):
-    result = list(model_traverse(model, lambda x: x.__name__))
-    assert result == expected
+    visited = Visited()
+
+    visitor = ModelVisitor(model=model, all_model_hook=visited)
+    visitor.visit()
+
+    assert [model.__name__ for model in visited] == expected
 
 
-@pytest.mark.parametrize(["model", "expected"], self_false_parameters)
-def test_model_traverse_self_false(model, expected):
-    result = list(model_traverse(model, lambda x: x.__name__, include_root_model=False))
-    assert result == expected
+@pytest.mark.parametrize(["model", "expected"], traverse_submodels_parameters)
+def test_model_traverse_submodels(model, expected):
+    visited = Visited()
+
+    visitor = ModelVisitor(model=model, sub_model_hook=visited)
+    visitor.visit()
+
+    assert [model.__name__ for model in visited] == expected
+
+
+@pytest.mark.parametrize(["model", "expected"], traverse_topmodel_parameters)
+def test_model_traverse_topmodel(model, expected):
+    visited = Visited()
+
+    visitor = ModelVisitor(model=model, top_model_hook=visited)
+    visitor.visit()
+
+    assert [model.__name__ for model in visited] == [expected]
