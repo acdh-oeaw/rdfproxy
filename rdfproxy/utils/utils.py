@@ -1,10 +1,8 @@
 """SPARQL/FastAPI utils."""
 
 from collections import UserDict
-from collections import deque
 from collections.abc import Callable, Hashable, Iterator
 from functools import partial
-from itertools import islice
 from typing import Annotated, Any, Generic, NoReturn, Self, TypeVar, get_args
 
 from pydantic import BaseModel
@@ -164,6 +162,11 @@ def compose_left(*fns: Callable[[T], T]) -> Callable[[T], T]:
     return _left_wrapper(*reversed(fns))
 
 
+def identity(arg):
+    """Identity function."""
+    return arg
+
+
 class QueryConstructorComponent:
     """Query modification component factory.
 
@@ -230,16 +233,3 @@ class CurryModel(Generic[_TModelInstance]):
         if self.model.model_fields.keys() == self._kwargs_cache.keys():
             return self.model(**self._kwargs_cache)
         return self
-
-
-def consume(iterator, n=None):
-    """Advance the iterator n-steps ahead. If n is None, consume entirely.
-
-    Note: This function is from the Itertools Recipe section, see:
-    https://docs.python.org/3/library/itertools.html#itertools-recipes
-    """
-    # Use functions that consume iterators at C speed.
-    if n is None:
-        deque(iterator, maxlen=0)
-    else:  # pragma: no cover
-        next(islice(iterator, n, n), None)
