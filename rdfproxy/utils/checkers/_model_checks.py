@@ -1,5 +1,7 @@
 """Compliance checks for RDFProxy Pydantic models."""
 
+import warnings
+
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelInstance
 from rdfproxy.utils.exceptions import (
     GroupByException,
@@ -10,6 +12,9 @@ from rdfproxy.utils.type_utils import (
     _is_list_static_type,
     _is_pydantic_model_union_static_type,
 )
+
+
+warnings.simplefilter("always")
 
 
 def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance]:
@@ -101,15 +106,16 @@ def _check_model_bool_config_sub_models(
 def _check_model_bool_config_root_model(
     model: type[_TModelInstance],
 ) -> type[_TModelInstance]:
-    """Model check for disallowing model_bool in root models."""
+    """Model check for warning about model_bool in root models."""
 
     if model.model_config.get("model_bool") is not None:
-        raise ModelBoolException(
-            "Setting model_bool in root models is not supported. "
-            "model_bool semantics of root models should be controlled "
-            "explicitely with SPARQL query result sets.\n"
-            "See #176 (https://github.com/acdh-oeaw/rdfproxy/issues/176)."
+        message = (
+            "Setting model_bool in root models is semantically void. "
+            "The RDFProxy mapping facility considers the model_bool hook "
+            "only for aggregated submodels and model union fields."
         )
+
+        warnings.warn(message=message)
 
     return model
 
