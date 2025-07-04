@@ -149,7 +149,7 @@ class ModelSPARQLMap(UserDict):
         return dict(self._construct_mapping(model=self.model))
 
 
-def compose_left(*fns: Callable[[T], T]) -> Callable[[T], T]:
+def compose_left(*fns: Callable) -> Callable:
     """Left associative compose."""
 
     def _left_wrapper(*fns):
