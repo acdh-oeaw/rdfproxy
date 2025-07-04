@@ -54,7 +54,11 @@ class SPARQLWrapper:
         results: list[httpx.Response] = [task.result() for task in tasks]
 
         python_results = map(
-            compose_left(httpx.Response.json, self._get_bindings_from_json_response),
+            compose_left(
+                httpx.Response.raise_for_status,
+                httpx.Response.json,
+                self._get_bindings_from_json_response,
+            ),
             results,
         )
 
