@@ -18,7 +18,7 @@ class Page(BaseModel, Generic[_TModelInstance]):
     for Generic Pydantic models.
     """
 
-    items: list[_TModelInstance] | dict[str, list[_TModelInstance]]
+    items: list[_TModelInstance]
     page: int
     size: int
     total: int
