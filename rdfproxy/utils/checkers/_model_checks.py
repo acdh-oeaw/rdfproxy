@@ -14,9 +14,6 @@ from rdfproxy.utils.type_utils import (
 )
 
 
-warnings.simplefilter("always")
-
-
 def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance]:
     """Model check for group_by config settings and grouping model semantics."""
 
@@ -115,7 +112,7 @@ def _check_model_bool_config_root_model(
             "only for aggregated submodels and model union fields."
         )
 
-        warnings.warn(message=message)
+        warnings.warn(message=message, stacklevel=2)
 
     return model
 
