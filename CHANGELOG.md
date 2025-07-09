@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.8.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.7.0...v0.8.0) (2025-07-09)
+
+
+### Features
+
+* add TypeAliases for SPARQLWrapper SPARQL binding values ([dc86236](https://github.com/acdh-oeaw/rdfproxy/commit/dc862361c24039ea7f03c4151100603466260a14))
+* define TypeAlias for SPARQL-bound fields + runtime predicate ([7ae4d90](https://github.com/acdh-oeaw/rdfproxy/commit/7ae4d90407657a2c8808abff7039faa632a5cd38))
+* replace OrderableFieldsBindingsMap with ModelSPARQLMap ([8749aee](https://github.com/acdh-oeaw/rdfproxy/commit/8749aeeeeb90e8f99c011782d8038a3130db0f71))
+
+
+### Bug Fixes
+
+* add httpx.Response.raise_for_status to SPARQLWrapper ([77f270f](https://github.com/acdh-oeaw/rdfproxy/commit/77f270f0f86053d442002f17e384879d4f266441))
+* allow model_bool in root models ([3bebc47](https://github.com/acdh-oeaw/rdfproxy/commit/3bebc478b581039914494ccbd598855697707c8c))
+* change Page.items type annotation to list[_ModelInstance] ([4bb3278](https://github.com/acdh-oeaw/rdfproxy/commit/4bb3278762a9eee18a6e60cfffd9a7416ed3622e))
+* remove warnings filters and add stacklevel=2 ([b375d89](https://github.com/acdh-oeaw/rdfproxy/commit/b375d897506b4f8c1242961da0e82bea142e4be9))
+
+
+### Documentation
+
+* update examples to new SPARQLModelAdapter API ([0f769da](https://github.com/acdh-oeaw/rdfproxy/commit/0f769dabbd1ec35fbfbfb51d5203b7e9750d2b6b))
+* update README to new SPARQLModelAdapter API ([8208585](https://github.com/acdh-oeaw/rdfproxy/commit/8208585b04d3c4edea1d0bd81ed544486903adec))
+* update Releven example ([3fdd167](https://github.com/acdh-oeaw/rdfproxy/commit/3fdd1677a5397cb7a95fe53619eb02bbc40e2582))
+
 ## [0.7.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.6.0...v0.7.0) (2025-06-12)
 
 
