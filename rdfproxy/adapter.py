@@ -17,7 +17,6 @@ from rdfproxy.utils.models import Page, QueryParameters
 
 
 logger = logging.getLogger(__name__)
-warnings.simplefilter("always")
 
 
 class SPARQLModelAdapter(Generic[_TModelInstance]):
@@ -129,5 +128,6 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             "SPARQLModelAdapter.query is deprecated. "
             "Use SPARQLModelAdapter.get_page instead.",
             PendingDeprecationWarning,
+            stacklevel=2,
         )
         return self.get_page(query_parameters=query_parameters)
