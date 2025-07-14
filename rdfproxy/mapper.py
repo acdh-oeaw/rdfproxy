@@ -204,11 +204,17 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
             elif _is_list_static_type(field_info.annotation):
                 value = list(dict.fromkeys(df[alias_map[field_name]].dropna()))
             elif isinstance(nested_model := field_info.annotation, type(BaseModel)):
-                first_row = df.iloc[0]
-                value = self._instantiate_ungrouped_model_from_row(
-                    first_row,
-                    nested_model,  # type: ignore
-                )
+                if nested_model.model_config.get("group_by") is None:
+                    first_row = df.iloc[0]
+                    value = self._instantiate_ungrouped_model_from_row(
+                        first_row,
+                        nested_model,  # type: ignore
+                    )
+                else:
+                    value = self._instantiate_grouped_model_from_df(
+                        df=df,
+                        model=nested_model,  # type: ignore
+                    )
             elif _is_pydantic_model_union_static_type(field_info.annotation):
                 first_row = df.iloc[0]
                 value = self._get_model_union_field_value(
