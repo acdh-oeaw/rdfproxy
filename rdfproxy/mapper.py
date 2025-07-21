@@ -2,7 +2,7 @@
 
 from collections.abc import Iterable, Iterator
 from itertools import chain, tee
-from typing import Generic, get_args
+from typing import Any, Generic, get_args
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
@@ -93,7 +93,9 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
             for _, group_df in group_by_object:
                 yield self._instantiate_grouped_model_from_df(group_df, model)
 
-    def _get_model_union_field_value(self, field_info: FieldInfo, row: pd.Series):
+    def _get_model_union_field_value(
+        self, field_info: FieldInfo, df: pd.DataFrame
+    ) -> BaseModel | Any:
         """Compute the value for model union fields.
 
         The method instantiates the first model of a model union type
@@ -106,9 +108,9 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         nested_model: type[BaseModel] = next(
             filter(_is_pydantic_model_static_type, get_args(model_union))
         )
-        nested_model_instance: BaseModel = self._instantiate_ungrouped_model_from_row(
-            row,
-            nested_model,  # type: ignore
+
+        nested_model_instance, *rest = self._instantiate_models(
+            df=df, model=nested_model
         )
 
         model_bool_predicate: ModelBoolPredicate = get_model_bool_predicate(
@@ -132,20 +134,18 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         curried_model = CurryModel(model=model)
 
         for field_name, field_info in model.model_fields.items():
-            if isinstance(nested_model := field_info.annotation, type(BaseModel)):
-                curried_model(
-                    **{
-                        field_name: self._instantiate_ungrouped_model_from_row(
-                            row,
-                            nested_model,  # type: ignore
-                        )
-                    }
+            if _is_pydantic_model_static_type(nested_model := field_info.annotation):
+                field_value, *rest = self._instantiate_models(
+                    df=row.to_frame().T, model=nested_model
                 )
+
+                if rest:
+                    print("Warning: Multiple models yielded.")
+
             elif _is_pydantic_model_union_static_type(field_info.annotation):
-                value = self._get_model_union_field_value(
-                    field_info=field_info, row=row
+                field_value = self._get_model_union_field_value(
+                    field_info=field_info, df=row.to_frame().T
                 )
-                curried_model(**{field_name: value})
             else:
                 _sentinel = object()
                 field_value = (
@@ -153,7 +153,8 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                     if (value := row.get(alias_map[field_name], _sentinel)) is _sentinel
                     else value
                 )
-                curried_model(**{field_name: field_value})
+
+            curried_model(**{field_name: field_value})
 
         model_instance = curried_model()
         assert isinstance(model_instance, model)  # type narrow
@@ -198,34 +199,34 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         for field_name, field_info in model.model_fields.items():
             if _is_list_pydantic_model_static_type(field_info.annotation):
                 nested_model, *_ = get_args(field_info.annotation)
-                value = self._get_unique_models(
+                field_value = self._get_unique_models(
                     self._instantiate_models(df, nested_model)
                 )
             elif _is_list_static_type(field_info.annotation):
-                value = list(dict.fromkeys(df[alias_map[field_name]].dropna()))
-            elif isinstance(nested_model := field_info.annotation, type(BaseModel)):
-                first_row = df.iloc[0]
-                value = self._instantiate_ungrouped_model_from_row(
-                    first_row,
-                    nested_model,  # type: ignore
-                )
+                field_value = list(dict.fromkeys(df[alias_map[field_name]].dropna()))
+
+            elif _is_pydantic_model_static_type(nested_model := field_info.annotation):
+                field_value, *rest = self._instantiate_models(df=df, model=nested_model)
+
+                if rest:
+                    print("Warning: Multiple models yielded.")
+
             elif _is_pydantic_model_union_static_type(field_info.annotation):
-                first_row = df.iloc[0]
-                value = self._get_model_union_field_value(
-                    field_info=field_info, row=first_row
+                field_value = self._get_model_union_field_value(
+                    field_info=field_info, df=df
                 )
             else:
                 first_row = df.iloc[0]
 
                 _sentinel = object()
-                value = (
+                field_value = (
                     field_info.default
                     if (_value := first_row.get(alias_map[field_name], _sentinel))
                     is _sentinel
                     else _value
                 )
 
-            curried_model(**{field_name: value})
+            curried_model(**{field_name: field_value})
 
         model_instance = curried_model()
         assert isinstance(model_instance, model)  # type narrow
