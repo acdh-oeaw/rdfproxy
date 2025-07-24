@@ -1,5 +1,6 @@
 """RDFProxy-based FastAPI route example: Wikidata query with simple grouped model."""
 
+import logging
 from typing import Annotated
 
 from fastapi import FastAPI, Query
@@ -12,20 +13,22 @@ from rdfproxy import (
     SPARQLModelAdapter,
 )
 
+logging.basicConfig(level=logging.DEBUG)
+
 
 # the child Label isn't used in most models -- it doesn't matter if it's in the SELECT anyway since it doesn't change the number of rows of the result
-query = """
+squery = """
 SELECT ?husbandLabel ?wifeLabel ?childLabel ?childBirthplaceLabel WHERE {
    VALUES ?husband {wd:Q1339 wd:Q75925 }
 
   ?husband wdt:P26 ?wife.
+  ?wife rdfs:label ?wifeLabel .
   ?husband wdt:P40 ?child.
   ?wife wdt:P40 ?child.
   ?child wdt:P19 ?childBirthplace.
   SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en". }
 }
 """
-
 
 
 def get_adapter(model):
@@ -55,6 +58,7 @@ class NoStructuring(BaseModel):
     husbandLabel: str
     wifeLabel: str
 
+
 @app.get("/1_flat")
 def base_route(
     query_parameters: Annotated[QueryParameters[NoStructuring], Query()],
@@ -62,15 +66,16 @@ def base_route(
     return get_adapter(NoStructuring).get_page(query_parameters)
 
 
-
 # fine
 class Parents(BaseModel):
     husbandLabel: str
     wifeLabel: str
 
+
 class ChildBirthsAndTheirParents(BaseModel):
     childLabel: str
     parents: Parents
+
 
 @app.get("/2_nested")
 def base_route(
@@ -83,13 +88,16 @@ def base_route(
 class Husband(BaseModel):
     husbandLabel: str
 
+
 class Marriage(BaseModel):
     wifeLabel: str
     husband: Husband
 
+
 class ChildBirthsAndTheirMarriages(BaseModel):
     childLabel: str
     marriage: Marriage
+
 
 @app.get("/3_nested_nested")
 def base_route(
@@ -98,15 +106,18 @@ def base_route(
     return get_adapter(ChildBirthsAndTheirMarriages).get_page(query_parameters)
 
 
+## routes below here have broken 'total' count
 
-# routes below here have broken 'total' count
 
 # fine BUT ideally we want to group after both wifeLabel and husbandLabel??
 class MarriageAndItsChildren(BaseModel):
     model_config = ConfigDict(group_by="wifeLabel")
     husbandLabel: str
     wifeLabel: str
-    children: Annotated[list[str], SPARQLBinding("childLabel")]
+    # children: Annotated[list[str], SPARQLBinding("childLabel")]
+    ## note: optionally allow to collect non-unique values in aggregate; one per row?
+    children: Annotated[list[str], SPARQLBinding("childBirthplaceLabel")]
+
 
 @app.get("/4_groupedprimitive")
 def base_route(
@@ -115,17 +126,18 @@ def base_route(
     return get_adapter(MarriageAndItsChildren).get_page(query_parameters)
 
 
-
 # fine
 class ChildAndItsParents(BaseModel):
     childLabel: str
     husbandLabel: str
     wifeLabel: str
 
+
 class BirthplacesAndTheirChildren(BaseModel):
     model_config = ConfigDict(group_by="childBirthplaceLabel")
     childBirthplaceLabel: str
     nested: list[ChildAndItsParents]
+
 
 @app.get("/4_grouped")
 def base_route(
@@ -134,17 +146,18 @@ def base_route(
     return get_adapter(BirthplacesAndTheirChildren).get_page(query_parameters)
 
 
-
 # fine
 class HusbandAndChildren(BaseModel):
     model_config = ConfigDict(group_by="husbandLabel")
     husbandLabel: str
     childLabel: list[str]
 
+
 class WivesAndTheirMarriages(BaseModel):
     model_config = ConfigDict(group_by="wifeLabel")
     wifeLabel: str
     nested: list[HusbandAndChildren]
+
 
 @app.get("/5_grouped_grouped")
 def base_route(
@@ -153,34 +166,43 @@ def base_route(
     return get_adapter(WivesAndTheirMarriages).get_page(query_parameters)
 
 
-
 # fine
 class ChildAndItsParents_Nested(BaseModel):
     childLabel: str
     parents: Parents
+
 
 class BirthplacesAndTheirChildren_Nested(BaseModel):
     model_config = ConfigDict(group_by="childBirthplaceLabel")
     childBirthplaceLabel: str
     children: list[ChildAndItsParents_Nested]
 
+
 @app.get("/6_grouped_nested")
 def base_route(
-    query_parameters: Annotated[QueryParameters[BirthplacesAndTheirChildren_Nested], Query()],
+    query_parameters: Annotated[
+        QueryParameters[BirthplacesAndTheirChildren_Nested], Query()
+    ],
 ) -> Page[BirthplacesAndTheirChildren_Nested]:
     return get_adapter(BirthplacesAndTheirChildren_Nested).get_page(query_parameters)
 
 
+class HusbandAndChildren2(BaseModel):
+    model_config = ConfigDict(group_by="husbandLabel")
+    husbandLabel: str
+    childLabel: list[str]
 
 
 # not fine: wrong result on fix/, doesn't validate on quickfix/ (grouping isn't triggered?)
 class MarriageAndItsChildren_Nested(BaseModel):
     wifeLabel: str
-    nested: HusbandAndChildren
+    nested: HusbandAndChildren2
+
 
 @app.get("/7_nested_grouped")
 def base_route(
-    query_parameters: Annotated[QueryParameters[MarriageAndItsChildren_Nested], Query()],
+    query_parameters: Annotated[
+        QueryParameters[MarriageAndItsChildren_Nested], Query()
+    ],
 ) -> Page[MarriageAndItsChildren_Nested]:
     return get_adapter(MarriageAndItsChildren_Nested).get_page(query_parameters)
-
