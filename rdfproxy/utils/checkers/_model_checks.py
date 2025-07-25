@@ -129,3 +129,26 @@ def _check_model_union_types(
             )
 
     return model
+
+
+def _check_enforce_group_consistency_config(
+    model: type[_TModelInstance],
+) -> type[_TModelInstance]:
+    """Model check for enforce_group_consistency config setting."""
+
+    _sentinel = object()
+    _config = model.model_config
+
+    group_by_is_defined: bool = _config.get("group_by", _sentinel) is not _sentinel
+    enforce_group_consistency_is_defined: bool = (
+        _config.get("enforce_group_consistency", _sentinel) is not _sentinel
+    )
+
+    if enforce_group_consistency_is_defined and not group_by_is_defined:
+        msg = (
+            f"Model '{model.__name__}' specifies the 'enforce_group_consistency' "
+            "model config setting without also specifying 'group_by'."
+        )
+        warnings.warn(msg)
+
+    return model
