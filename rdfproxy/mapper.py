@@ -3,9 +3,10 @@
 from collections.abc import Iterable, Iterator
 from itertools import chain, tee
 from typing import Generic, get_args
+import warnings
 
 import pandas as pd
-from pandas.api.typing import DataFrameGroupBy
+from pandas.api.typing import DataFrameGroupBy, SeriesGroupBy
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import (
@@ -14,12 +15,14 @@ from rdfproxy.utils._types import (
     _TSPARQLBindingValue,
 )
 from rdfproxy.utils.checkers.model_checker import check_model
+from rdfproxy.utils.exceptions import InconsistentGroupException
 from rdfproxy.utils.mapper_utils import get_model_bool_predicate
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_list_static_type,
     _is_pydantic_model_static_type,
     _is_pydantic_model_union_static_type,
+    _is_sparql_bound_field_type,
 )
 from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
 
@@ -185,6 +188,49 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
 
         return unique_models
 
+    @staticmethod
+    def _enforce_group_consistency(df, model: type[BaseModel]) -> None:
+        """Runs a check on a grouped dataframe in order to detect possible data integrity problems.
+
+        In a grouped dataframe, if there are distinct values across a column
+        for any field that is not the group key or an aggregation target,
+        a data integrity problem is likely and data will be lost in that grouping operation.
+
+        The method checks for distinct values across any SPARQL-bound field column
+        that is not an aggregation target and either raises an exception or warns
+        if the group is inconsistent. The behavior can be controlled with the
+        enforce_group_consistency model config setting.
+        """
+        alias_map = FieldsBindingsMap(model)
+        enforce_group_consistency: bool = model.model_config.get(
+            "enforce_group_consistency", True
+        )
+
+        for field_name, field_info in model.model_fields.items():
+            if not _is_sparql_bound_field_type(field_info.annotation):
+                continue
+
+            column_name: str = alias_map[field_name]
+            column: SeriesGroupBy = df[column_name]  # type: ignore
+
+            if column.nunique(dropna=False) != 1:
+                msg = (
+                    "Grouped result set has distinct values for non-aggregated field "
+                    f"'{field_name}' (column '{column_name}'). "
+                    f"This might indicate a data integrity problem. \n{df}"
+                )
+                match enforce_group_consistency:
+                    case True:
+                        raise InconsistentGroupException(msg)
+                    case False:
+                        warnings.warn(msg)
+                    case _:
+                        value_err_msg = (
+                            "Expected value of type bool for ConfigDict.enforce_group_consistency. "
+                            f"Received '{enforce_group_consistency}'."
+                        )
+                        raise ValueError(value_err_msg)
+
     def _instantiate_grouped_model_from_df(
         self, df: pd.DataFrame, model: type[_TModelInstance]
     ) -> _TModelInstance:
@@ -194,6 +240,8 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         """
         alias_map = FieldsBindingsMap(model=model)
         curried_model = CurryModel(model=model)
+
+        self._enforce_group_consistency(df=df, model=model)
 
         for field_name, field_info in model.model_fields.items():
             if _is_list_pydantic_model_static_type(field_info.annotation):
