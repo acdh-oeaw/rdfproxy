@@ -25,7 +25,7 @@ def _get_model_bool_predicate_from_config_value(
             assert False, "This should never happen."
 
 
-def get_model_bool_predicate(model: BaseModel) -> ModelBoolPredicate:
+def get_model_bool_predicate(model: type[BaseModel] | BaseModel) -> ModelBoolPredicate:
     """Get the applicable model_bool predicate function given a model."""
     if (model_bool_value := model.model_config.get("model_bool", None)) is None:
         model_bool_predicate = default_model_bool_predicate
