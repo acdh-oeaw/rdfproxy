@@ -5,7 +5,7 @@ from collections.abc import Callable, Hashable, Iterator
 from functools import partial
 from typing import Annotated, Any, Generic, NoReturn, Self, TypeVar, get_args
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import SPARQLBinding, _TModelInstance
 from rdfproxy.utils.type_utils import (
@@ -186,6 +186,26 @@ class QueryConstructorComponent:
         return query
 
 
+def validate_model_field(model: type[BaseModel], field: str, value: Any) -> Any:
+    """Validate value for a single field given a model.
+
+    Note: Using a TypeVar for value is not possible here,
+    because Pydantic might coerce values (if not not in Strict Mode).
+    """
+
+    if field not in model.model_fields:
+        raise ValueError(f"'{field}' does not denote a field of model '{model}'.")
+
+    try:
+        model(**{field: value})
+    except ValidationError as e:
+        for error in e.errors():
+            if field in error["loc"]:
+                raise ValidationError.from_exception_data(model.__name__, [error])
+
+    return value
+
+
 class CurryModel(Generic[_TModelInstance]):
     """Constructor for currying a Pydantic Model.
 
@@ -212,21 +232,9 @@ class CurryModel(Generic[_TModelInstance]):
     def __repr__(self):  # pragma: no cover
         return f"CurryModel object {self._kwargs_cache}"
 
-    @staticmethod
-    def _validate_field(model: type[_TModelInstance], field: str, value: Any) -> Any:
-        """Validate value for a single field given a model.
-
-        Note: Using a TypeVar for value is not possible here,
-        because Pydantic might coerce values (if not not in Strict Mode).
-        """
-        result = model.__pydantic_validator__.validate_assignment(
-            model.model_construct(), field, value
-        )
-        return result
-
     def __call__(self, **kwargs: Any) -> Self | _TModelInstance:
         for k, v in kwargs.items():
-            self._validate_field(self.model, k, v)
+            validate_model_field(self.model, k, v)
 
         self._kwargs_cache.update(kwargs)
 
