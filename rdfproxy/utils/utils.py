@@ -219,9 +219,12 @@ class CurryModel(Generic[_TModelInstance]):
     as soon possible, i.e. as soon as all /required/ field values are provided.
     """
 
-    def __init__(self, model: type[_TModelInstance], eager: bool = True) -> None:
+    def __init__(
+        self, model: type[_TModelInstance], eager: bool = True, fail_fast: bool = True
+    ) -> None:
         self.model = model
         self.eager = eager
+        self.fail_fast = fail_fast
 
         self._kwargs_cache: dict = (
             {k: v.default for k, v in model.model_fields.items() if not v.is_required()}
@@ -234,7 +237,8 @@ class CurryModel(Generic[_TModelInstance]):
 
     def __call__(self, **kwargs: Any) -> Self | _TModelInstance:
         for k, v in kwargs.items():
-            validate_model_field(self.model, k, v)
+            if self.fail_fast:
+                validate_model_field(self.model, k, v)
 
         self._kwargs_cache.update(kwargs)
 
