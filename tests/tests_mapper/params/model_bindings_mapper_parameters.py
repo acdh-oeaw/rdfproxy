@@ -29,6 +29,16 @@ from tests.tests_mapper.params.models.optional_fields_models import (
 )
 from tests.utils._types import ModelBindingsMapperParameter
 
+from tests.tests_mapper.params.models.model_validator_model import PointNotOrigin
+
+
+model_validator_parameters = [
+    ModelBindingsMapperParameter(
+        model=PointNotOrigin,
+        bindings=[{"x": 1, "y": 2}],
+        expected=[{"x": 1, "y": 2}],
+    )
+]
 
 author_array_collection_parameters = [
     ModelBindingsMapperParameter(
