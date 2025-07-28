@@ -92,7 +92,7 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
 
             for _, group_df in group_by_object:
                 self.df = group_df
-                yield self._instantiate_grouped_model_from_df(group_df, model)
+                yield self._instantiate_grouped_model(model=model, df=group_df)
 
     def _instantiate_nested_model_from_row(
         self, nested_model: type[BaseModel], row: pd.Series
@@ -111,9 +111,9 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
             group_value = row[group_by]
             filtered_df = self.df[self.df[group_by] == group_value]
 
-            nested_model_instance: BaseModel = self._instantiate_grouped_model_from_df(
-                df=filtered_df,  # type: ignore
+            nested_model_instance: BaseModel = self._instantiate_grouped_model(
                 model=nested_model,  # type: ignore
+                df=filtered_df,  # type: ignore
             )
 
         return nested_model_instance
@@ -182,7 +182,7 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
 
         Note: StopIteration in _get_unique_models should be unreachable,
         because the result of _instantiate_models (the input of _get_unique_models
-        when called in _instantiate_grouped_model_from_df) gets called
+        when called in _instantiate_grouped_model) gets called
         on grouped dataframes and empty groups do not exist.
         """
         unique_models = []
@@ -198,8 +198,8 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
 
         return unique_models
 
-    def _instantiate_grouped_model_from_df(
-        self, df: pd.DataFrame, model: type[_TModelInstance]
+    def _instantiate_grouped_model(
+        self, model: type[_TModelInstance], df: pd.DataFrame
     ) -> _TModelInstance:
         """Instantiate a grouped model  pd.DataFrame (a group dataframe).
 
@@ -225,9 +225,9 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                         nested_model,  # type: ignore
                     )
                 else:
-                    field_value = self._instantiate_grouped_model_from_df(
-                        df=df,
+                    field_value = self._instantiate_grouped_model(
                         model=nested_model,  # type: ignore
+                        df=df,
                     )
 
             elif _is_pydantic_model_union_static_type(field_info.annotation):
