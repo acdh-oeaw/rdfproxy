@@ -16,6 +16,7 @@ from rdfproxy.utils.type_utils import (
 
 
 T = TypeVar("T")
+_SENTINEL = object()
 
 
 class FieldsBindingsMap(UserDict):

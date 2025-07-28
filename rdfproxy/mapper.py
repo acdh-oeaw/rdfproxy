@@ -21,7 +21,7 @@ from rdfproxy.utils.type_utils import (
     _is_pydantic_model_static_type,
     _is_pydantic_model_union_static_type,
 )
-from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
+from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap, _SENTINEL
 
 
 class _ModelBindingsMapper(Generic[_TModelInstance]):
@@ -160,10 +160,9 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
                 )
 
             else:
-                _sentinel = object()
                 field_value = (
                     field_info.default
-                    if (value := row.get(alias_map[field_name], _sentinel)) is _sentinel
+                    if (value := row.get(alias_map[field_name], _SENTINEL)) is _SENTINEL
                     else value
                 )
 
@@ -240,11 +239,10 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
             else:
                 first_row = df.iloc[0]
 
-                _sentinel = object()
                 field_value = (
                     field_info.default
-                    if (_value := first_row.get(alias_map[field_name], _sentinel))
-                    is _sentinel
+                    if (_value := first_row.get(alias_map[field_name], _SENTINEL))
+                    is _SENTINEL
                     else _value
                 )
 
