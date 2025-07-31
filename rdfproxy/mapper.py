@@ -1,13 +1,13 @@
 """ModelBindingsMapper: Functionality for mapping binding maps to a Pydantic model."""
 
+import abc
 from collections.abc import Iterable, Iterator
-from itertools import chain, tee
-from typing import Any, Generic, get_args
+from itertools import chain
+from typing import Any, cast, get_args
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from pydantic import BaseModel
-from pydantic.fields import FieldInfo
 from rdfproxy.utils._types import (
     ModelBoolPredicate,
     _TModelInstance,
@@ -21,113 +21,62 @@ from rdfproxy.utils.type_utils import (
     _is_pydantic_model_static_type,
     _is_pydantic_model_union_static_type,
 )
-from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap
+from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap, _SENTINEL
 
 
-class _ModelBindingsMapper(Generic[_TModelInstance]):
-    """Utility class for mapping bindings to nested/grouped Pydantic models.
+class _ModelConstructor(abc.ABC):
+    """ABC for RDFProxy ModelConstructors.
 
-    RDFProxy utilizes Pydantic models also as a modelling grammar for grouping
-    and aggregation, mainly by treating the 'group_by' entry in ConfigDict in
-    combination with list-type annoted model fields as grouping
-    and aggregation indicators. _ModelBindingsMapper applies this grammar
-    for mapping flat bindings to potentially nested and grouped Pydantic models.
-
-    Note: _ModelBindingsMapper is intended for use in rdfproxy.SPARQLModelAdapter and -
-    since no model sanity checking runs in the mapper itself - somewhat coupled to
-    SPARQLModelAdapter. The mapper can be useful in its own right though.
-    For standalone use, the initializer should be overwritten and model sanity checking
-    should be added to the _ModelBindingsMapper subclass.
+    A ModelConstructor knows how to build a Pydantic model given a dataframe
+    (either a row-dataframe for ungrouped models or a group-dataframe for grouped models).
     """
 
     def __init__(
         self,
-        model: type[_TModelInstance],
-        bindings: Iterable[dict[str, _TSPARQLBindingValue]],
+        model: type[BaseModel],
+        df: pd.DataFrame,
+        context: pd.DataFrame | None = None,
     ) -> None:
-        """Initializer for RDFProxy ModelBindingsMapper.
-
-        Note: It is possible to instantiate an empty pd.DataFrame
-        (according to pd.DataFrame.empty) from a non-empty/truthy Iterable;
-        e.g. pd.DataFrame(data=[{}]) results in an empty df.
-        This should be impossible to happen in RDFProxy, because bindings
-        for _ModelBindingsMapper will come from rdfproxy.SPARQLWrapper,
-        which either returns an empty Iterator or an Iterator of non-empty dicts;
-        nonetheless this is something worth explicating i.e. asserting.
-        """
         self.model = model
-        self.bindings, self._assert_bindings = tee(bindings)
+        self.df = df
+        self.context = self.df if context is None else context
 
-        self.df = pd.DataFrame(data=self.bindings, dtype=object)
+        self.alias_map = FieldsBindingsMap(model=model)
+        self.curried_model = CurryModel(model=model)
 
-        if self.df.empty:
-            assert not tuple(self._assert_bindings), (
-                "An empty dataframe should imply empty bindings."
-            )
+    @abc.abstractmethod
+    def get_model(self) -> BaseModel:
+        """Run a ModelConstructor and instantiate a Pydantic model instance."""
+        return NotImplemented
 
-    def get_models(self) -> list[_TModelInstance]:
-        """Run the model mapping logic against bindings and collect a list of model instances."""
-        if self.df.empty:
-            return []
-        return list(self._instantiate_models(self.df, self.model))
+    @staticmethod
+    def _get_constructor_type(model: type[BaseModel]) -> type["_ModelConstructor"]:
+        """Get either an UngroupedModelConstructor or a GroupedModelConstructor given a model."""
+        constructor: type[_ModelConstructor] = (
+            UngroupedModelConstructor
+            if model.model_config.get("group_by") is None
+            else GroupedModelConstructor
+        )
 
-    def _instantiate_models(
-        self, df: pd.DataFrame, model: type[_TModelInstance]
-    ) -> Iterator[_TModelInstance]:
-        """Generate potentially nested and grouped model instances from a dataframe.
+        return constructor
 
-        Note: The DataFrameGroupBy object must not be sorted,
-        else the result set order will not be maintained.
+    def _get_model_union_field_value(self, model_union, default: Any) -> Any:
+        """Resolve a model union and construct a model instance.
+
+        The RDFProxy semantics for model unions are defined to instantiate
+        the first model of a model union. Model union fields are required
+        to define a default value and are checked against model_bool.
         """
-        alias_map = FieldsBindingsMap(model=model)
-
-        if (_group_by := model.model_config.get("group_by")) is None:
-            for _, row in df.iterrows():
-                yield self._instantiate_ungrouped_model_from_row(row, model)
-        else:
-            group_by = alias_map[_group_by]
-            group_by_object: DataFrameGroupBy = df.groupby(
-                group_by, sort=False, dropna=False
-            )
-
-            for _, group_df in group_by_object:
-                self.df = group_df
-                yield self._instantiate_grouped_model_from_df(group_df, model)
-
-    def _instantiate_nested_model_from_row(
-        self, nested_model: type[BaseModel], row: pd.Series
-    ) -> BaseModel:
-        if (_group_by := nested_model.model_config.get("group_by")) is None:
-            nested_model_instance: BaseModel = (
-                self._instantiate_ungrouped_model_from_row(
-                    row=row,
-                    model=nested_model,  # type: ignore
-                )
-            )
-        else:
-            alias_map = FieldsBindingsMap(model=nested_model)
-            group_by = alias_map[_group_by]
-
-            group_value = row[group_by]
-            filtered_df = self.df[self.df[group_by] == group_value]
-
-            nested_model_instance: BaseModel = self._instantiate_grouped_model_from_df(
-                df=filtered_df,  # type: ignore
-                model=nested_model,  # type: ignore
-            )
-
-        return nested_model_instance
-
-    def _get_nested_model_union_value_from_row(
-        self, field_info: FieldInfo, row: pd.Series
-    ) -> BaseModel | Any:
-        model_union = field_info.annotation
         nested_model: type[BaseModel] = next(
             filter(_is_pydantic_model_static_type, get_args(model_union))
         )
-        nested_model_instance: BaseModel = self._instantiate_nested_model_from_row(
-            nested_model=nested_model, row=row
+        constructor: type[_ModelConstructor] = self._get_constructor_type(
+            model=nested_model
         )
+        nested_model_instance: BaseModel = constructor(
+            model=nested_model, df=self._partition_df(nested_model=nested_model)
+        ).get_model()
+
         model_bool_predicate: ModelBoolPredicate = get_model_bool_predicate(
             nested_model_instance
         )
@@ -135,42 +84,133 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
         return (
             nested_model_instance
             if model_bool_predicate(nested_model_instance)
-            else field_info.default
+            else default
         )
 
-    def _instantiate_ungrouped_model_from_row(
-        self, row: pd.Series, model: type[_TModelInstance]
-    ) -> _TModelInstance:
-        """Instantiate an ungrouped model from a pd.Series row.
+    def _get_scalar_field_value(self, field_name: str, default: Any):
+        """Get the field value for scalar type fields.
 
-        This handles the UNGROUPED code path in _ModelBindingsMapper._instantiate_models.
+        Note that this assumes Non-Aggregated Field Sameness,
+        so only the first row of the dataframe is consulted for value retrieval.
+        See https://github.com/acdh-oeaw/rdfproxy/issues/243.
         """
-        alias_map = FieldsBindingsMap(model=model)
-        curried_model = CurryModel(model=model)
+        _field_name = self.alias_map[field_name]
+        return (
+            default
+            if (value := self.df.iloc[0].get(_field_name, _SENTINEL)) is _SENTINEL
+            else value
+        )
 
-        for field_name, field_info in model.model_fields.items():
-            if _is_pydantic_model_static_type(nested_model := field_info.annotation):
-                field_value: BaseModel = self._instantiate_nested_model_from_row(
-                    nested_model=nested_model, row=row
+    def _partition_df(self, nested_model: type[BaseModel]) -> pd.DataFrame:
+        """Reverse-partition the context of an ungrouped model.
+
+        Ungrouped models operate on single-row dataframes;
+        if an ungrouped model has a grouped nested model,
+        the row-df must be reverse-partitioned against the most recent context
+        according to the grouping key of the nested model.
+
+        For ungrouped models, the method simply returns the current dataframe.
+
+        Note: _partition_df uses a mask/bool-indexing for reverse partitioning,
+        I believe that this is more efficient than pd.DataFrame.groupby here.
+        """
+        _group_by = nested_model.model_config.get("group_by", _SENTINEL)
+
+        if _group_by is _SENTINEL:
+            return self.df
+
+        alias_map = FieldsBindingsMap(model=nested_model)
+
+        group_by = alias_map[_group_by]
+        group_value = self.df[group_by].values[0]
+
+        mask = (
+            self.context[group_by].isna()
+            if pd.isna(group_value)
+            else self.context[group_by] == group_value
+        )
+
+        return cast(pd.DataFrame, self.context[mask])
+
+
+class UngroupedModelConstructor(_ModelConstructor):
+    """ModelConstructor for ungrouped models."""
+
+    def get_model(self) -> BaseModel:
+        """Run the UngroupedModelConstructor and instantiate a Pydantic model instance."""
+
+        for field_name, field_info in self.model.model_fields.items():
+            if _is_pydantic_model_static_type(field_info.annotation):
+                nested_model = field_info.annotation
+                constructor: type[_ModelConstructor] = self._get_constructor_type(
+                    model=nested_model
                 )
 
-            elif _is_pydantic_model_union_static_type(field_info.annotation):
-                field_value = self._get_nested_model_union_value_from_row(
-                    field_info=field_info, row=row
-                )
+                df: pd.DataFrame = self._partition_df(nested_model=nested_model)
 
+                field_value: BaseModel = constructor(
+                    model=nested_model, df=df, context=self.context
+                ).get_model()
+
+            elif _is_pydantic_model_union_static_type(
+                model_union := field_info.annotation
+            ):
+                field_value = self._get_model_union_field_value(
+                    model_union=model_union, default=field_info.default
+                )
             else:
-                _sentinel = object()
-                field_value = (
-                    field_info.default
-                    if (value := row.get(alias_map[field_name], _sentinel)) is _sentinel
-                    else value
+                field_value = self._get_scalar_field_value(
+                    field_name=field_name, default=field_info.default
                 )
 
-            curried_model(**{field_name: field_value})
+            self.curried_model(**{field_name: field_value})
 
-        model_instance = curried_model()
-        assert isinstance(model_instance, model)  # type narrow
+        model_instance = self.curried_model()
+        assert isinstance(model_instance, self.model)  # type narrow
+
+        return model_instance
+
+
+class GroupedModelConstructor(_ModelConstructor):
+    """ModelConstructor for grouped models."""
+
+    def get_model(self) -> BaseModel:
+        """Run the GroupedModelConstructor and instantiate a Pydantic model instance."""
+
+        for field_name, field_info in self.model.model_fields.items():
+            if _is_list_pydantic_model_static_type(field_info.annotation):
+                nested_model, *_ = get_args(field_info.annotation)
+                mapper = _ModelBindingsMapper(model=nested_model, bindings=self.df)
+                field_value = self._get_unique_models(iter(mapper.get_models()))
+
+            elif _is_list_static_type(field_info.annotation):
+                _field_name = self.alias_map[field_name]
+                field_value = list(dict.fromkeys(self.df[_field_name].dropna()))
+
+            elif _is_pydantic_model_static_type(nested_model := field_info.annotation):  # type: ignore
+                constructor: type[_ModelConstructor] = self._get_constructor_type(
+                    model=nested_model
+                )
+                field_value = constructor(
+                    model=nested_model,
+                    df=self.df,
+                ).get_model()
+
+            elif _is_pydantic_model_union_static_type(
+                model_union := field_info.annotation
+            ):
+                field_value = self._get_model_union_field_value(
+                    model_union=model_union, default=field_info.default
+                )
+            else:
+                field_value = self._get_scalar_field_value(
+                    field_name=field_name, default=field_info.default
+                )
+
+            self.curried_model(**{field_name: field_value})
+
+        model_instance = self.curried_model()
+        assert isinstance(model_instance, self.model)  # type narrow
         return model_instance
 
     @staticmethod
@@ -199,60 +239,56 @@ class _ModelBindingsMapper(Generic[_TModelInstance]):
 
         return unique_models
 
-    def _instantiate_grouped_model_from_df(
-        self, df: pd.DataFrame, model: type[_TModelInstance]
-    ) -> _TModelInstance:
-        """Instantiate a grouped model  pd.DataFrame (a group dataframe).
 
-        This handles the GROUPED code path in _ModelBindingsMapper._instantiate_models.
-        """
-        alias_map = FieldsBindingsMap(model=model)
-        curried_model = CurryModel(model=model)
+class _ModelBindingsMapper:
+    """Functionality for mapping bindings to nested/grouped Pydantic models.
 
-        for field_name, field_info in model.model_fields.items():
-            if _is_list_pydantic_model_static_type(field_info.annotation):
-                nested_model, *_ = get_args(field_info.annotation)
-                field_value = self._get_unique_models(
-                    self._instantiate_models(df, nested_model)  # type: ignore
-                )
-            elif _is_list_static_type(field_info.annotation):
-                field_value = list(dict.fromkeys(df[alias_map[field_name]].dropna()))
+    RDFProxy utilizes Pydantic models also as a modelling grammar for grouping
+    and aggregation, mainly by treating the 'group_by' entry in ConfigDict in
+    combination with list-type annoted model fields as grouping
+    and aggregation indicators. _ModelBindingsMapper applies this grammar
+    for mapping flat bindings to potentially nested and grouped Pydantic models.
+    """
 
-            elif _is_pydantic_model_static_type(nested_model := field_info.annotation):
-                if nested_model.model_config.get("group_by") is None:
-                    first_row = df.iloc[0]
-                    field_value = self._instantiate_ungrouped_model_from_row(
-                        first_row,
-                        nested_model,  # type: ignore
-                    )
-                else:
-                    field_value = self._instantiate_grouped_model_from_df(
-                        df=df,
-                        model=nested_model,  # type: ignore
-                    )
+    def __init__(
+        self,
+        model: type[_TModelInstance],
+        bindings: Iterable[dict[str, _TSPARQLBindingValue]] | pd.DataFrame,
+    ) -> None:
+        self.model = model
+        self.bindings = bindings
 
-            elif _is_pydantic_model_union_static_type(field_info.annotation):
-                first_row = df.iloc[0]
-                field_value = self._get_nested_model_union_value_from_row(
-                    field_info=field_info, row=first_row
-                )
+        self.df: pd.DataFrame = (
+            bindings
+            if isinstance(bindings, pd.DataFrame)
+            else pd.DataFrame(data=self.bindings, dtype=object)
+        )
 
-            else:
-                first_row = df.iloc[0]
+    def get_models(self) -> list[BaseModel]:
+        """Run the RDFProxy mapper and generate a list of Pydantic model instances."""
+        if self.df.empty:
+            return []
+        return list(self._instantiate_models())
 
-                _sentinel = object()
-                field_value = (
-                    field_info.default
-                    if (_value := first_row.get(alias_map[field_name], _sentinel))
-                    is _sentinel
-                    else _value
-                )
+    def _instantiate_models(self) -> Iterator[BaseModel]:
+        _group_by = self.model.model_config.get("group_by", _SENTINEL)
 
-            curried_model(**{field_name: field_value})
+        if _group_by is _SENTINEL:
+            for i in range(len(self.df)):
+                row_df = self.df.iloc[[i]]
+                yield UngroupedModelConstructor(
+                    model=self.model, df=row_df, context=self.df
+                ).get_model()
+        else:
+            alias_map = FieldsBindingsMap(model=self.model)
 
-        model_instance = curried_model()
-        assert isinstance(model_instance, model)  # type narrow
-        return model_instance
+            group_by = alias_map[_group_by]
+            group_by_object: DataFrameGroupBy = self.df.groupby(
+                group_by, sort=False, dropna=False
+            )
+
+            for _, group_df in group_by_object:
+                yield GroupedModelConstructor(model=self.model, df=group_df).get_model()
 
 
 class ModelBindingsMapper(_ModelBindingsMapper):  # pragma: no cover
