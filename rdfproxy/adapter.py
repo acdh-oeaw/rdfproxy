@@ -41,12 +41,18 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         target: str | Graph,
         query: str,
         model: type[_TModelInstance],
+        httpx_aclient_params: dict | None = None,
     ) -> None:
         self._target = target
         self._query = check_query(query)
         self._model = check_model(model)
 
-        self.sparqlwrapper = SPARQLWrapper(self._target)
+        self._httpx_aclient_params = (
+            {} if httpx_aclient_params is None else httpx_aclient_params
+        )
+        self.sparqlwrapper = SPARQLWrapper(
+            self._target, httpx_aclient_params=httpx_aclient_params
+        )
 
         logger.info("Initialized SPARQLModelAdapter.")
         logger.debug("Target: %s", self._target)
