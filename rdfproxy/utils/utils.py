@@ -15,6 +15,7 @@ from rdfproxy.utils.type_utils import (
 )
 
 
+_SENTINEL = object()
 T = TypeVar("T")
 
 
