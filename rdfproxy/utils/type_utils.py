@@ -31,7 +31,7 @@ def _is_list_pydantic_model_static_type(
 
 def _is_pydantic_model_union_static_type(
     obj: Any,
-) -> bool:
+) -> TypeGuard[types.UnionType]:
     """Check if object is a union type of a Pydantic model."""
     is_union_type: bool = get_origin(obj) in (types.UnionType, typing.Union)
     has_any_model: bool = any(
