@@ -1,6 +1,7 @@
 """Type definitions for rdfproxy."""
 
 from collections import UserString
+from collections.abc import Iterable
 import datetime
 import decimal
 from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
@@ -58,6 +59,7 @@ class ConfigDict(PydanticConfigDict, total=False):
 
     group_by: str
     model_bool: _TModelBoolValue
+    orderable_fields: Iterable[str]
 
 
 _TQuery = TypeVar("_TQuery", bound=str)
