@@ -12,7 +12,6 @@ from tests.tests_mapper.params.model_bindings_mapper_parameters import (
     grouping_nested_model_parameters,
     grouping_parameters,
     model_validator_parameters,
-    nested_grouping_parameters,
     none_model_parameters,
     optional_fields_model_parameters,
 )
@@ -23,7 +22,6 @@ from tests.tests_mapper.params.model_bindings_mapper_parameters import (
     [
         *basic_parameters,
         *grouping_parameters,
-        *nested_grouping_parameters,
         *author_work_title_parameters,
         *author_array_collection_parameters,
         *grouping_nested_model_parameters,
