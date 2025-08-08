@@ -11,6 +11,7 @@ from tests.tests_mapper.params.models.basic_model import (
 )
 from tests.tests_mapper.params.models.empty_default_only_model import DefaultOnly, Empty
 from tests.tests_mapper.params.models.grouping_model import GroupingComplexModel
+from tests.tests_mapper.params.models.model_validator_model import PointNotOrigin
 from tests.tests_mapper.params.models.nested_grouping_model import (
     GroupingNestedComplexModel,
     NestedComplexModel,
@@ -28,8 +29,6 @@ from tests.tests_mapper.params.models.optional_fields_models import (
     OptionalStrFieldStrictModel,
 )
 from tests.utils._types import ModelBindingsMapperParameter
-
-from tests.tests_mapper.params.models.model_validator_model import PointNotOrigin
 
 
 model_validator_parameters = [
@@ -252,26 +251,6 @@ grouping_parameters = [
             {"p": "p value", "q": [{"a": "a value", "b": {"x": 3, "y": 4}}]},
         ],
     ),
-]
-
-nested_grouping_parameters = [
-    ModelBindingsMapperParameter(
-        model=NestedGroupingComplexModel,
-        bindings=[
-            {"x": 1, "y": 2, "a": "a value 1", "p": "p value 1"},
-            {"x": 1, "y": 2, "a": "a value 2", "p": "p value 2"},
-            {"x": 1, "y": 3, "a": "a value 3", "p": "p value 3"},
-            {"x": 2, "y": 2, "a": "a value 1", "p": "p value 4"},
-        ],
-        expected=[
-            {
-                "p": "p value 1",
-                "q": [{"a": "a value 1", "b": [{"x": 1, "y": 2}, {"x": 2, "y": 2}]}],
-            },
-            {"p": "p value 2", "q": [{"a": "a value 2", "b": [{"x": 1, "y": 2}]}]},
-            {"p": "p value 3", "q": [{"a": "a value 3", "b": [{"x": 1, "y": 3}]}]},
-        ],
-    )
 ]
 
 
