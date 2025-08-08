@@ -12,6 +12,7 @@ from rdfproxy.utils.type_utils import (
     _is_list_static_type,
     _is_pydantic_model_union_static_type,
 )
+from rdfproxy.utils.utils import _SENTINEL
 
 
 def _check_group_by_config(model: type[_TModelInstance]) -> type[_TModelInstance]:
@@ -127,5 +128,27 @@ def _check_model_union_types(
             raise ModelFieldException(
                 f"Model union type '{v.annotation}' must define a default value."
             )
+
+    return model
+
+
+def _check_enforce_grouping_consistency_config(
+    model: type[_TModelInstance],
+) -> type[_TModelInstance]:
+    """Model check for enforce_grouping_consistency config setting."""
+
+    _config = model.model_config
+
+    group_by_is_defined: bool = _config.get("group_by", _SENTINEL) is not _SENTINEL
+    enforce_grouping_consistency_is_defined: bool = (
+        _config.get("enforce_grouping_consistency", _SENTINEL) is not _SENTINEL
+    )
+
+    if enforce_grouping_consistency_is_defined and not group_by_is_defined:
+        msg = (
+            f"Model '{model.__name__}' specifies the 'enforce_grouping_consistency' "
+            "model config setting without also specifying 'group_by'."
+        )
+        warnings.warn(msg)
 
     return model

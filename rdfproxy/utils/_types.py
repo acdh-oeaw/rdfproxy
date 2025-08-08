@@ -57,6 +57,7 @@ class ConfigDict(PydanticConfigDict, total=False):
     """pydantic.ConfigDict extension for RDFProxy model_config options."""
 
     group_by: str
+    enforce_grouping_consistency: bool
     model_bool: _TModelBoolValue
 
 

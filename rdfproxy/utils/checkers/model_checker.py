@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel
 from rdfproxy.utils.checkers._model_checks import (
+    _check_enforce_grouping_consistency_config,
     _check_group_by_config,
     _check_model_bool_config_root_model,
     _check_model_bool_config_sub_models,
@@ -18,7 +19,11 @@ def check_model(model: type[BaseModel]) -> type[BaseModel]:
         model=model,
         top_model_hook=_check_model_bool_config_root_model,
         sub_model_hook=_check_model_bool_config_sub_models,
-        all_model_hook=compose_left(_check_group_by_config, _check_model_union_types),
+        all_model_hook=compose_left(
+            _check_group_by_config,
+            _check_model_union_types,
+            _check_enforce_grouping_consistency_config,
+        ),
     )
 
     return visitor.visit()
