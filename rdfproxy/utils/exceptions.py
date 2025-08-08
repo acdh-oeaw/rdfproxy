@@ -58,3 +58,7 @@ class MultipleResultsFound(Exception):
 
 class UnprojectedKeyBindingException(Exception):
     """Exception for indicating that a request item key does not have corresponding binding in the projection."""
+
+
+class InconsistentGroupingException(Exception):
+    """Exception for indicating a SPARQL data integrity problem in a grouping scenario."""

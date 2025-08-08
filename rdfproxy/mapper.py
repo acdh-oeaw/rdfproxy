@@ -5,9 +5,10 @@ from collections.abc import Iterable, Iterator
 from itertools import chain
 from types import UnionType
 from typing import Any, cast, get_args
+import warnings
 
 import pandas as pd
-from pandas.api.typing import DataFrameGroupBy
+from pandas.api.typing import DataFrameGroupBy, SeriesGroupBy
 from pydantic import BaseModel
 from rdfproxy.utils._types import (
     ModelBoolPredicate,
@@ -15,12 +16,14 @@ from rdfproxy.utils._types import (
     _TSPARQLBindingValue,
 )
 from rdfproxy.utils.checkers.model_checker import check_model
+from rdfproxy.utils.exceptions import InconsistentGroupingException
 from rdfproxy.utils.mapper_utils import get_model_bool_predicate
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_list_static_type,
     _is_pydantic_model_static_type,
     _is_pydantic_model_union_static_type,
+    _is_sparql_bound_field_type,
 )
 from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap, _SENTINEL
 
@@ -46,7 +49,7 @@ class _ModelConstructor(abc.ABC):
         self.curried_model = CurryModel(model=model)
 
     @abc.abstractmethod
-    def get_model(self) -> BaseModel:
+    def get_model(self) -> BaseModel:  # pragma: no cover
         """Run a ModelConstructor and instantiate a Pydantic model instance."""
         return NotImplemented
 
@@ -178,6 +181,10 @@ class UngroupedModelConstructor(_ModelConstructor):
 class GroupedModelConstructor(_ModelConstructor):
     """ModelConstructor for grouped models."""
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._check_grouping_consistency()
+
     def get_model(self) -> BaseModel:
         """Run the GroupedModelConstructor and instantiate a Pydantic model instance."""
 
@@ -241,6 +248,45 @@ class GroupedModelConstructor(_ModelConstructor):
                 unique_models.append(model)
 
         return unique_models
+
+    def _check_grouping_consistency(self) -> None:
+        """Runs a check on a grouped dataframe in order to detect possible data integrity problems.
+
+        In a grouped dataframe, if there are distinct values across a column
+        for any field that is not the group key or an aggregation target,
+        a data integrity problem is likely and data will be lost in that grouping operation.
+
+        The method checks for distinct values across any SPARQL-bound field column
+        that is not an aggregation target and either raises an exception or warns
+        if the group is inconsistent. The behavior can be controlled with the
+        enforce_grouping_consistency model config setting.
+
+        Note: Since model_config is a dict and not e.g. a model,
+        the default values get assigned at lookup...
+        RDFProxy should probably use a _ConfigModel model internally
+        or find another solution with dealing Pydantic's ConfigDict.
+        """
+        enforce_grouping_consistency: bool = self.model.model_config.get(
+            "enforce_grouping_consistency", True
+        )
+
+        for field_name, field_info in self.model.model_fields.items():
+            if not _is_sparql_bound_field_type(field_info.annotation):
+                continue
+
+            column_name: str = self.alias_map[field_name]
+            column: SeriesGroupBy = self.df[column_name]  # type: ignore
+
+            if column.nunique(dropna=False) != 1:
+                msg = (
+                    "Grouped result set has distinct values for non-aggregated field "
+                    f"'{field_name}' (column '{column_name}'). "
+                    f"This might indicate a data integrity problem. \n{self.df}"
+                )
+
+                if enforce_grouping_consistency:
+                    raise InconsistentGroupingException(msg)
+                warnings.warn(msg)
 
 
 class _ModelBindingsMapper:
