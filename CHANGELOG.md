@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.8.0...v0.9.0) (2025-08-08)
+
+
+### Features
+
+* add fail_fast flag to CurryModel constructor ([527774b](https://github.com/acdh-oeaw/rdfproxy/commit/527774b68defaae362b2b8ba73d1e7cb6e744a75))
+* implement grouping consistency model config and check ([a62d5fb](https://github.com/acdh-oeaw/rdfproxy/commit/a62d5fbfdcdf83e42025989e25a6197034a51995))
+
+
+### Bug Fixes
+
+* implement single-field validator for CurryModel ([2a60f24](https://github.com/acdh-oeaw/rdfproxy/commit/2a60f24c559f538f4527bb4e3ea4151ecf7bc3db))
+* rewrite mapper and implement missing code paths ([1464721](https://github.com/acdh-oeaw/rdfproxy/commit/14647219224f6c1001a0468cc8a9b04c58df47a0))
+
 ## [0.8.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.7.0...v0.8.0) (2025-07-09)
 
 
