@@ -8,6 +8,7 @@ from rdflib import BNode, Graph, Literal, URIRef, XSD
 from rdflib.query import Result as SPARQLQueryResult
 from rdfproxy.utils._types import _TSPARQLBindingValue
 from rdfproxy.utils.utils import compose_left
+from starlette.routing import request_response
 
 
 class SPARQLWrapper:
@@ -31,38 +32,38 @@ class SPARQLWrapper:
 
         return asyncio.run(queries_coroutine(*queries))
 
+    async def _aquery_remote_endpoint(
+        self, query: str
+    ) -> Iterator[dict[str, _TSPARQLBindingValue]]:
+        assert isinstance(self.target, str)  # type narrow
+
+        async with httpx.AsyncClient() as aclient:
+            async with aclient.stream(
+                "POST",
+                self.target,
+                data={"output": "json", "query": query},
+                headers={
+                    "Accept": "application/sparql-results+json",
+                    "Accept-Encoding": "gzip, deflate",
+                },
+            ) as response:
+                response.raise_for_status()
+                chunks = [chunk async for chunk in response.aiter_bytes()]
+                body = b"".join(chunks)
+
+                return self._get_bindings_from_json_response(json.loads(body))
+
     async def _aqueries_remote_endpoint(
         self, *queries: str
     ) -> list[Iterator[dict[str, _TSPARQLBindingValue]]]:
-        """Coroutine for running multiple queries against a remote target."""
         assert isinstance(self.target, str)  # type narrow
 
-        async with httpx.AsyncClient() as aclient, asyncio.TaskGroup() as tg:
+        async with asyncio.TaskGroup() as tg:
             tasks = [
-                tg.create_task(
-                    aclient.post(
-                        self.target,
-                        data={"output": "json", "query": query},
-                        headers={
-                            "Accept": "application/sparql-results+json",
-                        },
-                    )
-                )
-                for query in queries
+                tg.create_task(self._aquery_remote_endpoint(query)) for query in queries
             ]
 
-        results: list[httpx.Response] = [task.result() for task in tasks]
-
-        python_results = map(
-            compose_left(
-                httpx.Response.raise_for_status,
-                httpx.Response.json,
-                self._get_bindings_from_json_response,
-            ),
-            results,
-        )
-
-        return list(python_results)
+        return [task.result() for task in tasks]
 
     @staticmethod
     async def _agraph_query(graph: Graph, query: str) -> SPARQLQueryResult:
