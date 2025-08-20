@@ -6,12 +6,13 @@ import decimal
 from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 from xml.dom.minidom import Document
 
-from pydantic import AnyUrl, BaseModel, ConfigDict as PydanticConfigDict
 from rdflib import BNode, Literal, URIRef
 from rdflib.compat import long_type
 from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue
 from rdflib.xsd_datetime import Duration
+
+from pydantic import AnyUrl, BaseModel, ConfigDict as PydanticConfigDict
 from rdfproxy.utils.exceptions import QueryParseException
 
 
@@ -73,13 +74,8 @@ class ParsedSPARQL(Generic[_TQuery], UserString):
 
     @staticmethod
     def _get_parse_object(query: str) -> CompValue:
-        try:
-            _parsed = parseQuery(query)
-        except Exception as e:
-            raise QueryParseException(e) from e
-        else:
-            _, parse_object = _parsed
-            return parse_object
+        _, parse_object = parseQuery(query)
+        return parse_object
 
 
 _TLiteralToPython: TypeAlias = (
