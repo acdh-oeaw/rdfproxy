@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 import httpx
-from rdflib import BNode, Graph, Literal, URIRef, XSD
+from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result as SPARQLQueryResult
 from rdfproxy.utils._types import _TSPARQLBindingValue
 from rdfproxy.utils.utils import compose_left
@@ -122,13 +122,8 @@ class SPARQLWrapper:
                             datatype=binding_data.get("datatype", None),
                         )
 
-                        # call toPython in any case for validation
                         literal_to_python = literal.toPython()
-
-                        if literal.datatype in (XSD.gYear, XSD.gYearMonth):
-                            yield (var, literal)
-                        else:
-                            yield (var, literal_to_python)
+                        yield (var, literal_to_python)
 
                     case "bnode":
                         yield (var, BNode(binding_data["value"]))
