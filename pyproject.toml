@@ -45,8 +45,3 @@ sparqlwrapper = "SPARQLWrapper"
 
 [tool.deptry]
 extend_exclude = ["examples"]
-
-[tool.pytest.ini_options]
-markers = [
-	"remote: Mark tests that connect to a remote service",
-]
