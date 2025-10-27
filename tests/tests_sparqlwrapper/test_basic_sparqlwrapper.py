@@ -9,6 +9,8 @@ from rdflib import BNode, Literal, URIRef, XSD
 
 
 query_types = """
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
 select *
 where {
   values (?x) {
