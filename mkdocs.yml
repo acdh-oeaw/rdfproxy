@@ -1,8 +1,7 @@
 site_name: RDFProxy Docs
 
 theme:
-  # name: "readthedocs"
-  name: "material"
+  name: "readthedocs"
 
   palette:
     # Palette toggle for automatic mode
