@@ -6,7 +6,7 @@ authors = [
     { name = "Birger Schacht", email = "birger.schacht@oeaw.ac.at" },
     { name = "Lukas Plank", email = "lukas.plank@oeaw.ac.at" },
 ]
-requires-python = "~=3.11"
+requires-python = ">=3.13"
 readme = "README.md"
 dependencies = [
     "pydantic>=2.9.2,<3",
