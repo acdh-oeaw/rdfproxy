@@ -83,6 +83,22 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         return item_model
 
+    def get_count(self, query_parameters: QueryParameters = QueryParameters()) -> int:
+        """Run a count query against a target and return the listing count as an int."""
+        query_constructor = _PageQueryConstructor(
+            query=self._query,
+            query_parameters=query_parameters,
+            model=self._model,
+        )
+
+        count_query = query_constructor.get_count_query()
+        items_query = query_constructor.get_items_query()
+
+        _items_query_bindings, count_query_bindings = self.sparqlwrapper.queries(
+            items_query, count_query
+        )
+        return int(next(count_query_bindings)["cnt"])
+
     def get_page(
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
