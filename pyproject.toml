@@ -11,7 +11,7 @@ readme = "README.md"
 dependencies = [
     "pydantic>=2.9.2,<3",
     "httpx>=0.28.1,<0.29",
-    "rdflib>=7.1.1,<8",
+    "rdflib>=7.1.1",
     "pandas>=2.2.3,<3",
 ]
 
