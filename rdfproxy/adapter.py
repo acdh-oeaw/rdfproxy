@@ -6,6 +6,7 @@ from typing import Generic
 import warnings
 
 from rdflib import Graph
+
 from rdfproxy.constructor import _ItemQueryConstructor, _PageQueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.sparqlwrapper import SPARQLWrapper
@@ -13,7 +14,7 @@ from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.checkers.item_checker import check_item_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
-from rdfproxy.utils.models import Page, QueryParameters
+from rdfproxy.utils.models import Page, QueryParameters, SPARQLWrapperConfig
 
 
 logger = logging.getLogger(__name__)
@@ -41,12 +42,20 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         target: str | Graph,
         query: str,
         model: type[_TModelInstance],
+        sparqlwrapper_config: SPARQLWrapperConfig | None = None,
     ) -> None:
         self._target = target
         self._query = check_query(query)
         self._model = check_model(model)
 
-        self.sparqlwrapper = SPARQLWrapper(self._target)
+        sparqlwrapper_config = (
+            SPARQLWrapperConfig()
+            if sparqlwrapper_config is None
+            else sparqlwrapper_config
+        )
+        self.sparqlwrapper = SPARQLWrapper(
+            target=self._target, config=sparqlwrapper_config
+        )
 
         logger.info("Initialized SPARQLModelAdapter.")
         logger.debug("Target: %s", self._target)

@@ -6,15 +6,20 @@ from typing import Any
 import httpx
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result as SPARQLQueryResult
+
 from rdfproxy.utils._types import _TSPARQLBindingValue
+from rdfproxy.utils.models import SPARQLWrapperConfig
 from rdfproxy.utils.utils import compose_left
 
 
 class SPARQLWrapper:
     """Simple httpx-based SPARQLWrapper implementaton for RDFProxy."""
 
-    def __init__(self, target: str | Graph):
+    def __init__(self, target: str | Graph, config: SPARQLWrapperConfig | None = None):
         self.target = target
+        self.config: SPARQLWrapperConfig = (
+            SPARQLWrapperConfig() if config is None else config
+        )
 
     def queries(self, *queries: str) -> list[Iterator[dict[str, _TSPARQLBindingValue]]]:
         """Synchronous wrapper for asynchronous SPARQL query execution.
@@ -37,7 +42,14 @@ class SPARQLWrapper:
         """Coroutine for running multiple queries against a remote target."""
         assert isinstance(self.target, str)  # type narrow
 
-        async with httpx.AsyncClient() as aclient, asyncio.TaskGroup() as tg:
+        aclient_config: dict = (
+            {} if (config := self.config.aclient_config) is None else config
+        )
+
+        async with (
+            httpx.AsyncClient(**aclient_config) as aclient,
+            asyncio.TaskGroup() as tg,
+        ):
             tasks = [
                 tg.create_task(
                     aclient.post(

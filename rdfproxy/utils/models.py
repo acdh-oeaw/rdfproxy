@@ -3,7 +3,13 @@
 from enum import StrEnum
 from typing import Any, Generic
 
-from pydantic import BaseModel, Field, create_model, model_validator
+
+from pydantic import (
+    BaseModel,
+    Field,
+    create_model,
+    model_validator,
+)
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.utils import ModelSPARQLMap
 
@@ -65,3 +71,9 @@ class QueryParameters(BaseModel):
         return create_model(
             cls.__name__, order_by=(OrderByEnum | None, None), __base__=cls
         )
+
+
+class SPARQLWrapperConfig(BaseModel):
+    """SPARQLWrapper configuration model."""
+
+    aclient_config: dict | None = None
