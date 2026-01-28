@@ -895,10 +895,10 @@ name = "rdfproxy"
 version = "0.9.0"
 source = { editable = "." }
 dependencies = [
-    { name = "httpx" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "rdflib" },
+    { name = "sparqlx" },
 ]
 
 [package.dev-dependencies]
@@ -918,10 +918,10 @@ examples = [
 
 [package.metadata]
 requires-dist = [
-    { name = "httpx", specifier = ">=0.28.1,<0.29" },
     { name = "pandas", specifier = ">=2.2.3,<3" },
     { name = "pydantic", specifier = ">=2.9.2,<3" },
     { name = "rdflib", specifier = ">=7.3.0" },
+    { name = "sparqlx", specifier = ">=0.8.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -1067,6 +1067,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc", size = 20372 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2", size = 10235 },
+]
+
+[[package]]
+name = "sparqlx"
+version = "0.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "rdflib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/06/b4/5b7478386534d7825eb5bb303035ccb836b8267f615dd6b1e0384f2ef62e/sparqlx-0.8.0.tar.gz", hash = "sha256:b3f387e681363ca14efc3cd5c3c03dd0ac30fcdc8e128e8e05ee7c5243393276", size = 89822 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dd/01/f83bbdc01615e4788c976cbfa0e860ef81826803c37487f0f04ab5df6451/sparqlx-0.8.0-py3-none-any.whl", hash = "sha256:ae3566a0644c7b46330264d1bc0fea0a0bab198089e6dad0afadef060e43e6ab", size = 28684 },
 ]
 
 [[package]]

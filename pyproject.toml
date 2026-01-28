@@ -10,9 +10,9 @@ requires-python = ">=3.12"
 readme = "README.md"
 dependencies = [
     "pydantic>=2.9.2,<3",
-    "httpx>=0.28.1,<0.29",
     "pandas>=2.2.3,<3",
     "rdflib>=7.3.0",
+    "sparqlx>=0.8.0",
 ]
 
 [dependency-groups]
