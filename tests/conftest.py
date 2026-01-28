@@ -7,7 +7,7 @@ from typing import Protocol
 import httpx
 import pytest
 from rdflib import Graph
-from rdfproxy.sparqlwrapper import SPARQLWrapper
+from sparqlx import SPARQLWrapper
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.waiting_utils import wait_for_logs
 
@@ -117,4 +117,4 @@ def target(request) -> Graph | str:
 @pytest.fixture()
 def sparql_wrapper(target) -> SPARQLWrapper:
     """SPARQLWrapper instance fixture."""
-    return SPARQLWrapper(target=target)
+    return SPARQLWrapper(sparql_endpoint=target)
