@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.10.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.9.0...v0.10.0) (2026-01-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* make sparqlwrapper attribute in SPARQLModelAdapter private
+
+### Features
+
+* introduce aclient_config option for internal SPARQLWrapper ([ff955b4](https://github.com/acdh-oeaw/rdfproxy/commit/ff955b45079aa7af660bb9f560186af903831057))
+
+
+### Bug Fixes
+
+* make sparqlwrapper attribute in SPARQLModelAdapter private ([e4183cb](https://github.com/acdh-oeaw/rdfproxy/commit/e4183cb214948645d9c4e4eafd16b2d1567c406e))
+
 ## [0.9.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.8.0...v0.9.0) (2025-08-08)
 
 
