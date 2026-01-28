@@ -6,8 +6,6 @@ from typing import Generic
 import warnings
 
 from rdflib import Graph
-from sparqlx import SPARQLWrapper
-
 from rdfproxy.constructor import _ItemQueryConstructor, _PageQueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.utils._types import _TModelInstance
@@ -15,6 +13,7 @@ from rdfproxy.utils.checkers.item_checker import check_item_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
+from sparqlx import SPARQLWrapper
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         self._query = check_query(query)
         self._model = check_model(model)
 
-        self.sparqlwrapper = SPARQLWrapper(sparql_endpoint=self._target)
+        self._sparqlwrapper = SPARQLWrapper(sparql_endpoint=self._target)
 
         logger.info("Initialized SPARQLModelAdapter.")
         logger.debug("Target: %s", self._target)
@@ -75,7 +74,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         logger.debug("Running item query: \n%s", item_query)
 
-        item_query_bindings, *_ = self.sparqlwrapper.queries(item_query, convert=True)
+        item_query_bindings, *_ = self._sparqlwrapper.queries(item_query, convert=True)
         mapper = _ModelBindingsMapper(self._model, item_query_bindings)
 
         item_model = check_item_model(
@@ -104,7 +103,7 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug("Running items query: \n%s", items_query)
         logger.debug("Running count query: \n%s", count_query)
 
-        items_query_bindings, count_query_bindings = self.sparqlwrapper.queries(
+        items_query_bindings, count_query_bindings = self._sparqlwrapper.queries(
             items_query, count_query, convert=True
         )
 
