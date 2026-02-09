@@ -892,7 +892,7 @@ wheels = [
 
 [[package]]
 name = "rdfproxy"
-version = "0.9.0"
+version = "0.10.0"
 source = { editable = "." }
 dependencies = [
     { name = "pandas" },
@@ -921,7 +921,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.2.3,<3" },
     { name = "pydantic", specifier = ">=2.9.2,<3" },
     { name = "rdflib", specifier = ">=7.3.0" },
-    { name = "sparqlx", specifier = ">=0.8.0" },
+    { name = "sparqlx", specifier = ">=0.10.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -1071,15 +1071,15 @@ wheels = [
 
 [[package]]
 name = "sparqlx"
-version = "0.8.0"
+version = "0.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "rdflib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/06/b4/5b7478386534d7825eb5bb303035ccb836b8267f615dd6b1e0384f2ef62e/sparqlx-0.8.0.tar.gz", hash = "sha256:b3f387e681363ca14efc3cd5c3c03dd0ac30fcdc8e128e8e05ee7c5243393276", size = 89822 }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/0a/56d5c004c53303a740554d6792466c815726a0dd1ba8d83d07066adf5fb9/sparqlx-0.10.0.tar.gz", hash = "sha256:30fe27702ceb50e8725e3580646ba691bb1417f986f1e8078b6883fcaadaa77f", size = 94096 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dd/01/f83bbdc01615e4788c976cbfa0e860ef81826803c37487f0f04ab5df6451/sparqlx-0.8.0-py3-none-any.whl", hash = "sha256:ae3566a0644c7b46330264d1bc0fea0a0bab198089e6dad0afadef060e43e6ab", size = 28684 },
+    { url = "https://files.pythonhosted.org/packages/de/d4/58365dde361f395bd9f0f6a7f6e72c1b875aa12600cd8f2dcf92382f3587/sparqlx-0.10.0-py3-none-any.whl", hash = "sha256:ae0ab447633127402073bcfe089ebd38caf9efc9258aa82806addace8725dc71", size = 28013 },
 ]
 
 [[package]]
