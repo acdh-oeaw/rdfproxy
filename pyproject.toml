@@ -12,7 +12,7 @@ dependencies = [
     "pydantic>=2.9.2,<3",
     "pandas>=2.2.3,<3",
     "rdflib>=7.3.0",
-    "sparqlx>=0.8.0",
+    "sparqlx>=0.10.0",
 ]
 
 [dependency-groups]
