@@ -3,6 +3,7 @@
 from collections import UserString
 import datetime
 import decimal
+import threading
 from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 from xml.dom.minidom import Document
 
@@ -14,6 +15,7 @@ from rdflib.plugins.sparql.parserutils import CompValue
 from rdflib.xsd_datetime import Duration
 from rdfproxy.utils.exceptions import QueryParseException
 
+_PyparseLock = threading.Lock()
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
 
@@ -74,7 +76,8 @@ class ParsedSPARQL(Generic[_TQuery], UserString):
     @staticmethod
     def _get_parse_object(query: str) -> CompValue:
         try:
-            _parsed = parseQuery(query)
+            with _PyparseLock:
+                _parsed = parseQuery(query)
         except Exception as e:
             raise QueryParseException(e) from e
         else:
