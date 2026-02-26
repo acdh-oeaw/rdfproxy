@@ -3,7 +3,7 @@
 from collections import UserDict
 from collections.abc import Callable, Hashable, Iterator
 from functools import partial
-from typing import Annotated, Any, Generic, NoReturn, Self, TypeVar, get_args
+from typing import Annotated, Any, Generic, NoReturn, Self, TypeVar, get_args, overload
 
 from pydantic import BaseModel, ValidationError
 from pydantic.fields import FieldInfo
@@ -194,9 +194,6 @@ def validate_model_field(model: type[BaseModel], field: str, value: Any) -> Any:
     because Pydantic might coerce values (if not not in Strict Mode).
     """
 
-    if field not in model.model_fields:
-        raise ValueError(f"'{field}' does not denote a field of model '{model}'.")
-
     try:
         model(**{field: value})
     except ValidationError as e:
@@ -212,37 +209,32 @@ class CurryModel(Generic[_TModelInstance]):
 
     A CurryModel instance can be called with kwargs which are run against
     the respective model field validators and kept in a kwargs cache.
-    Once the model can be instantiated, calling a CurryModel object will
-    instantiate the Pydantic model and return the model instance.
 
-    If the eager flag is True (default), model field default values are
-    added to the cache automatically, which means that models can be instantiated
-    as soon possible, i.e. as soon as all /required/ field values are provided.
+    Calling a CurryModel object without passing kwargs triggers model instantiation;
+    i.e. cached kwargs are passed to the model and the model instance is returned.
     """
 
-    def __init__(
-        self, model: type[_TModelInstance], eager: bool = True, fail_fast: bool = True
-    ) -> None:
+    def __init__(self, model: type[_TModelInstance], fail_fast: bool = True) -> None:
         self.model = model
-        self.eager = eager
         self.fail_fast = fail_fast
 
-        self._kwargs_cache: dict = (
-            {k: v.default for k, v in model.model_fields.items() if not v.is_required()}
-            if eager
-            else {}
-        )
+        self._kwargs_cache: dict = {}
 
     def __repr__(self):  # pragma: no cover
         return f"CurryModel object {self._kwargs_cache}"
 
+    @overload
+    def __call__(self) -> _TModelInstance: ...  # pyright: ignore[reportOverlappingOverload]
+    @overload
+    def __call__(self, **kwargs) -> Self: ...
+
     def __call__(self, **kwargs: Any) -> Self | _TModelInstance:
-        for k, v in kwargs.items():
-            if self.fail_fast:
+        if self.fail_fast:
+            for k, v in kwargs.items():
                 validate_model_field(self.model, k, v)
 
         self._kwargs_cache.update(kwargs)
 
-        if self.model.model_fields.keys() == self._kwargs_cache.keys():
+        if not kwargs:
             return self.model(**self._kwargs_cache)
         return self
