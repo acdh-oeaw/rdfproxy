@@ -16,6 +16,10 @@ class PointStrict(Point):
     model_config = ConfigDict(strict=True)
 
 
+class PointExtraForbid(Point):
+    model_config = ConfigDict(extra="forbid")
+
+
 class ValidateModelFieldParameter(NamedTuple):
     model: type[BaseModel]
     kwargs: dict
@@ -41,7 +45,7 @@ fail_params = [
         model=PointStrict, kwargs={"x": "1"}, exception=ValidationError
     ),
     ValidateModelFieldParameter(
-        model=PointStrict, kwargs={"z": 3}, exception=ValueError
+        model=PointExtraForbid, kwargs={"z": 3}, exception=ValidationError
     ),
 ]
 
