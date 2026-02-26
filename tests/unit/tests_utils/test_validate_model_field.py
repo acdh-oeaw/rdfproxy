@@ -2,7 +2,14 @@
 
 from typing import NamedTuple
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import (
+    AliasChoices,
+    AliasPath,
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+)
 import pytest
 from rdfproxy.utils.utils import validate_model_field
 
@@ -26,12 +33,62 @@ class ValidateModelFieldParameter(NamedTuple):
     exception: type[Exception] | None = None
 
 
+def snake_to_pascal(value: str) -> str:
+    return "".join(v.capitalize() for v in value.split("_"))
+
+
+class User(BaseModel):
+    """Model for testing field validation with Pydantic aliasing.
+
+    The model implements an alias generators, alias paths and alias choices -
+    which should cover the Pydantic validation aliasing machinery.
+    """
+
+    model_config = ConfigDict(
+        alias_generator=snake_to_pascal,
+        extra="forbid",
+    )
+
+    id: int = Field(alias="user_id")
+
+    display_name: str = Field(
+        validation_alias=AliasChoices("displayName", "name", "label"),
+    )
+
+    created_at: str  # alias generator
+
+    city: str = Field(
+        validation_alias=AliasChoices(
+            AliasPath("address", "city"),
+            AliasPath("profile", "location", "city"),
+        ),
+    )
+
+
 pass_params = [
     ValidateModelFieldParameter(model=Point, kwargs={"x": 1}),
     ValidateModelFieldParameter(model=Point, kwargs={"x": 1.0}),
     ValidateModelFieldParameter(model=Point, kwargs={"x": "1"}),
     ValidateModelFieldParameter(model=Point, kwargs={"y": 2}),
     ValidateModelFieldParameter(model=Point, kwargs={"x": 1, "y": 2}),
+    ValidateModelFieldParameter(
+        model=User,
+        kwargs={
+            "user_id": 1,
+            "displayName": "Muzi",
+            "CreatedAt": "some time",
+            "address": {"city": "MuzTown"},
+        },
+    ),
+    ValidateModelFieldParameter(
+        model=User,
+        kwargs={
+            "user_id": 1,
+            "name": "Muzi",
+            "CreatedAt": "some time",
+            "profile": {"location": {"city": "MuzTown"}},
+        },
+    ),
 ]
 
 fail_params = [
@@ -46,6 +103,26 @@ fail_params = [
     ),
     ValidateModelFieldParameter(
         model=PointExtraForbid, kwargs={"z": 3}, exception=ValidationError
+    ),
+    ValidateModelFieldParameter(
+        model=User,
+        kwargs={
+            "user_id": 1,
+            "displayName": "Muzi",
+            "created_at": "some time",  # does not respect aliasing generator
+            "address": {"city": "MuzTown"},
+        },
+        exception=ValidationError,
+    ),
+    ValidateModelFieldParameter(
+        model=User,
+        kwargs={
+            "user_id": 1,
+            "display_name": "Muzi",  # does not respect AliasChoices
+            "CreatedAt": "some time",
+            "profile": {"location": {"city": "MuzTown"}},
+        },
+        exception=ValidationError,
     ),
 ]
 
