@@ -2,19 +2,19 @@
 
 import logging
 import math
-from typing import Generic
 import warnings
+from typing import Generic
 
+from graphty import ModelMaterializer
 from rdflib import Graph
+from sparqlx import SPARQLWrapper
+
 from rdfproxy.constructor import _ItemQueryConstructor, _PageQueryConstructor
-from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.checkers.item_checker import check_item_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
-from sparqlx import SPARQLWrapper
-
 
 logger = logging.getLogger(__name__)
 
@@ -79,10 +79,10 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         logger.debug("Running item query: \n%s", item_query)
 
         item_query_bindings, *_ = self._sparqlwrapper.queries(item_query, convert=True)
-        mapper = _ModelBindingsMapper(self._model, item_query_bindings)
+        materializer = ModelMaterializer(model=self._model, data=item_query_bindings)
 
         item_model = check_item_model(
-            models=mapper.get_models(), model_type=self._model, key=key
+            models=list(materializer.generate_models()), model_type=self._model, key=key
         )
 
         return item_model
@@ -111,8 +111,8 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             items_query, count_query, convert=True
         )
 
-        mapper = _ModelBindingsMapper(self._model, items_query_bindings)
-        items: list[_TModelInstance] = mapper.get_models()
+        materializer = ModelMaterializer(model=self._model, data=items_query_bindings)
+        items: list[_TModelInstance] = list(materializer.generate_models())
 
         total: int = count_query_bindings[0]["cnt"]  # type: ignore
         pages: int = math.ceil(total / query_parameters.size)
