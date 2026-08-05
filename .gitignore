@@ -4,8 +4,6 @@
 
 .envrc
 .direnv
-flake.nix
-flake.lock
 
 *scratch.py
 notes.org
