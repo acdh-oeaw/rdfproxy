@@ -56,9 +56,6 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         self, *, xsd_type: str | None = None, lang_tag: str | None = None, **key
     ) -> _TModelInstance:
         """Run a query against a target and return a model instance."""
-        logger.info(
-            "Running SPARQLModelAdapter.get_item against endpoint '%s'", self._target
-        )
 
         check_key(key=key, query=self._query, model=self._model)
 
@@ -70,8 +67,6 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
             model=self._model,
         )
         item_query = query_constructor.get_item_query()
-
-        logger.debug("Running item query: \n%s", item_query)
 
         item_query_bindings, *_ = self._sparqlwrapper.queries(item_query, convert=True)
         mapper = _ModelBindingsMapper(self._model, item_query_bindings)
@@ -86,10 +81,6 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         self, query_parameters: QueryParameters = QueryParameters()
     ) -> Page[_TModelInstance]:
         """Run a query against a target and return a Page model object."""
-        logger.info(
-            "Running SPARQLModelAdapter.get_page against endpoint '%s'", self._target
-        )
-
         query_constructor = _PageQueryConstructor(
             query=self._query,
             query_parameters=query_parameters,
@@ -98,9 +89,6 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         count_query = query_constructor.get_count_query()
         items_query = query_constructor.get_items_query()
-
-        logger.debug("Running items query: \n%s", items_query)
-        logger.debug("Running count query: \n%s", count_query)
 
         items_query_bindings, count_query_bindings = self._sparqlwrapper.queries(
             items_query, count_query, convert=True
