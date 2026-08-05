@@ -1,6 +1,8 @@
+import logging
 from typing import Any
 
 from rdflib import Literal
+
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.models import QueryParameters
 from rdfproxy.utils.sparql_utils import (
@@ -10,12 +12,17 @@ from rdfproxy.utils.sparql_utils import (
     remove_sparql_prefixes,
     replace_query_select_clause,
 )
+from rdfproxy.utils.structlog import StructuredMessage
 from rdfproxy.utils.utils import (
     FieldsBindingsMap,
     ModelSPARQLMap,
-    QueryConstructorComponent as component,
     compose_left,
 )
+from rdfproxy.utils.utils import (
+    QueryConstructorComponent as component,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class _ItemQueryConstructor:
@@ -43,9 +50,22 @@ class _ItemQueryConstructor:
     def get_item_query(self) -> str:
         """Construct a SPARQL item query for use in rdfproxy.SPARQLModelAdapter."""
         detail_filter_clause: str = self._get_item_filter_clause()
-        return inject_into_query(
+        item_query: str = inject_into_query(
             self.query, detail_filter_clause, inject_into_pattern=False
         )
+
+        log_msg = StructuredMessage(
+            "Running _ItemQueryConstructor.get_item_query.",
+            key=self.key,
+            xsd_type=self.xsd_type,
+            lang_tag=self.lang_tag,
+            query=self.query,
+            bindings_map=self.bindings_map,
+            item_query=item_query,
+        )
+        logger.debug(log_msg)
+
+        return item_query
 
     def _get_item_filter_clause(self) -> str:
         """Compute a FILTER clause for SPARQL item query construction."""
@@ -106,9 +126,27 @@ class _PageQueryConstructor:
 
     def get_items_query(self) -> str:
         """Construct a SPARQL items query for use in rdfproxy.SPARQLModelAdapter."""
-        if self.group_by is None:
-            return self._get_ungrouped_items_query()
-        return self._get_grouped_items_query()
+
+        items_query: str = (
+            self._get_ungrouped_items_query()
+            if self.group_by is None
+            else self._get_grouped_items_query()
+        )
+
+        log_msg = StructuredMessage(
+            "Running _PageQueryConstructor.get_items_query.",
+            query=self.query,
+            query_parameters=self.query_parameters,
+            model=self.model,
+            bindings_map=self.bindings_map,
+            orderable_bindings_map=self.orderable_bindings_map,
+            group_by=self.group_by,
+            order_by=self.order_by,
+            items_query=items_query,
+        )
+        logger.debug(log_msg)
+
+        return items_query
 
     def get_count_query(self) -> str:
         """Construct a SPARQL count query for use in rdfproxy.SPARQLModelAdapter"""
@@ -117,7 +155,17 @@ class _PageQueryConstructor:
         else:
             select_clause = f"select (count(distinct ?{self.group_by}) as ?cnt)"
 
-        return replace_query_select_clause(self.query, select_clause)
+        count_query: str = replace_query_select_clause(self.query, select_clause)
+
+        log_msg = StructuredMessage(
+            "Running _PageQueryConstructor.get_count_query.",
+            query=self.query,
+            group_by=self.group_by,
+            count_query=count_query,
+        )
+        logger.debug(log_msg)
+
+        return count_query
 
     @staticmethod
     def _calculate_offset(page: int, size: int) -> int:
