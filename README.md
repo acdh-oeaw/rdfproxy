@@ -50,7 +50,14 @@ from typing import Annotated
 
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
-from rdfproxy import ConfigDict, Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
+from rdfproxy import (
+    ConfigDict,
+    Page,
+    QueryParameters,
+    SPARQLBinding,
+    SPARQLModelAdapter,
+)
+
 
 class Work(BaseModel):
     model_config = ConfigDict(group_by="name")
@@ -81,6 +88,7 @@ The `SPARQLModelAdapter.get_page` method runs the query and constructs a `Page` 
 
 ```python
 app = FastAPI()
+
 
 @app.get("/")
 def base_route(query_parameters: Annotated[QueryParameters, Query()]) -> Page[Author]:
