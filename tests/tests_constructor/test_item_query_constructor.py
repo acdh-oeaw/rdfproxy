@@ -2,9 +2,10 @@
 
 from typing import Annotated, Any, Generic, NamedTuple
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
 from rdflib import XSD
+
 from rdfproxy.constructor import _ItemQueryConstructor
 from rdfproxy.utils._types import SPARQLBinding, _TModelInstance
 

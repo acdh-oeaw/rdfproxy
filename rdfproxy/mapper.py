@@ -1,15 +1,16 @@
 """ModelBindingsMapper: Functionality for mapping SPARQL bindings to a Pydantic model."""
 
 import abc
+import warnings
 from collections.abc import Iterable, Iterator
 from itertools import chain
 from types import UnionType
 from typing import Any, cast, get_args
-import warnings
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy, SeriesGroupBy
 from pydantic import BaseModel
+
 from rdfproxy.utils._types import (
     ModelBoolPredicate,
     _TModelInstance,
@@ -25,7 +26,7 @@ from rdfproxy.utils.type_utils import (
     _is_pydantic_model_union_static_type,
     _is_sparql_bound_field_type,
 )
-from rdfproxy.utils.utils import CurryModel, FieldsBindingsMap, _SENTINEL
+from rdfproxy.utils.utils import _SENTINEL, CurryModel, FieldsBindingsMap
 
 
 class _ModelConstructor(abc.ABC):

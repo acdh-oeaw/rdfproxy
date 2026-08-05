@@ -6,12 +6,12 @@ More isolated/abstract test cases are implemented in test_model_bindings_mapper_
 
 from typing import Annotated
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy import ConfigDict, SPARQLBinding
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.utils._types import ModelBindingsMapperParameter
-
 
 bindings_all_none = [
     {

@@ -4,8 +4,9 @@ Currently, the tests contain only two cases: A case from the original
 mapper tests that happens to fail the check and the example from issue #243.
 """
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.utils.exceptions import InconsistentGroupingException

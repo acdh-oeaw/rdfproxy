@@ -5,11 +5,11 @@ import decimal
 from typing import Annotated, Optional, Union
 from xml.dom.minidom import Document
 
-from pydantic import AnyHttpUrl, AnyUrl
-from pydantic import BaseModel, create_model
 import pytest
+from pydantic import AnyHttpUrl, AnyUrl, BaseModel, create_model
 from rdflib import BNode, Literal, URIRef
 from rdflib.xsd_datetime import Duration
+
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
     _is_list_static_type,

@@ -1,12 +1,13 @@
 """Functionality for dynamic SPARQL query modifcation."""
 
-from itertools import chain
 import re
+from itertools import chain
 from typing import overload
 
 from rdflib import Variable
 from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue, ParseResults
+
 from rdfproxy.utils.exceptions import QueryConstructionException
 
 

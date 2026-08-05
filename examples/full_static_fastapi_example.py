@@ -2,9 +2,9 @@
 
 from typing import Annotated
 
+from fastapi import FastAPI, Query
 from pydantic import BaseModel
 
-from fastapi import FastAPI, Query
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -12,7 +12,6 @@ from rdfproxy import (
     SPARQLBinding,
     SPARQLModelAdapter,
 )
-
 
 query = """
 select *

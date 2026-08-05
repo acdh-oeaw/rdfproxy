@@ -1,7 +1,8 @@
 """Pytest entry point for _ModelBindingsMapper tests for grouping by None-valued fields."""
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.utils._types import ModelBindingsMapperParameter

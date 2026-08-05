@@ -1,7 +1,7 @@
 """Pytest fixture definitions."""
 
-from collections.abc import Iterator
 import time
+from collections.abc import Iterator
 from typing import Protocol
 
 import httpx

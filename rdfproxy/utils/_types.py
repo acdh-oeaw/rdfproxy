@@ -1,19 +1,20 @@
 """Type definitions for rdfproxy."""
 
-from collections import UserString
 import datetime
 import decimal
+from collections import UserString
 from typing import Generic, Protocol, TypeAlias, TypeVar, runtime_checkable
 from xml.dom.minidom import Document
 
-from pydantic import AnyUrl, BaseModel, ConfigDict as PydanticConfigDict
+from pydantic import AnyUrl, BaseModel
+from pydantic import ConfigDict as PydanticConfigDict
 from rdflib import BNode, Literal, URIRef
 from rdflib.compat import long_type
 from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue
 from rdflib.xsd_datetime import Duration
-from rdfproxy.utils.exceptions import QueryParseException
 
+from rdfproxy.utils.exceptions import QueryParseException
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
 
@@ -40,7 +41,6 @@ class SPARQLBinding(str):
     to use the "title" SPARQL binding (not the "name" binding) to populate the Work.name field.
     """
 
-    ...
 
 
 @runtime_checkable

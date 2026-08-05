@@ -4,6 +4,7 @@ from collections.abc import Callable
 from typing import Any, TypeAlias, get_args
 
 from pydantic import BaseModel
+
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.type_utils import (
     _is_list_pydantic_model_static_type,
@@ -11,7 +12,6 @@ from rdfproxy.utils.type_utils import (
     _is_pydantic_model_union_static_type,
 )
 from rdfproxy.utils.utils import identity
-
 
 _TModelHook: TypeAlias = Callable[[type[_TModelInstance]], Any]
 

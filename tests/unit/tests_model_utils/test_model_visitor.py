@@ -3,8 +3,9 @@
 from collections import UserList
 from typing import Annotated
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy.utils._types import SPARQLBinding
 from rdfproxy.utils.model_utils import ModelVisitor
 

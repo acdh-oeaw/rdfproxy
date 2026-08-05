@@ -1,6 +1,7 @@
 """Functionality for performing RDFProxy-compliance checks on Pydantic models."""
 
 from pydantic import BaseModel
+
 from rdfproxy.utils.checkers._model_checks import (
     _check_enforce_grouping_consistency_config,
     _check_group_by_config,

@@ -3,6 +3,7 @@
 from typing import Annotated
 
 from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from rdfproxy.utils._types import SPARQLBinding
 

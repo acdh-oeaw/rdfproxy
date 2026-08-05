@@ -30,7 +30,6 @@ from tests.tests_mapper.params.models.optional_fields_models import (
 )
 from tests.utils._types import ModelBindingsMapperParameter
 
-
 model_validator_parameters = [
     ModelBindingsMapperParameter(
         model=PointNotOrigin,

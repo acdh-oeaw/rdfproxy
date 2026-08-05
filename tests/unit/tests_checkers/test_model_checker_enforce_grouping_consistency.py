@@ -1,7 +1,8 @@
 """Pytest entry point for enforce_grouping_consistency model_config setting."""
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from rdfproxy.utils.checkers.model_checker import check_model
 

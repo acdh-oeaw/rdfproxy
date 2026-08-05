@@ -1,8 +1,8 @@
 """Parameters for testing ModelBindingsMapper with the model_bool config option for model unions."""
 
-from typing import Optional, Union
 
 from pydantic import BaseModel
+
 from rdfproxy.utils._types import ConfigDict
 from tests.utils._types import ModelBindingsMapperParameter
 
@@ -49,11 +49,11 @@ class Model1(BaseModel):
 
 
 class Model2(BaseModel):
-    nested: Optional[Nested1] = None
+    nested: Nested1 | None = None
 
 
 class Model3(BaseModel):
-    nested: Union[Nested1, None] = None
+    nested: Nested1 | None = None
 
 
 class Model4(BaseModel):
@@ -61,11 +61,11 @@ class Model4(BaseModel):
 
 
 class Model5(BaseModel):
-    nested: Optional[Nested2] = None
+    nested: Nested2 | None = None
 
 
 class Model6(BaseModel):
-    nested: Union[Nested2, None] = None
+    nested: Nested2 | None = None
 
 
 class Model7(BaseModel):
@@ -73,11 +73,11 @@ class Model7(BaseModel):
 
 
 class Model8(BaseModel):
-    nested: Optional[Nested3] = None
+    nested: Nested3 | None = None
 
 
 class Model9(BaseModel):
-    nested: Union[Nested3, None] = None
+    nested: Nested3 | None = None
 
 
 class Model10(BaseModel):
@@ -85,11 +85,11 @@ class Model10(BaseModel):
 
 
 class Model11(BaseModel):
-    nested: Optional[Nested4] = None
+    nested: Nested4 | None = None
 
 
 class Model12(BaseModel):
-    nested: Union[Nested4, None] = None
+    nested: Nested4 | None = None
 
 
 class Model13(BaseModel):
@@ -259,7 +259,7 @@ class GroupedModel5(BaseModel):
 
     x: int
     y: list[int]
-    model_union: Union[GroupedNested3, None] = None
+    model_union: GroupedNested3 | None = None
     model_aggregation: list[GroupedNested3]
 
 
@@ -268,7 +268,7 @@ class GroupedModel6(BaseModel):
 
     x: int
     y: list[int]
-    model_union: Optional[GroupedNested3] = None
+    model_union: GroupedNested3 | None = None
     model_aggregation: list[GroupedNested3]
 
 
@@ -287,7 +287,7 @@ class GroupedModel7(BaseModel):
 
     x: int
     y: list[int]
-    model_union: Optional[GroupedNested5] = None
+    model_union: GroupedNested5 | None = None
     model_aggregation: list[GroupedNested5]
 
 
@@ -303,7 +303,7 @@ class GroupedModel8(BaseModel):
 
     x: int
     y: list[int]
-    model_union: Optional[GroupedNested6] = None
+    model_union: GroupedNested6 | None = None
     model_aggregation: list[GroupedNested6]
 
 

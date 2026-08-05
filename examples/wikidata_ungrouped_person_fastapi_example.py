@@ -4,8 +4,8 @@ from typing import Annotated
 
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
-from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
 
+from rdfproxy import Page, QueryParameters, SPARQLBinding, SPARQLModelAdapter
 
 query = """
 SELECT ?name ?title

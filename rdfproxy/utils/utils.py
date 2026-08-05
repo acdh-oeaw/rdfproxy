@@ -7,13 +7,13 @@ from typing import Annotated, Any, Generic, NoReturn, Self, TypeVar, get_args
 
 from pydantic import BaseModel, ValidationError
 from pydantic.fields import FieldInfo
+
 from rdfproxy.utils._types import SPARQLBinding, _TModelInstance
 from rdfproxy.utils.type_utils import (
     _is_pydantic_model_static_type,
     _is_pydantic_model_union_static_type,
     _is_sparql_bound_field_type,
 )
-
 
 _SENTINEL = object()
 T = TypeVar("T")

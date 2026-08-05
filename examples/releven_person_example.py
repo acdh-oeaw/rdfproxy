@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import FastAPI, Query
 from pydantic import AnyUrl, BaseModel
+
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -9,7 +10,6 @@ from rdfproxy import (
     SPARQLBinding,
     SPARQLModelAdapter,
 )
-
 
 query = """
 PREFIX aaao: <https://ontology.swissartresearch.net/aaao/>
