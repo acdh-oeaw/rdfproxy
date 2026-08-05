@@ -42,7 +42,6 @@ class SPARQLBinding(str):
     """
 
 
-
 @runtime_checkable
 class ModelBoolPredicate(Protocol):
     """Type for model_bool predicate functions."""

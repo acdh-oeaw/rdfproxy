@@ -1,6 +1,5 @@
 """Parameters for testing ModelBindingsMapper with the model_bool config option for model unions."""
 
-
 from pydantic import BaseModel
 
 from rdfproxy.utils._types import ConfigDict
