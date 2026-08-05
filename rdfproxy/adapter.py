@@ -2,10 +2,12 @@
 
 import logging
 import math
-from typing import Generic
 import warnings
+from typing import Generic
 
 from rdflib import Graph
+from sparqlx import SPARQLWrapper
+
 from rdfproxy.constructor import _ItemQueryConstructor, _PageQueryConstructor
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.utils._types import _TModelInstance
@@ -13,8 +15,6 @@ from rdfproxy.utils.checkers.item_checker import check_item_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
-from sparqlx import SPARQLWrapper
-
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +51,6 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         self._sparqlwrapper = SPARQLWrapper(
             sparql_endpoint=self._target, aclient_config=self._aclient_config
         )
-
-        logger.info("Initialized SPARQLModelAdapter.")
-        logger.debug("Target: %s", self._target)
-        logger.debug("Model: %s", self._model)
-        logger.debug("Query: \n%s", self._query)
 
     def get_item(
         self, *, xsd_type: str | None = None, lang_tag: str | None = None, **key
