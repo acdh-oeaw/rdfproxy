@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.10.1...v0.11.0) (2026-08-05)
+
+
+### Features
+
+* add structured logging utility ([34f3357](https://github.com/acdh-oeaw/rdfproxy/commit/34f3357d45a01287c195cecb433c2566bbd66280))
+* **logging:** add structured logging to the constructor module ([38f743b](https://github.com/acdh-oeaw/rdfproxy/commit/38f743b0ea27cbe46ad5d556a65b85ff6b4c6367))
+
 ## [0.10.0](https://github.com/acdh-oeaw/rdfproxy/compare/v0.9.0...v0.10.0) (2026-01-28)
 
 
