@@ -3,12 +3,12 @@
 Note: The 'a' field in nested models is typed int | None; the union is only necessary for None grouping tests.
 """
 
-from pydantic import BaseModel, Field
 import pytest
+from pydantic import BaseModel, Field
+
 from rdfproxy import ConfigDict
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.utils._types import ModelBindingsMapperParameter
-
 
 bindings = [
     {"x": 1, "a": 2, "b": 5},

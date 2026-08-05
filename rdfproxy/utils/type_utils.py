@@ -5,6 +5,7 @@ import typing
 from typing import Annotated, Any, TypeGuard, get_args, get_origin
 
 from pydantic import BaseModel
+
 from rdfproxy.utils._types import _TSPARQLBoundField
 
 

@@ -3,6 +3,7 @@
 from typing import NamedTuple
 
 import pytest
+
 from rdfproxy.utils.sparql_utils import inject_into_query
 
 

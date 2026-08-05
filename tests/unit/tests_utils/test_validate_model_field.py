@@ -2,8 +2,9 @@
 
 from typing import NamedTuple
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
 import pytest
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
 from rdfproxy.utils.utils import validate_model_field
 
 

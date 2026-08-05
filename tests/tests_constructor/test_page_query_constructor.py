@@ -3,8 +3,8 @@
 from typing import NamedTuple
 
 import pytest
-
 from pydantic import BaseModel
+
 from rdfproxy.constructor import _PageQueryConstructor
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.models import QueryParameters

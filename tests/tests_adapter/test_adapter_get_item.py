@@ -2,8 +2,9 @@
 
 from typing import Annotated, Any, NamedTuple
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from rdfproxy.adapter import SPARQLModelAdapter
 from rdfproxy.utils._types import SPARQLBinding

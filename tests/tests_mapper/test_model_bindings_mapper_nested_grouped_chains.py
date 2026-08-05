@@ -1,12 +1,11 @@
 """Pytest entry point for alternating chains of nested ungrouped/grouped models."""
 
 import pytest
-
 from pydantic import BaseModel, Field
+
 from rdfproxy import ConfigDict
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.utils._types import ModelBindingsMapperParameter
-
 
 bindings = [
     {

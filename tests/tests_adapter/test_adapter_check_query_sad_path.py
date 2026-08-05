@@ -1,7 +1,8 @@
 """Sad path tests for SPARQLModelAdapter with invalid queries"""
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy.adapter import SPARQLModelAdapter
 from rdfproxy.utils.exceptions import QueryParseException, UnsupportedQueryException
 from tests.unit.tests_checkers.test_query_checker import (

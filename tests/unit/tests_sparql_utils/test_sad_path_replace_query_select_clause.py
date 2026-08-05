@@ -4,7 +4,6 @@ import pytest
 
 from rdfproxy.utils.sparql_utils import replace_query_select_clause
 
-
 fail_queries: list[str] = [
     "select?s where {?s ?p ?o .}",
     "select ?swhere {?s ?p ?o .}",

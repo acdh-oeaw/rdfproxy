@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy.mapper import _ModelBindingsMapper
 from rdfproxy.utils._types import ConfigDict
 from rdfproxy.utils.exceptions import (

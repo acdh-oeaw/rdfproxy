@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 from rdfproxy.utils._types import ModelBoolPredicate, _TModelBoolValue
 
 

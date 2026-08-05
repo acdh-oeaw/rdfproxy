@@ -1,11 +1,11 @@
 """Pytest entry point for rdfproxy.utils.utils.ModelSPARQLMap tests."""
 
-from typing import NamedTuple
-from typing import Annotated
+from typing import Annotated, NamedTuple
 
-from pydantic import AnyHttpUrl, AnyUrl, BaseModel
 import pytest
+from pydantic import AnyHttpUrl, AnyUrl, BaseModel
 from rdflib import URIRef
+
 from rdfproxy import ConfigDict, SPARQLBinding
 from rdfproxy.utils.utils import ModelSPARQLMap
 

@@ -1,7 +1,8 @@
 """Pytest entry point for running UNGROUPED nested grouped model tests."""
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from rdfproxy.mapper import _ModelBindingsMapper
 from tests.utils._types import ModelBindingsMapperParameter

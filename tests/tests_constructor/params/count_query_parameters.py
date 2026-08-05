@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 from rdfproxy import ConfigDict
 from tests.utils._types import CountQueryParameter
 

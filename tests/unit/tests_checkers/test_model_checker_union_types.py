@@ -1,9 +1,10 @@
 """Unit tests for model union type field checks."""
 
-from typing import Any, Optional, Union
+from typing import Any
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.exceptions import ModelFieldException
 
@@ -37,15 +38,15 @@ class InvalidModelUnionField5(BaseModel):
 
 
 class InvalidModelUnionField6(BaseModel):
-    nested: Optional[Nested]
+    nested: Nested | None
 
 
 class InvalidModelUnionField7(BaseModel):
-    nested: Union[Nested, None]
+    nested: Nested | None
 
 
 class InvalidModelUnionField8(BaseModel):
-    nested: Union[Nested, str, None]
+    nested: Nested | str | None
 
 
 class InvalidModelUnionField9(BaseModel):
@@ -89,19 +90,19 @@ class ValidModelUnionField5(BaseModel):
 
 
 class ValidModelUnionField6(BaseModel):
-    nested: Optional[Nested] = None
+    nested: Nested | None = None
 
 
 class ValidModelUnionField7(BaseModel):
-    nested: Union[Nested, None] = None
+    nested: Nested | None = None
 
 
 class ValidModelUnionField8(BaseModel):
-    nested: Union[Nested, str] = "default"
+    nested: Nested | str = "default"
 
 
 class ValidModelUnionField9(BaseModel):
-    nested: Union[Nested, None, str] = ""
+    nested: Nested | None | str = ""
 
 
 valid_model_unions = [

@@ -4,6 +4,7 @@ from enum import StrEnum
 from typing import Any, Generic
 
 from pydantic import BaseModel, Field, create_model, model_validator
+
 from rdfproxy.utils._types import _TModelInstance
 from rdfproxy.utils.utils import ModelSPARQLMap
 

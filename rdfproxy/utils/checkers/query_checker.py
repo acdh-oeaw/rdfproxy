@@ -6,7 +6,6 @@ from rdfproxy.utils._types import ParsedSPARQL, _TQuery
 from rdfproxy.utils.exceptions import UnsupportedQueryException
 from rdfproxy.utils.utils import compose_left
 
-
 logger = logging.getLogger(__name__)
 
 

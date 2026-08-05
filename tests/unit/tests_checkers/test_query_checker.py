@@ -1,9 +1,9 @@
 """Unit test for rdfproxy.utils.checkers.query_checker."""
 
 import pytest
+
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.exceptions import QueryParseException, UnsupportedQueryException
-
 
 fail_queries_parse_exception: list[str] = [
     "select * where {?s ?p ?o ",

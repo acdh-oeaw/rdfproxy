@@ -4,8 +4,8 @@ from itertools import chain
 from typing import Annotated, Any, NamedTuple
 
 import pytest
-
 from pydantic import BaseModel
+
 from rdfproxy import (
     ConfigDict,
     Page,
@@ -95,8 +95,8 @@ binding_adapter_parameters = [
         query_parameters={"page": 1, "size": 2},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
-                BindingParent(**{"parent": "y", "children": []}),
+                BindingParent(parent="x", children=[{"name": "foo"}]),
+                BindingParent(parent="y", children=[]),
             ],
             page=1,
             size=2,
@@ -109,7 +109,7 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 2, "size": 2},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "z", "children": []})],
+            items=[BindingParent(parent="z", children=[])],
             page=2,
             size=2,
             total=3,
@@ -121,7 +121,7 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 1, "size": 1},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "x", "children": [{"name": "foo"}]})],
+            items=[BindingParent(parent="x", children=[{"name": "foo"}])],
             page=1,
             size=1,
             total=3,
@@ -133,7 +133,7 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 2, "size": 1},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "y", "children": []})],
+            items=[BindingParent(parent="y", children=[])],
             page=2,
             size=1,
             total=3,
@@ -145,7 +145,7 @@ binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 3, "size": 1},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "z", "children": []})],
+            items=[BindingParent(parent="z", children=[])],
             page=3,
             size=1,
             total=3,
@@ -158,9 +158,9 @@ binding_adapter_parameters = [
         query_parameters={},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
-                BindingParent(**{"parent": "y", "children": []}),
-                BindingParent(**{"parent": "z", "children": []}),
+                BindingParent(parent="x", children=[{"name": "foo"}]),
+                BindingParent(parent="y", children=[]),
+                BindingParent(parent="z", children=[]),
             ],
             page=1,
             size=100,
@@ -177,8 +177,8 @@ adapter_parameters = [
         query_parameters={"page": 1, "size": 2},
         expected=Page[Parent](
             items=[
-                Parent(**{"parent": "x", "children": [{"name": "foo"}]}),
-                Parent(**{"parent": "y", "children": []}),
+                Parent(parent="x", children=[{"name": "foo"}]),
+                Parent(parent="y", children=[]),
             ],
             page=1,
             size=2,
@@ -191,7 +191,7 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 2, "size": 2},
         expected=Page[Parent](
-            items=[Parent(**{"parent": "z", "children": []})],
+            items=[Parent(parent="z", children=[])],
             page=2,
             size=2,
             total=3,
@@ -203,7 +203,7 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 1, "size": 1},
         expected=Page[Parent](
-            items=[Parent(**{"parent": "x", "children": [{"name": "foo"}]})],
+            items=[Parent(parent="x", children=[{"name": "foo"}])],
             page=1,
             size=1,
             total=3,
@@ -215,7 +215,7 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 2, "size": 1},
         expected=Page[Parent](
-            items=[Parent(**{"parent": "y", "children": []})],
+            items=[Parent(parent="y", children=[])],
             page=2,
             size=1,
             total=3,
@@ -227,7 +227,7 @@ adapter_parameters = [
         query=query,
         query_parameters={"page": 3, "size": 1},
         expected=Page[Parent](
-            items=[Parent(**{"parent": "z", "children": []})],
+            items=[Parent(parent="z", children=[])],
             page=3,
             size=1,
             total=3,
@@ -240,9 +240,9 @@ adapter_parameters = [
         query_parameters={},
         expected=Page[Parent](
             items=[
-                Parent(**{"parent": "x", "children": [{"name": "foo"}]}),
-                Parent(**{"parent": "y", "children": []}),
-                Parent(**{"parent": "z", "children": []}),
+                Parent(parent="x", children=[{"name": "foo"}]),
+                Parent(parent="y", children=[]),
+                Parent(parent="z", children=[]),
             ],
             page=1,
             size=100,
@@ -258,7 +258,7 @@ ungrouped_adapter_parameters = [
         query=query,
         query_parameters={"page": 1, "size": 100},
         expected=Page[Child](
-            items=[Child(**{"name": "foo"})], page=1, size=100, total=1, pages=1
+            items=[Child(name="foo")], page=1, size=100, total=1, pages=1
         ),
     ),
     AdapterParameter(
@@ -266,7 +266,7 @@ ungrouped_adapter_parameters = [
         query=query,
         query_parameters={},
         expected=Page[Child](
-            items=[Child(**{"name": "foo"})], page=1, size=100, total=1, pages=1
+            items=[Child(name="foo")], page=1, size=100, total=1, pages=1
         ),
     ),
 ]
@@ -313,9 +313,9 @@ ordered_binding_adapter_parameters = [
         query_parameters={"order_by": "parent"},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
-                BindingParent(**{"parent": "y", "children": []}),
-                BindingParent(**{"parent": "z", "children": []}),
+                BindingParent(parent="x", children=[{"name": "foo"}]),
+                BindingParent(parent="y", children=[]),
+                BindingParent(parent="z", children=[]),
             ],
             page=1,
             size=100,
@@ -329,9 +329,9 @@ ordered_binding_adapter_parameters = [
         query_parameters={"order_by": "parent", "desc": False},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
-                BindingParent(**{"parent": "y", "children": []}),
-                BindingParent(**{"parent": "z", "children": []}),
+                BindingParent(parent="x", children=[{"name": "foo"}]),
+                BindingParent(parent="y", children=[]),
+                BindingParent(parent="z", children=[]),
             ],
             page=1,
             size=100,
@@ -345,9 +345,9 @@ ordered_binding_adapter_parameters = [
         query_parameters={"order_by": "parent", "desc": True},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "z", "children": []}),
-                BindingParent(**{"parent": "y", "children": []}),
-                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                BindingParent(parent="z", children=[]),
+                BindingParent(parent="y", children=[]),
+                BindingParent(parent="x", children=[{"name": "foo"}]),
             ],
             page=1,
             size=100,
@@ -361,8 +361,8 @@ ordered_binding_adapter_parameters = [
         query_parameters={"page": 1, "size": 2, "order_by": "parent", "desc": True},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "z", "children": []}),
-                BindingParent(**{"parent": "y", "children": []}),
+                BindingParent(parent="z", children=[]),
+                BindingParent(parent="y", children=[]),
             ],
             page=1,
             size=2,
@@ -376,7 +376,7 @@ ordered_binding_adapter_parameters = [
         query_parameters={"page": 2, "size": 2, "order_by": "parent", "desc": True},
         expected=Page[BindingParent](
             items=[
-                BindingParent(**{"parent": "x", "children": [{"name": "foo"}]}),
+                BindingParent(parent="x", children=[{"name": "foo"}]),
             ],
             page=2,
             size=2,
@@ -389,7 +389,7 @@ ordered_binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 1, "size": 1, "order_by": "parent", "desc": True},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "z", "children": []})],
+            items=[BindingParent(parent="z", children=[])],
             page=1,
             size=1,
             total=3,
@@ -401,7 +401,7 @@ ordered_binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 2, "size": 1, "desc": True, "order_by": "parent"},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "y", "children": []})],
+            items=[BindingParent(parent="y", children=[])],
             page=2,
             size=1,
             total=3,
@@ -413,7 +413,7 @@ ordered_binding_adapter_parameters = [
         query=binding_query,
         query_parameters={"page": 3, "size": 1, "order_by": "parent", "desc": True},
         expected=Page[BindingParent](
-            items=[BindingParent(**{"parent": "x", "children": [{"name": "foo"}]})],
+            items=[BindingParent(parent="x", children=[{"name": "foo"}])],
             page=3,
             size=1,
             total=3,

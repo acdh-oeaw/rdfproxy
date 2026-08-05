@@ -4,9 +4,9 @@ The test cover all cases discussed in https://github.com/acdh-oeaw/rdfproxy/issu
 """
 
 from pydantic import BaseModel, Field, create_model
+
 from rdfproxy import ConfigDict
 from tests.utils._types import ModelBindingsMapperParameter
-
 
 bindings = [
     {"parent": "x", "child": "c", "name": "foo"},

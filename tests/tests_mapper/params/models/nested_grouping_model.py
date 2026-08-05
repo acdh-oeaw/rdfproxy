@@ -1,6 +1,7 @@
 """Nested grouping model for RDFProxy testing."""
 
 from pydantic import BaseModel, Field
+
 from rdfproxy import ConfigDict
 
 

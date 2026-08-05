@@ -3,6 +3,7 @@
 from typing import Any, NamedTuple
 
 import pytest
+
 from rdfproxy.utils.models import QueryParameters
 
 
