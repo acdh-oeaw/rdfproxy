@@ -922,7 +922,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.2.3,<3" },
     { name = "pydantic", specifier = ">=2.9.2,<3" },
     { name = "rdflib", specifier = ">=7.3.0" },
-    { name = "sparqlx", specifier = ">=0.10.0" },
+    { name = "sparqlx", specifier = "==0.10.0" },
 ]
 
 [package.metadata.requires-dev]
