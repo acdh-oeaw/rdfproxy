@@ -1,6 +1,7 @@
 """Functionality for dynamic SPARQL query modifcation."""
 
 import re
+import threading
 from itertools import chain
 from typing import overload
 
@@ -9,6 +10,26 @@ from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue, ParseResults
 
 from rdfproxy.utils.exceptions import QueryConstructionException
+
+_parse_query_lock: threading.Lock = threading.Lock()
+
+
+def parse_query(query: str) -> CompValue:
+    """Parse a SPARQL query with RDFLib's parseQuery while holding a process-wide lock.
+
+    RDFLib's SPARQL grammar is a set of module-level pyparsing objects and pyparsing is not thread-safe:
+    pyparsing.core._trim_arity determines the arity of every parse action lazily on its first call
+    and caches the result in closure state shared across threads. Concurrent first calls can corrupt
+    that state, which permanently breaks the parser for the whole process,
+    e.g. with "TypeError: Param.postParse2() missing 1 required positional argument".
+
+    Note that parsing a string always invokes the same parse actions, so once a query has been
+    parsed here, parsing the same query again without the lock (e.g. in sparqlx) is safe.
+    """
+    with _parse_query_lock:
+        _, parse_object = parseQuery(query)
+
+    return parse_object
 
 
 def replace_query_select_clause(query: str, repl: str) -> str:
@@ -109,7 +130,7 @@ def get_query_projection(query: str) -> list[Variable]:
     The second case handles implicit/* binding projections.
     The third case handles implicit/* binding projections with VALUES.
     """
-    _parse_result: CompValue = parseQuery(query)[1]
+    _parse_result: CompValue = parse_query(query=query)
     parsed_query: dict = _compvalue_to_dict(_parse_result)
 
     match parsed_query:

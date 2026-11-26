@@ -15,6 +15,7 @@ from rdfproxy.utils.checkers.item_checker import check_item_model, check_key
 from rdfproxy.utils.checkers.model_checker import check_model
 from rdfproxy.utils.checkers.query_checker import check_query
 from rdfproxy.utils.models import Page, QueryParameters
+from rdfproxy.utils.sparql_utils import parse_query
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,10 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
         )
         item_query = query_constructor.get_item_query()
 
+        # sparqlx parses item_query again without a lock; parsing it under the lock first
+        # ensures sparqlx only invokes already initialized parse actions, see parse_query.
+        parse_query(query=item_query)
+
         item_query_bindings, *_ = self._sparqlwrapper.queries(item_query, convert=True)
         mapper = _ModelBindingsMapper(self._model, item_query_bindings)
 
@@ -89,6 +94,10 @@ class SPARQLModelAdapter(Generic[_TModelInstance]):
 
         count_query = query_constructor.get_count_query()
         items_query = query_constructor.get_items_query()
+
+        # see get_item
+        parse_query(query=items_query)
+        parse_query(query=count_query)
 
         items_query_bindings, count_query_bindings = self._sparqlwrapper.queries(
             items_query, count_query, convert=True

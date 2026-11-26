@@ -10,11 +10,11 @@ from pydantic import AnyUrl, BaseModel
 from pydantic import ConfigDict as PydanticConfigDict
 from rdflib import BNode, Literal, URIRef
 from rdflib.compat import long_type
-from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue
 from rdflib.xsd_datetime import Duration
 
 from rdfproxy.utils.exceptions import QueryParseException
+from rdfproxy.utils.sparql_utils import parse_query
 
 _TModelInstance = TypeVar("_TModelInstance", bound=BaseModel)
 
@@ -73,11 +73,10 @@ class ParsedSPARQL(Generic[_TQuery], UserString):
     @staticmethod
     def _get_parse_object(query: str) -> CompValue:
         try:
-            _parsed = parseQuery(query)
+            parse_object: CompValue = parse_query(query=query)
         except Exception as e:
             raise QueryParseException(e) from e
         else:
-            _, parse_object = _parsed
             return parse_object
 
 
